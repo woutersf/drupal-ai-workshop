@@ -18,6 +18,8 @@ services:
   mariadb:
     ports:
       - "3306:3306"
+    volumes:
+      - ./mariadb-init:/docker-entrypoint-initdb.d
   nginx:
     volumes:
     - ./codebase:/var/www/html
