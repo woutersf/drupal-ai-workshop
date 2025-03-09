@@ -1,30 +1,34 @@
-services:
-  php:
-#    image: wodby/drupal-cms:$DRUPAL_CMS_TAG
-    image: wodby/drupal:$DRUPAL_TAG
-    environment:
-      PHP_FPM_CLEAR_ENV: "no"
-    volumes:
-      - ./codebase:/var/www/html
+# services:
+#   php:
+# #    image: wodby/drupal-cms:$DRUPAL_CMS_TAG
+#     image: wodby/drupal:$DRUPAL_TAG
+#     environment:
+#       PHP_FPM_CLEAR_ENV: "no"
+#     volumes:
+#       - ./codebase:/var/www/html
 
-  crond:
-#    image: wodby/drupal-cms:$DRUPAL_CMS_TAG
-    image: wodby/drupal:$DRUPAL_TAG
-    environment:
-      PHP_FPM_CLEAR_ENV: "no"
-    volumes:
-      - ./codebase:/var/www/html
+#   crond:
+# #    image: wodby/drupal-cms:$DRUPAL_CMS_TAG
+#     image: wodby/drupal:$DRUPAL_TAG
+#     environment:
+#       PHP_FPM_CLEAR_ENV: "no"
+#     volumes:
+#       - ./codebase:/var/www/html
 
-  mariadb:
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./mariadb-init:/docker-entrypoint-initdb.d
-  nginx:
-    volumes:
-    - ./codebase:/var/www/html
+#   mariadb:
+#     ports:
+#       - "3306:3306"
+#     volumes:
+#       - ./mariadb-init:/docker-entrypoint-initdb.d
+#   nginx:
+#     volumes:
+#     - ./codebase:/var/www/html
 
-#  webgrind:
-#    volumes:
-#    - codebase:/mnt/codebase
+#   mailpit:
+#     ports:
+#       - "8025:8025"
+
+# #  webgrind:
+# #    volumes:
+# #    - codebase:/mnt/codebase
 

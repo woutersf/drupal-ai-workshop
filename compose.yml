@@ -9,6 +9,8 @@ services:
       MYSQL_USER: $DB_USER
       MYSQL_PASSWORD: $DB_PASSWORD
       MYSQL_TRANSACTION_ISOLATION: READ-COMMITTED
+    ports:
+      - "3306:3306"
     volumes:
       - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
 #      - /path/to/mariadb/data/on/host:/var/lib/mysql # Use bind mount
@@ -50,7 +52,7 @@ services:
     extra_hosts:
     - "host.docker.internal:host-gateway"
     volumes:
-    - ./:/var/www/html:cached
+      - ./codebase:/var/www/html
 ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/drupal/local#docker-for-mac
 #    - drupal:/var/www/html
 ## For XHProf and Xdebug profiler traces
@@ -64,7 +66,7 @@ services:
       CRONTAB: "0 * * * * drush -r /var/www/html/web cron"
     command: sudo -E crond -f -d 0
     volumes:
-    - ./:/var/www/html:cached
+      - ./codebase:/var/www/html
 ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/drupal/local#docker-for-mac
 #    - drupal:/var/www/html
 
@@ -81,7 +83,8 @@ services:
       NGINX_VHOST_PRESET: $NGINX_VHOST_PRESET
     #      NGINX_DRUPAL_FILE_PROXY_URL: http://example.com
     volumes:
-    - ./:/var/www/html:cached
+    - ./codebase:/var/www/html
+
 ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/drupal/local#docker-for-mac
 #    - drupal:/var/www/html
     ports:
@@ -90,6 +93,8 @@ services:
     - "traefik.http.routers.${PROJECT_NAME}_nginx.rule=Host(`${PROJECT_BASE_URL}`)"
 
   mailpit:
+    ports:
+      - "8025:8025"
     image: axllent/mailpit
     container_name: "${PROJECT_NAME}_mailpit"
     labels:
