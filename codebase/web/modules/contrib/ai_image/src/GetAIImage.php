@@ -51,6 +51,21 @@ class GetAIImage {
   protected $fileUrlGenerator;
 
   /**
+   * The provider plugin manager.
+   *
+   * @var \Drupal\ai\AiProviderPluginManager
+   */
+  protected $aiProviderManager;
+
+  /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+
+  /**
    * Constructs a GetAIImage object.
    *
    * @param \Drupal\Core\State\StateInterface $state

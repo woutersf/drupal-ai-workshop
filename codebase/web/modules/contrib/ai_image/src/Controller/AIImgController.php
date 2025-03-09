@@ -30,6 +30,13 @@ class AIImgController extends ControllerBase {
   protected $aiImageGenerator;
 
   /**
+   * The AI provider manager.
+   *
+   * @var \Drupal\ai\AiProviderPluginManager
+   */
+  protected $aiProviderManager;
+
+  /**
    * Constructs an AIImgController object.
    *
    * @param \Drupal\key\KeyRepositoryInterface $keyRepository
@@ -37,9 +44,10 @@ class AIImgController extends ControllerBase {
    * @param \Drupal\ai_image\GetAIImage $aiImageGenerator
    *   The AI image generator service.
    */
-  public function __construct(KeyRepositoryInterface $keyRepository, GetAIImage $aiImageGenerator) {
+  public function __construct(KeyRepositoryInterface $keyRepository, GetAIImage $aiImageGenerator, AiProviderPluginManager $aiProviderManager) {
     $this->keyRepository = $keyRepository;
     $this->aiImageGenerator = $aiImageGenerator;
+    $this->aiProviderManager = $aiProviderManager;
   }
 
   /**
@@ -48,7 +56,8 @@ class AIImgController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('key.repository'),
-      $container->get('ai_image.get_image')
+      $container->get('ai_image.get_image'),
+      $container->get('ai.provider'),
     );
   }
 

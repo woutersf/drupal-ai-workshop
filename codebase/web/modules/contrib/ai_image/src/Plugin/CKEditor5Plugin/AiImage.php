@@ -42,6 +42,7 @@ class AiImage extends CKEditor5PluginDefault implements CKEditor5PluginConfigura
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+
     $form['aiimage'] = [
       '#title' => $this->t('AI Image'),
       '#type' => 'details',
