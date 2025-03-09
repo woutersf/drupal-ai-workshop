@@ -1,0 +1,40 @@
+entity.ai_access_profile.collection:
+  path: '/admin/config/ai/ai-access-profile'
+  defaults:
+    _entity_list: 'ai_access_profile'
+    _title: 'AI Access Profile configuration'
+  requirements:
+    _permission: 'administer ai_access_profile'
+
+entity.ai_access_profile.add_form:
+  path: '/admin/config/ai/ai-access-profile/add'
+  defaults:
+    _entity_form: 'ai_access_profile.add'
+    _title: 'Add an AI Access Profile'
+  requirements:
+    _permission: 'administer ai_access_profile'
+
+entity.ai_access_profile.edit_form:
+  path: '/admin/config/ai/ai-access-profile/{ai_access_profile}'
+  defaults:
+    _entity_form: 'ai_access_profile.edit'
+    _title: 'Edit an AI Access Profile'
+  requirements:
+    _permission: 'administer ai_access_profile'
+
+entity.ai_access_profile.delete_form:
+  path: '/admin/config/ai/ai-access-profile/{ai_access_profile}/delete'
+  defaults:
+    _entity_form: 'ai_access_profile.delete'
+    _title: 'Delete an AI Access Profile'
+  requirements:
+    _permission: 'administer ai_access_profile'
+
+ai_api.openai_chat_endpoint:
+  path: '/v1/chat/completions'
+  defaults:
+    _controller: '\Drupal\ai_api\Controller\AiApiRoutes::chatCompletion'
+    _title: 'OpenAI Chat Endpoint'
+  requirements:
+    _method: 'POST'
+    _custom_access: '\Drupal\ai_api\Controller\AiApiRoutes::chatCompletionAccess'

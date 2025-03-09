@@ -1,0 +1,8 @@
+{
+  "name": "drupal/ai_api",
+  "description": "AI API accessible for the AI module for Drupal",
+  "type": "drupal-module",
+  "require": {
+    "drupal/ai": "^1.0.4"
+  }
+}

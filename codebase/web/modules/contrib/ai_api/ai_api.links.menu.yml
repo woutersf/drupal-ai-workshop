@@ -1,0 +1,5 @@
+entity.ai_access_profile.overview:
+  title: AI Access Profiles
+  parent: ai.admin_settings
+  description: 'List of AI Access Profiles to extend site functionality.'
+  route_name: entity.ai_access_profile.collection

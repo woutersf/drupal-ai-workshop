@@ -1,0 +1,14 @@
+ai_api.ai_access_profile.*:
+  type: config_entity
+  label: AI Access Profile
+  mapping:
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    uuid:
+      type: string
+    description:
+      type: string

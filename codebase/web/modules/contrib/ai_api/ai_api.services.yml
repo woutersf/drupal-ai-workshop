@@ -1,0 +1,7 @@
+services:
+  plugin.manager.ai_api_access_point:
+    class: Drupal\ai_api\PluginManager\AiApiAccessPointManager
+    parent: default_plugin_manager
+  ai_api.access_profile_router:
+    class: Drupal\ai_api\Service\AiAccessProfileRouter
+    arguments: ['@request_stack', '@cache.default', '@entity_type.manager']

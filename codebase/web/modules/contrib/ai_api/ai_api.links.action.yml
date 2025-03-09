@@ -1,0 +1,5 @@
+entity.ai_access_profile.add_form:
+  route_name: 'entity.ai_access_profile.add_form'
+  title: 'Add AI Access Profile'
+  appears_on:
+    - entity.ai_access_profile.collection

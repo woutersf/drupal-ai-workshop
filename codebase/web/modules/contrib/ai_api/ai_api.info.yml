@@ -1,0 +1,8 @@
+name: AI API
+description: This modules exposes the AI API in a generic way.
+package: AI Tools
+type: module
+core_version_requirement: ^10.2 || ^11
+
+dependencies:
+  - ai:ai
