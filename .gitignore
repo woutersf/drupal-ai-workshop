@@ -1,9 +1,9 @@
-.idea/
+it ad.idea/
 mariadb-init
 postgres-init
 mutagen.yml.lock
 .vscode
-codebase/web/
-codebase/vendor/
+#codebase/web/
+#codebase/vendor/
 codebase/.editorconfig
 codebase/.gitattributes
