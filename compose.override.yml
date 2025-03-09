@@ -1,7 +1,7 @@
 services:
   php:
-    image: wodby/drupal-cms:$DRUPAL_CMS_TAG
-#    image: wodby/drupal:$DRUPAL_TAG
+#    image: wodby/drupal-cms:$DRUPAL_CMS_TAG
+    image: wodby/drupal:$DRUPAL_TAG
     environment:
       PHP_FPM_CLEAR_ENV: "no"
     volumes:
