@@ -7,7 +7,7 @@ tasks:
 
 
 ports:
-  - port: 88
+  - port: 80
     name: Drupal
     onOpen: open-browser
     visibility: public
@@ -17,7 +17,7 @@ ports:
     onOpen: open-browser
     visibility: private
 
-  - port: 83
-    name: Mailhog
+  - port: 8025
+    name: Mailpit
     onOpen: open-browser
     visibility: private

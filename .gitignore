@@ -3,3 +3,7 @@ mariadb-init
 postgres-init
 mutagen.yml.lock
 .vscode
+codebase/web/
+codebase/vendor/
+codebase/.editorconfig
+codebase/.gitattributes
