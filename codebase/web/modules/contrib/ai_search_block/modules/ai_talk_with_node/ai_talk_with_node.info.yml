@@ -1,0 +1,9 @@
+name: 'AI talk with Node Block'
+type: module
+description: 'Provides a  talk with node block.'
+package: AI
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:block
+  - drupal:config
+  - drupal:ai

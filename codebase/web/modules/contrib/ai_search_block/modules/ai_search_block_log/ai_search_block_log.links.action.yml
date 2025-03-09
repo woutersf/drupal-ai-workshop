@@ -1,0 +1,5 @@
+ai_search_block_log.add_form:
+  title: 'Add ai search block log'
+  route_name: entity.ai_search_block_log.add_form
+  appears_on:
+    - entity.ai_search_block_log.collection

@@ -1,0 +1,6 @@
+ai_search_block_log_js:
+  version: 1.x
+  js:
+    js/ai_search_block_log.js: {}
+  dependencies:
+    - core/jquery

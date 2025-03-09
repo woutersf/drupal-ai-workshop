@@ -1,0 +1,10 @@
+entity.ai_search_block_log.edit_form:
+  route_name: entity.ai_search_block_log.edit_form
+  group: ai_search_block_log
+  title: 'Edit'
+
+entity.ai_search_block_log.delete_form:
+  route_name: entity.ai_search_block_log.delete_form
+  group: ai_search_block_log
+  title: 'Delete'
+  weight: 10

@@ -3,7 +3,7 @@
         'name' => 'drupal/openaitestproject',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'de87621b6a6a3abace47cf20848e54fb7795b12a',
+        'reference' => 'e83d933dc6dd8894149e3b76553041e1bb97e869',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -485,7 +485,7 @@
         'drupal/openaitestproject' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'de87621b6a6a3abace47cf20848e54fb7795b12a',
+            'reference' => 'e83d933dc6dd8894149e3b76553041e1bb97e869',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

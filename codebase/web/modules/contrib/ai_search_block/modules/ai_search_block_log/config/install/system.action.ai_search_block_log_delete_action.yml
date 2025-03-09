@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_search_block_log
+id: ai_search_block_log_delete_action
+label: 'Delete ai search block logs'
+type: ai_search_block_log
+plugin: entity:delete_action:ai_search_block_log
+configuration: {  }

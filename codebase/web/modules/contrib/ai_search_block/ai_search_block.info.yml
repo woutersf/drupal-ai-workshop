@@ -1,0 +1,10 @@
+name: AI Search Block
+machine_name: ai_search_block
+type: module
+description: Provides a block for AI search functionality.
+core_version_requirement: ^10.2 || ^11
+package: AI (Experimental)
+dependencies:
+  - ai:ai
+  - search_api:search_api
+  - ai:ai_search

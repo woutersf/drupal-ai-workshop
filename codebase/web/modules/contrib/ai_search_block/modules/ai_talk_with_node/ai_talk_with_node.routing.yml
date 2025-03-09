@@ -1,0 +1,7 @@
+ai_talk_with_node.api:
+  path: '/ai-talk-with-node/query'
+  defaults:
+    _controller: '\Drupal\ai_talk_with_node\Controller\AiTalkWithNodeController::search'
+    _title: 'Hello World'
+  requirements:
+    _permission: 'access content'

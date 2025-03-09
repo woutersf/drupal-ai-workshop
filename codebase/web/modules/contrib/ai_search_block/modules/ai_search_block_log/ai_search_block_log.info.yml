@@ -1,0 +1,8 @@
+name: AI Search Block Log
+machine_name: ai_search_block_log
+type: module
+description: Provides logging for the AI search block.
+core_version_requirement: ^10.2 || ^11
+package: AI (Experimental)
+dependencies:
+  - ai:ai_search_block

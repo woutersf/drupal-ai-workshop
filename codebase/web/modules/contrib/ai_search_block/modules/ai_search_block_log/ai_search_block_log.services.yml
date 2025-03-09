@@ -1,0 +1,5 @@
+services:
+  ai_search_block_log.helper:
+    class: Drupal\ai_search_block_log\AiSearchBlockLogHelper
+    arguments: []
+    autowire: true

@@ -1,0 +1,23 @@
+{
+    "name": "drupal/ai_search_block",
+    "description": "The AI Search block gives you ai powered search with just configuration and no code.",
+    "type": "drupal-module",
+    "homepage": "http://drupal.org/project/ai_search_block",
+    "authors": [{
+        "name": "Wouters Frederik",
+        "email": "woutersf@gmail.com",
+        "homepage": "https://www.drupal.org/u/wouters_f",
+        "role": "Maintainer"
+    }],
+    "support": {
+        "issues": "https://drupal.org/project/ai_search_block",
+        "source": "https://git.drupalcode.org/project/ai_search_block"
+    },
+    "require": {
+        "drupal/ai": "^1",
+        "league/html-to-markdown": "^5.1",
+        "league/commonmark": "^2.6"
+    },
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev"
+}

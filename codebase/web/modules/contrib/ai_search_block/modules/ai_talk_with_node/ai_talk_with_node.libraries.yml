@@ -1,0 +1,12 @@
+ai_talk_with_node:
+  version: 1.x
+  css:
+    theme:
+      css/ai_talk_with_node.css: {}
+  js:
+    js/ai_talk_with_node.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/once

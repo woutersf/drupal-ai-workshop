@@ -1,0 +1,121 @@
+/* css/ai_search_block.css */
+#ai-talk-block form .ai-talk-form-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: center;
+  /*background-color: #f9f9f9;*/
+  border: 10px solid #3b3b3b;
+  border-radius: 5px;
+  padding: 5px;
+  font-family: Arial, sans-serif;
+}
+
+#ai-talk-block form .ai-talk-form-wrapper div,
+#ai-talk-block form .ai-talk-form-wrapper input {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+  margin: 0px;
+}
+
+#ai-talk-block #edit-query {
+  flex-grow: 5;
+  border-radius: 0px;
+  border: 0px;
+}
+
+/*#ai-talk-block form .ai-talk-form-wrapper input*/
+#ai-talk-block #edit-submit {
+  flex-grow: 0;
+  flex: 0;
+  border-radius: 0px;
+}
+
+#ai-talk-with-node-response .suffix_text {
+  background-color: #f9f9f9;
+  padding: 5px;
+  font-size: smaller;
+  text-align: center;
+}
+
+#ai-talk-with-node-response .ai-talk-with-node-output {
+  padding: 1em;
+}
+
+#ai-talk-with-node-response .ai-talk-with-node-output p {
+  border-radius: 5px;
+  padding:1em;
+  background-color:#efefef;
+}
+
+#ai-talk-with-node-response .loading_text {
+  text-align: center;
+}
+
+.loader {
+  width: 25px;
+  height: 25px;
+  background: #000;
+  display: inline-block;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: animloader 1s ease-in infinite;
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* CSS */
+#ai-talk-block #edit-submit {
+  appearance: none;
+  background-color: transparent;
+  border: 2px solid #1a1a1a;
+  /*border-radius: 15px;*/
+  box-sizing: border-box;
+  color: #3b3b3b;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+  min-height: 60px;
+  /*min-width: 0;*/
+  outline: none;
+  padding: 16px 24px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  /*width: 100%;*/
+  will-change: transform;
+}
+
+#ai-talk-block #edit-submit:disabled {
+  pointer-events: none;
+}
+
+#ai-talk-block #edit-submit:hover {
+  color: #fff;
+  background-color: #1a1a1a;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+  transform: translateY(-2px);
+}
+
+#ai-talk-block #edit-submit:active {
+  box-shadow: none;
+  transform: translateY(0);
+}

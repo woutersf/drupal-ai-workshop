@@ -1,0 +1,7 @@
+ai_search_block.api:
+  path: '/ai-search-block/query'
+  defaults:
+    _controller: '\Drupal\ai_search_block\Controller\AiSearchBlockController::search'
+    _title: 'Hello World'
+  requirements:
+    _permission: 'access content'

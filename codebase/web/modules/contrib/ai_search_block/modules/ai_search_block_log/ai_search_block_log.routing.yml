@@ -1,0 +1,23 @@
+ai_search_block_log.settings.menu:
+  path: '/admin/config/ai/ai_search_block_log'
+  defaults:
+    _title: 'Ai Search Block logging'
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+  requirements:
+    _permission: 'access administration pages'
+
+entity.ai_search_block_log.settings:
+  path: '/admin/config/ai/ai_search_block_log/config'
+  defaults:
+    _form: '\Drupal\ai_search_block_log\Form\AISearchBlockLogSettingsForm'
+    _title: 'AI Search Block Log'
+  requirements:
+    _permission: 'administer ai_search_block_log'
+
+ai_search_block.score:
+  path: '/ai-search-block-log/score'
+  defaults:
+    _controller: '\Drupal\ai_search_block_log\Controller\AiSearchBlockLogController::score'
+    _title: 'Score'
+  requirements:
+    _permission: 'access content'

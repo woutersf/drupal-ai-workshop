@@ -1,0 +1,3 @@
+administer ai_search_block_log:
+  title: 'Administer ai search block logs'
+  restrict access: true
