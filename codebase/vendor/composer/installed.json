@@ -1486,59 +1486,6 @@
             "install-path": "../../web/modules/contrib/ai"
         },
         {
-            "name": "drupal/ai_api",
-            "version": "dev-1.0.x",
-            "version_normalized": "dev-1.0.x",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/ai_api.git",
-                "reference": "35f7368f0458b11004cda1794c4e23c848537ff8"
-            },
-            "require": {
-                "drupal/ai": "^1.0.4",
-                "drupal/core": "^10.2 || ^11"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "branch-alias": {
-                    "dev-1.0.x": "1.0.x-dev"
-                },
-                "drupal": {
-                    "version": "1.0.x-dev",
-                    "datestamp": "1739133674",
-                    "security-coverage": {
-                        "status": "not-covered",
-                        "message": "Project has not opted into security advisory coverage!"
-                    }
-                }
-            },
-            "installation-source": "source",
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "danrod",
-                    "homepage": "https://www.drupal.org/user/19150"
-                },
-                {
-                    "name": "marcus_johansson",
-                    "homepage": "https://www.drupal.org/user/385947"
-                },
-                {
-                    "name": "wouters_f",
-                    "homepage": "https://www.drupal.org/user/721548"
-                }
-            ],
-            "description": "AI API accessible for the AI module for Drupal",
-            "homepage": "https://www.drupal.org/project/ai_api",
-            "support": {
-                "source": "https://git.drupalcode.org/project/ai_api"
-            },
-            "install-path": "../../web/modules/contrib/ai_api"
-        },
-        {
             "name": "drupal/ai_block",
             "version": "1.0.0",
             "version_normalized": "1.0.0.0",
