@@ -1633,6 +1633,70 @@
             "install-path": "../../web/modules/contrib/ai_image"
         },
         {
+            "name": "drupal/ai_image_alt_text",
+            "version": "1.0.1",
+            "version_normalized": "1.0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/ai_image_alt_text.git",
+                "reference": "1.0.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/ai_image_alt_text-1.0.1.zip",
+                "reference": "1.0.1",
+                "shasum": "8fc44919418381ab34e79334df74ee81afd2c299"
+            },
+            "require": {
+                "drupal/ai": "^1.0.0",
+                "drupal/core": "^10.2 || ^11"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "1.0.1",
+                    "datestamp": "1738761806",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "DXPR",
+                    "homepage": "https://dxpr.com",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "jurriaanroelofs",
+                    "homepage": "https://www.drupal.org/user/52638"
+                },
+                {
+                    "name": "marcus_johansson",
+                    "homepage": "https://www.drupal.org/user/385947"
+                },
+                {
+                    "name": "yautja_cetanu",
+                    "homepage": "https://www.drupal.org/user/626050"
+                }
+            ],
+            "description": "Allows the possibility to set an alt text using AI.",
+            "homepage": "https://www.drupal.org/project/ai_image_alt_text",
+            "keywords": [
+                "Drupal"
+            ],
+            "support": {
+                "source": "https://git.drupalcode.org/project/ai_image_alt_text"
+            },
+            "install-path": "../../web/modules/contrib/ai_image_alt_text"
+        },
+        {
             "name": "drupal/ai_provider_mistral",
             "version": "1.0.0-beta1",
             "version_normalized": "1.0.0.0-beta1",
@@ -1701,6 +1765,76 @@
                 "source": "https://git.drupalcode.org/project/ai_provider_mistral"
             },
             "install-path": "../../web/modules/contrib/ai_provider_mistral"
+        },
+        {
+            "name": "drupal/ai_provider_openai",
+            "version": "1.0.2",
+            "version_normalized": "1.0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/ai_provider_openai.git",
+                "reference": "1.0.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/ai_provider_openai-1.0.2.zip",
+                "reference": "1.0.2",
+                "shasum": "1942f27fd2cac935e5a5cc34c466a7e9bb51b632"
+            },
+            "require": {
+                "drupal/ai": "^1.0.4",
+                "drupal/core": "^10.3 || ^11",
+                "drupal/key": "^1.18",
+                "openai-php/client": ">=v0.10.1"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "1.0.2",
+                    "datestamp": "1738761667",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "kevinquillen",
+                    "homepage": "https://www.drupal.org/user/317279"
+                },
+                {
+                    "name": "marcus_johansson",
+                    "homepage": "https://www.drupal.org/user/385947"
+                },
+                {
+                    "name": "scott_euser",
+                    "homepage": "https://www.drupal.org/user/3267594"
+                },
+                {
+                    "name": "seogow",
+                    "homepage": "https://www.drupal.org/user/3065779"
+                },
+                {
+                    "name": "wouters_f",
+                    "homepage": "https://www.drupal.org/user/721548"
+                },
+                {
+                    "name": "yautja_cetanu",
+                    "homepage": "https://www.drupal.org/user/626050"
+                }
+            ],
+            "description": "OpenAI provider implementation for the AI module for Drupal",
+            "homepage": "https://www.drupal.org/project/ai_provider_openai",
+            "support": {
+                "source": "https://git.drupalcode.org/project/ai_provider_openai"
+            },
+            "install-path": "../../web/modules/contrib/ai_provider_openai"
         },
         {
             "name": "drupal/ai_search",
@@ -2507,6 +2641,60 @@
                 "source": "https://git.drupalcode.org/project/eca"
             },
             "install-path": null
+        },
+        {
+            "name": "drupal/fireworksai",
+            "version": "1.0.0-rc5",
+            "version_normalized": "1.0.0.0-RC5",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/fireworksai.git",
+                "reference": "1.0.0-rc5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/fireworksai-1.0.0-rc5.zip",
+                "reference": "1.0.0-rc5",
+                "shasum": "2f072d8c4d1e02801cefd8b4ebbef9bf9ab6417a"
+            },
+            "require": {
+                "drupal/ai": "^1.0.0-beta1",
+                "drupal/core": "^10.2 || ^11",
+                "drupal/key": "^1.18"
+            },
+            "require-dev": {
+                "drupal/ai_interpolator": "^1.0.0-rc4",
+                "drupal/search_api_ai": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "1.0.0-rc5",
+                    "datestamp": "1730208765",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "RC releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Marcus Johansson",
+                    "homepage": "https://www.drupal.org/user/385947",
+                    "email": "me@marcusmailbox.com"
+                }
+            ],
+            "description": "Fireworks AI",
+            "homepage": "https://www.drupal.org/project/fireworksai",
+            "support": {
+                "source": "https://git.drupalcode.org/project/fireworksai"
+            },
+            "install-path": "../../web/modules/contrib/fireworksai"
         },
         {
             "name": "drupal/key",

@@ -1,0 +1,7 @@
+provider_openai.settings:
+  type: mapping
+  label: 'Fireworks AI Settings'
+  mapping:
+    api_key:
+      type: string
+      label: 'The API key for Fireworks via Key module'

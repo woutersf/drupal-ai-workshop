@@ -1,0 +1,5 @@
+formSettings:
+  js:
+    js/formSettings.js: {}
+  dependencies:
+    - core/jquery

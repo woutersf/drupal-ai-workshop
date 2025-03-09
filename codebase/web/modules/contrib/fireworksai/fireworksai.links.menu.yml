@@ -1,0 +1,5 @@
+fireworksai.settings_menu:
+  title: "Fireworks AI Config"
+  description: "Setup Fireworks AI"
+  route_name: fireworksai.settings
+  parent: ai.admin_providers

@@ -1,0 +1,4 @@
+services:
+  fireworksai.api:
+    class: Drupal\fireworksai\FireworksaiApi
+    arguments: ['@http_client', '@config.factory']

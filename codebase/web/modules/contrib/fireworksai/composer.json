@@ -1,0 +1,15 @@
+{
+  "name": "drupal/fireworksai",
+  "description": "Fireworks AI",
+  "type": "drupal-module",
+  "require": {
+    "drupal/ai": "^1.0.0-beta1",
+    "drupal/key": "^1.18"
+  },
+  "authors": [
+    {
+      "name": "Marcus Johansson",
+      "email": "me@marcusmailbox.com"
+    }
+  ]
+}

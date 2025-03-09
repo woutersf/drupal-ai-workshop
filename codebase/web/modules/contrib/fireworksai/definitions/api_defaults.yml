@@ -1,0 +1,161 @@
+chat:
+  input:
+    description: 'Input provided to the model.'
+    type: 'array'
+    default:
+      - { role: "system", content: "You are a helpful assistant." }
+      - { role: "user", content: "Introduce yourself!" }
+    required: true
+  authentication:
+    description: 'Fireworks API Key.'
+    type: 'string'
+    default: ''
+    required: true
+  configuration:
+    max_tokens:
+      label: 'Max Tokens'
+      description: 'The maximum number of tokens that can be generated in the chat completion.'
+      type: 'integer'
+      default: 400
+      required: false
+    prompt_trunate_len:
+      label: 'Prompt Truncate Length'
+      description: 'The maximum number of tokens to use as a prompt for the model.'
+      type: 'integer'
+      default: 1500
+      required: false
+    temperature:
+      label: 'Temperature'
+      description: 'Sampling temperature 0-2. Higher values mean more random output.'
+      type: 'float'
+      default: 1
+      required: false
+      constraints:
+        min: 0
+        max: 2
+        step: 0.1
+    top_p:
+      label: 'Top P'
+      description: 'An alternative to sampling with temperature, called nucleus sampling.'
+      type: 'float'
+      default: 1
+      required: false
+      constraints:
+        min: 0
+        max: 1
+        step: 0.1
+    top_k:
+      label: 'Top K'
+      description: 'An alternative to sampling with most probable next tokens are filtered and the probability mass is redistributed among only those k next tokens.'
+      type: 'float'
+      default: 1
+      required: false
+      constraints:
+        min: 0
+        max: 1
+        step: 0.1
+    frequency_penalty:
+      label: 'Frequency Penalty'
+      description: 'Number between -2.0 and 2.0. Positive values penalize new tokens based on existing frequency in the text so far.'
+      type: 'integer'
+      default: 0
+      required: false
+      constraints:
+        min: -2
+        max: 2
+        step: 0.1
+    presence_penalty:
+      label: 'Presence Penalty'
+      description: 'Number between -2.0 and 2.0. Positive values penalize new tokens on whether they appear in the text so far.'
+      type: 'integer'
+      default: 0
+      required: false
+      constraints:
+        min: -2
+        max: 2
+        step: 0.1
+text_to_image:
+  input:
+    description: 'Image generation prompt.'
+    type: 'string'
+    default: 'A beautiful sunset over the city.'
+    required: true
+  authentication:
+    description: 'Fireworks AI API Key.'
+    type: 'string'
+    default: ''
+    required: true
+  configuration:
+    negative_prompts:
+      label: 'Negative Prompt'
+      description: 'The negative prompts to use for the image generation.'
+      type: 'string'
+      required: false
+    accept:
+      label: 'Accept'
+      description: 'The format in which the generated images are returned.'
+      type: 'string'
+      default: 'image/png'
+      required: false
+      constraints:
+        options:
+          - image/jpeg
+          - image/png
+    image_size:
+      label: 'Image Size'
+      description: 'The size of the images that will be generated.'
+      type: 'string'
+      default: '1024x1024'
+      required: false
+      constraints:
+        options:
+          - '640x1536'
+          - '768x1344'
+          - '832x1216'
+          - '896x1152'
+          - '1024x1024'
+          - '1152x896'
+          - '1216x832'
+          - '1344x768'
+          - '1536x640'
+    cfg_scale:
+      label: 'Cfg Scale'
+      description: 'The Cfg scale of the image.'
+      type: 'integer'
+      default: 7
+      required: false
+      constraints:
+        min: 0
+        max: 100
+    seed:
+      label: 'Seed'
+      description: 'The seed for the random number generator.'
+      type: 'integer'
+      default: 0
+      required: false
+    steps:
+      label: 'Steps'
+      description: 'The number of steps to run the model.'
+      type: 'integer'
+      default: 30
+      required: false
+      constraints:
+        min: 0
+        max: 100
+embeddings:
+  input:
+    description: 'Textual representation of the speech.'
+    type: 'string'
+    default: 'Once upon a time in London.'
+    required: true
+  authentication:
+    description: 'Fireworks AI API Key.'
+    type: 'string'
+    default: ''
+    required: true
+  configuration:
+    dimensions:
+      label: 'Vector Dimension'
+      type: 'integer'
+      default: 768
+      required: false

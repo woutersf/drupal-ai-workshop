@@ -1,0 +1,7 @@
+fireworksai.settings:
+  path: '/admin/config/fireworksai/settings'
+  defaults:
+    _form: '\Drupal\fireworksai\Form\FireworksaiConfigForm'
+    _title: 'Setup Fireworks AI Settings'
+  requirements:
+    _permission: 'administer site configuration'
