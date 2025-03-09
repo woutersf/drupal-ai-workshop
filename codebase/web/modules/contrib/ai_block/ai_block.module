@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Module file for AI Block.
+ */
+
+
+/**
+ * Implements hook_theme().
+ */
+function ai_block_theme() {
+  return [
+    'ai_block_response' => [
+      'variables' => [
+        'output' => NULL,
+      ],
+    ],
+  ];
+}

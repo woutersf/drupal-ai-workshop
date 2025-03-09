@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for CMSAIImg module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+
+/**
+ * Implements hook_help().
+ */
+function ai_image_help($route_name, RouteMatchInterface $route_match) {
+  if ($route_name === 'help.page.ai_image') {
+    $readme_content = file_get_contents(dirname(__FILE__) . '/README.md');
+    if (\Drupal::moduleHandler()->moduleExists('markdown')) {
+      // Use the Markdown filter to render the README.
+      $filter_manager = \Drupal::service('plugin.manager.filter');
+      $markdown_config = \Drupal::configFactory()->get('markdown.settings')->getRawData();
+      $markdown_settings = ['settings' => $markdown_config];
+      $filter = $filter_manager->createInstance('markdown', $markdown_settings);
+
+      return $filter->process($readme_content, 'en');
+    }
+    else {
+      return '<pre>' . $readme_content . '</pre>';
+    }
+  }
+}
+
+
+/**
+ * Implements  hook_page_attachments().
+ */
+function ai_image_page_attachments(&$variables) {
+  $variables['#attached']['library'][] = 'cmsaiimg/cmsaiimg';
+}
+
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function ai_image_library_info_alter(&$libraries, $extension) {
+  if ($extension === 'ckeditor5' && isset($libraries['internal.drupal.ckeditor5'])) {
+    $libraries['internal.drupal.ckeditor5']['dependencies'][] = 'ckeditor5_dev/ckeditor5_dev';
+  }
+  // @todo Remove when Drupal 9.4 is no longer supported.
+  // @see https://www.drupal.org/project/drupal/issues/3307186
+  if ($extension === 'ckeditor5' && isset($libraries['drupal.ckeditor5'])) {
+    $libraries['drupal.ckeditor5']['dependencies'][] = 'ckeditor5_dev/ckeditor5_dev';
+  }
+}

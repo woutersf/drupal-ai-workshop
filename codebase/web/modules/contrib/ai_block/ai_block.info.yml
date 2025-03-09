@@ -1,0 +1,14 @@
+name: 'AI Block'
+type: module
+description: 'Provides a  block with simple AI features.'
+package: AI
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:block
+  - drupal:config
+  - drupal:ai
+
+# Information added by Drupal.org packaging script on 2025-02-06
+version: '1.0.0'
+project: 'ai_block'
+datestamp: 1738878950

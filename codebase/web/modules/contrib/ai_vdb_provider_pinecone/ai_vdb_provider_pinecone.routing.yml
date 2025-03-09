@@ -1,0 +1,7 @@
+ai_vdb_provider_pinecone.settings_form:
+  path: '/admin/config/ai/vdb_providers/pinecone'
+  defaults:
+    _form: '\Drupal\ai_vdb_provider_pinecone\Form\PineconeConfigForm'
+    _title: 'Configure Pinecone'
+  requirements:
+    _permission: 'administer ai providers'

@@ -1,0 +1,19 @@
+# Custom module library for general purposes.
+ai_image:
+  css:
+    theme:
+      global-styling/cmsaiimg.css: {}
+  dependencies:
+    - core/drupalSettings
+
+ai_image.plugin:
+  js:
+    js/build/aiimgPlugin.js: { preprocess: false, minified: true }
+  dependencies:
+    - core/ckeditor5
+
+
+ai_image.plugin.admin:
+  css:
+    theme:
+      css/ai_image.plugin.admin.css: { }

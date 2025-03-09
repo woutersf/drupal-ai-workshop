@@ -1,0 +1,16 @@
+ai_vdb_provider_pinecone.settings:
+  type: mapping
+  label: 'Pinecone Settings'
+  mapping:
+    api_key:
+      type: string
+      label: 'API Key'
+    hostname:
+      type: string
+      label: 'Hostname'
+    region:
+      type: integer
+      label: 'Region'
+    cloud_provider:
+      type: integer
+      label: 'Cloud Provider'

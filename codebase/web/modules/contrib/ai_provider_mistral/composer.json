@@ -1,0 +1,10 @@
+{
+  "name": "drupal/ai_provider_mistral",
+  "description": "Mistral provider implementation for the AI module for Drupal",
+  "type": "drupal-module",
+  "require": {
+    "drupal/ai": "^1.0.0-beta1",
+    "drupal/key": "^1.18",
+    "openai-php/client": ">=v0.10.1"
+  }
+}

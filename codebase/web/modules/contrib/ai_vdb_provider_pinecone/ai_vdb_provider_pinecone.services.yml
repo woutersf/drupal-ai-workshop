@@ -1,0 +1,4 @@
+services:
+  pinecone.api:
+    class: Drupal\ai_vdb_provider_pinecone\Pinecone
+    arguments: ['@cache.default', '@messenger', '@logger.factory']

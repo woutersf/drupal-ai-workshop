@@ -1,0 +1,10 @@
+services:
+  ai_image.get_image:
+    class: Drupal\ai_image\GetAIImage
+    arguments:
+      - '@state'
+      - '@logger.factory'
+      - '@file_system'
+      - '@file.repository'
+      - '@file_url_generator'  
+

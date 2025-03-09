@@ -1,0 +1,4 @@
+services:
+  ai_provider_mistral.api:
+    class: Drupal\ai_provider_mistral\MistralClient
+    arguments: ['@http_client']

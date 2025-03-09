@@ -1,0 +1,7 @@
+ai_image.settings_form:
+  title: Generate AI Images
+  description: Generate AI Images
+  parent: system.admin_content
+  route_name: ai_image
+  weight: 10
+

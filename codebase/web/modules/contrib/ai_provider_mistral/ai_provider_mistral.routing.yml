@@ -1,0 +1,8 @@
+ai_provider_mistral.settings_form:
+  path: '/admin/config/ai/providers/mistral'
+  defaults:
+    _form: '\Drupal\ai_provider_mistral\Form\MistralConfigForm'
+    _title: 'Setup Mistral AI Authentication'
+  requirements:
+    _permission: 'administer ai providers'
+

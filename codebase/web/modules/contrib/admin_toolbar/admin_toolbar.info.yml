@@ -1,0 +1,13 @@
+name: Admin Toolbar
+description: Provides an improved drop-down menu interface to the site Toolbar.
+package: Administration
+type: module
+configure: admin_toolbar.settings
+core_version_requirement: ^9.5 || ^10 || ^11
+dependencies:
+  - drupal:toolbar
+
+# Information added by Drupal.org packaging script on 2025-02-21
+version: '3.5.3'
+project: 'admin_toolbar'
+datestamp: 1740156801

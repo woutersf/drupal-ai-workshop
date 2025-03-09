@@ -1,0 +1,79 @@
+{
+    "name": "saloonphp/saloon",
+    "description": "Build beautiful API integrations and SDKs with Saloon",
+    "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "sammyjo20",
+        "saloon",
+        "sdk",
+        "api",
+        "api-integrations"
+    ],
+    "authors": [
+        {
+            "name": "Sam Carré",
+            "email": "29132017+Sammyjo20@users.noreply.github.com",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/saloonphp/saloon",
+    "require": {
+        "php": "^8.1",
+        "guzzlehttp/guzzle": "^7.6",
+        "guzzlehttp/promises": "^1.5 || ^2.0",
+        "guzzlehttp/psr7": "^2.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0"
+    },
+    "require-dev": {
+        "ext-simplexml": "*",
+        "friendsofphp/php-cs-fixer": "^3.5",
+        "illuminate/collections": "^9.39 || ^10.0",
+        "league/flysystem": "^3.0",
+        "pestphp/pest": "^2.10",
+        "phpstan/phpstan": "^1.11.4",
+        "saloonphp/xml-wrangler": "^1.1",
+        "spatie/ray": "^1.33",
+        "symfony/dom-crawler": "^6.0 || ^7.0",
+        "symfony/var-dumper": "^6.3 || ^7.0"
+    },
+    "conflict": {
+        "sammyjo20/saloon": "*"
+    },
+    "suggest": {
+        "illuminate/collections": "Required for the response collect() method.",
+        "symfony/dom-crawler": "Required for the response dom() method.",
+        "saloonphp/xml-wrangler": "Required for the response xmlReader() method.",
+        "symfony/var-dumper": "Required for default debugging drivers."
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Saloon\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Saloon\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "fix-code": [
+            "./vendor/bin/php-cs-fixer fix --allow-risky=yes"
+        ],
+        "test": [
+            "./vendor/bin/pest -p"
+        ],
+        "pstan": [
+            "./vendor/bin/phpstan analyse"
+        ]
+    }
+}

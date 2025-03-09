@@ -1,0 +1,14 @@
+ai_image_aiimg:
+  ckeditor5:
+    plugins:
+      - aiimgPlugin.AiImg
+  drupal:
+    label: AI Image
+    library: ai_image/ai_image.plugin
+    admin_library: ai_image/ai_image.plugin.admin
+    toolbar_items:
+      aiImg:
+        label: AI Image
+    elements: false
+    class: Drupal\ai_image\Plugin\CKEditor5Plugin\AiImage
+
