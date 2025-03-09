@@ -1,0 +1,9 @@
+services:
+  plugin.manager.backup_migrate_source:
+    class: Drupal\backup_migrate\Drupal\EntityPlugins\SourcePluginManager
+    parent: default_plugin_manager
+  plugin.manager.backup_migrate_destination:
+    class: Drupal\backup_migrate\Drupal\EntityPlugins\DestinationPluginManager
+    parent: default_plugin_manager
+  backup_migrate.mailer:
+    class: Drupal\backup_migrate\Core\Service\Mailer

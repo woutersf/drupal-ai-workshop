@@ -1,0 +1,6 @@
+services:
+  backup_migrate.commands:
+    class: \Drupal\backup_migrate\Commands\BackupMigrateCommands
+    tags:
+      - { name: drush.command }
+    arguments: ['@entity_type.manager']

@@ -3,7 +3,7 @@
         'name' => 'drupal/openaitestproject',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'cf02b2c58a94fea77d39e56a400126662cd6b627',
+        'reference' => 'f38ffcfe7db143761a8b7488c8e93d6771baac01',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -266,6 +266,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'drupal/backup_migrate' => array(
+            'pretty_version' => '5.1.0',
+            'version' => '5.1.0.0',
+            'reference' => '5.1.0',
+            'type' => 'drupal-module',
+            'install_path' => __DIR__ . '/../../web/modules/contrib/backup_migrate',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'drupal/core' => array(
             'pretty_version' => '10.4.4',
             'version' => '10.4.4.0',
@@ -485,7 +494,7 @@
         'drupal/openaitestproject' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'cf02b2c58a94fea77d39e56a400126662cd6b627',
+            'reference' => 'f38ffcfe7db143761a8b7488c8e93d6771baac01',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

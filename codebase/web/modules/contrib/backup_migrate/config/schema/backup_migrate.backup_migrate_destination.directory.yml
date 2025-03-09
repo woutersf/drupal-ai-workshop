@@ -1,0 +1,10 @@
+backup_migrate.backup_migrate_destination.Directory:
+  type: mapping
+  label: 'Backup Migrate Directory Settings'
+  mapping:
+    name:
+      type: string
+      label: 'Name'
+    directory:
+      type: string
+      label: 'Directory'

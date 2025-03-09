@@ -1,0 +1,19 @@
+backup_migrate.backup_migrate_source.MySQL:
+  type: mapping
+  label: 'Backup Migrate MySQL Settings'
+  mapping:
+    host:
+      type: string
+      label: 'Host'
+    database:
+      type: string
+      label: 'Database'
+    username:
+      type: string
+      label: 'Username'
+    password:
+      type: string
+      label: 'Password'
+    port:
+      type: integer
+      label: 'Port'

@@ -1,0 +1,7 @@
+backup_migrate.backup_migrate_source.DefaultDB:
+  type: mapping
+  label: 'Backup Migrate DefaultDB Settings'
+  mapping:
+    name:
+      type: string
+      label: 'Name'

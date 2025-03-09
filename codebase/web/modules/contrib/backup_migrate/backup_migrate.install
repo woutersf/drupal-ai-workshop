@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Update hooks for Backup and Migrate.
+ */
+
+declare(strict_types=1);
+
+use Drupal\backup_migrate\Entity\Schedule;
+
+/**
+ * Migrate last_run information from raw KeyValue to State API.
+ */
+function backup_migrate_update_50001() {
+  // Legacy KV name format.
+  $kv = \Drupal::keyValue('backup_migrate_schedule:last_run');
+
+  $schedules = Schedule::loadMultiple();
+  /** @var \Drupal\backup_migrate\Entity\Schedule $schedule */
+  foreach ($schedules as $schedule) {
+    $id = $schedule->id();
+    $last = (int) $kv->get($id);
+    $kv->delete($id);
+    $schedule->setLastRun($last);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function backup_migrate_uninstall($is_syncing) {
+  $schedules = Schedule::loadMultiple();
+  /** @var \Drupal\backup_migrate\Entity\Schedule $schedule */
+  foreach ($schedules as $schedule) {
+    $schedule->setLastRun(0);
+  }
+}

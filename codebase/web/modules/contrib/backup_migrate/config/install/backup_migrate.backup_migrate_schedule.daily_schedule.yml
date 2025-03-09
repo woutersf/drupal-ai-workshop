@@ -1,0 +1,8 @@
+id: daily_schedule
+label: Daily Schedule
+enabled: false
+source_id: default_db
+destination_id: private_files
+period_number: 1
+period_type: days
+keep: ''

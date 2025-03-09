@@ -1,0 +1,10 @@
+backup_migrate.backup_migrate_source.DrupalFiles:
+  type: mapping
+  label: 'Backup Migrate DrupalFiles Settings'
+  mapping:
+    name:
+      type: string
+      label: 'Name'
+    directory:
+      type: string
+      label: 'Directory'

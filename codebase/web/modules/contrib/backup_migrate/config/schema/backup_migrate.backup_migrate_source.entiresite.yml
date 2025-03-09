@@ -1,0 +1,7 @@
+backup_migrate.backup_migrate_source.EntireSite:
+  type: mapping
+  label: 'Backup Migrate EntireSite Settings'
+  mapping:
+    name:
+      type: string
+      label: 'Name'
