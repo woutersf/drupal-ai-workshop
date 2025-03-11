@@ -1,7 +1,7 @@
-name: AI Images Generator (in Ckeditor)
+name: AI Image Generator Ckeditor
 type: module
-description: Creates an image by taking user input and communicating with Open AI and Stable Diffusion APIs.
+description: Creates an image in your ckeditor by taking user input and communicating with AI providers.
 package: AI
 core_version_requirement: ^9 || ^10 || ^11
 dependencies:
-  - ai:ai
+  - drupal:ai
