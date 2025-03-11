@@ -8360,6 +8360,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/ai_api": 20,
+        "drupal/ai_image": 10,
         "drupal/ai_provider_mistral": 10,
         "drupal/ai_search_block": 20,
         "drupal/ai_vdb_provider_pinecone": 10,

@@ -1,6 +1,0 @@
-@@ -8,4 +8,4 @@
-       - '@file.repository'
-       - '@file_url_generator'
-       - '@ai.provider'
--
-+      - '@module_handler'
