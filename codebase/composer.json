@@ -61,9 +61,6 @@
     "extra": {
         "enable-patching": true,
         "patches": {
-		"drupal/ai_image": {
-                	"All models": "https://git.drupalcode.org/project/ai_image/-/merge_requests/6.patch"
-            }
          },
         "drupal-scaffold": {
             "locations": {
