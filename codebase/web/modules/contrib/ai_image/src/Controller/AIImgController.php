@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
+use Drupal\ai\Enum\Bundles;
 /**
  * Returns responses for AIImg routes.
  */
@@ -69,18 +69,11 @@ class AIImgController extends ControllerBase {
    * Builds the response.
    */
   public function getimage(Request $request): JsonResponse {
-    $imgurl = NULL;
     $data = json_decode($request->getContent());
     $prompt = implode(', ', [$data->prompt, $data->options->prompt_extra]);
-    $api = $data->options->source;
-    $key_id = $data->options->{$api . '_key'};
-
-    if ($key_id) {
-      $key = $this->keyRepository->getKey($key_id)->getKeyValue();
-
-      $imgurl = $this->aiImageGenerator
-        ->getImage($prompt, $api, $key);
-    }
+    $provider_name = $data->options->source;
+    $generator = $this->aiImageGenerator;
+    $imgurl = $generator->generateImageInAiModule($provider_name, $prompt);
     if (!$imgurl) {
       $imgurl = '/modules/custom/ai_image/icons/error.jpg';
     }

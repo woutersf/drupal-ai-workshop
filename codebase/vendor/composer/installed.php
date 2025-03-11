@@ -3,7 +3,7 @@
         'name' => 'drupal/openaitestproject',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'fbedebb688b400ee875a723f35c85ef3f8d6412d',
+        'reference' => 'bc324f0509f138dd9293176703ef6a0a306960c0',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -220,12 +220,14 @@
             'dev_requirement' => false,
         ),
         'drupal/ai_image' => array(
-            'pretty_version' => '1.0.0-beta1',
-            'version' => '1.0.0.0-beta1',
-            'reference' => '1.0.0-beta1',
+            'pretty_version' => 'dev-1.0.x',
+            'version' => 'dev-1.0.x',
+            'reference' => '89fe7a031ab1772a51a1e0ba079ec0ca20985f8d',
             'type' => 'drupal-module',
             'install_path' => __DIR__ . '/../../web/modules/contrib/ai_image',
-            'aliases' => array(),
+            'aliases' => array(
+                0 => '1.0.x-dev',
+            ),
             'dev_requirement' => false,
         ),
         'drupal/ai_image_alt_text' => array(
@@ -521,7 +523,7 @@
         'drupal/openaitestproject' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'fbedebb688b400ee875a723f35c85ef3f8d6412d',
+            'reference' => 'bc324f0509f138dd9293176703ef6a0a306960c0',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -23,4 +23,3 @@ Install Key and Artificial Intelligence Images Generator modules
 * Click on AI Image icon.
 * Type prompt to the popup.
 * Wait 5-7 seconds for the response.
-

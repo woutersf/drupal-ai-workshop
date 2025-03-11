@@ -2,7 +2,7 @@
 ai_image:
   css:
     theme:
-      global-styling/cmsaiimg.css: {}
+      global-styling/aiimg.css: {}
   dependencies:
     - core/drupalSettings
 

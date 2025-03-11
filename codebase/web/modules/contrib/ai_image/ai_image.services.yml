@@ -6,5 +6,6 @@ services:
       - '@logger.factory'
       - '@file_system'
       - '@file.repository'
-      - '@file_url_generator'  
+      - '@file_url_generator'
+      - '@ai.provider'
 

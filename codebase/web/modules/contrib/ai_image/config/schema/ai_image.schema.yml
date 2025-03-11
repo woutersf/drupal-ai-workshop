@@ -9,12 +9,6 @@ ckeditor5.plugin.ai_image_aiimg:
         source:
           type: string
           label: 'AI source'
-        openai_key:
-          type: string
-          label: 'OpenAI API key'
-        sd_key:
-          type: string
-          label: 'Stable Diffusion API key'
         prompt_extra:
           type: string
           label: 'Prompt extra'

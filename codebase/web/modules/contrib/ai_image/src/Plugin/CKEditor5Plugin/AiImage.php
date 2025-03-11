@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Drupal\ai_image\Plugin\CKEditor5Plugin;
 
+use Drupal\ai\AiProviderPluginManager;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
+use Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * CKEditor 5 OpenAI Completion plugin configuration.
  */
-class AiImage extends CKEditor5PluginDefault implements CKEditor5PluginConfigurableInterface {
+class AiImage extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface, CKEditor5PluginConfigurableInterface {
 
   use CKEditor5PluginConfigurableTrait;
+
+  /**
+   * The AI Provider service.
+   *
+   * @var \Drupal\ai\AiProviderPluginManager
+   */
+  protected $providerManager;
+
 
   /**
    * The default configuration for this plugin.
@@ -24,12 +36,33 @@ class AiImage extends CKEditor5PluginDefault implements CKEditor5PluginConfigura
    */
   const DEFAULT_CONFIGURATION = [
     'aiimage' => [
-      'source' => 'openai',
-      'openai_key' => '',
-      'sd_key' => '',
+      'source' => '000-AI-IMAGE-DEFAULT',
       'prompt_extra' => 'hyper-realistic, super detailed',
     ],
   ];
+
+  public function __construct(array                     $configuration,
+                              string                    $plugin_id,
+                              CKEditor5PluginDefinition $plugin_definition,
+                              AiProviderPluginManager   $provider_manager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->providerManager = $provider_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container,
+                                array              $configuration,
+                                                   $plugin_id,
+                                                   $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('ai.provider'));
+  }
+
 
   /**
    * {@inheritdoc}
@@ -42,6 +75,7 @@ class AiImage extends CKEditor5PluginDefault implements CKEditor5PluginConfigura
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+
     $form['aiimage'] = [
       '#title' => $this->t('AI Image'),
       '#type' => 'details',
@@ -50,27 +84,24 @@ class AiImage extends CKEditor5PluginDefault implements CKEditor5PluginConfigura
       '#tree' => TRUE,
     ];
 
+    $providers = [];
+    $options['000-AI-IMAGE-DEFAULT'] = 'Default provider (configured in AI default settings)';
+    foreach ($this->providerManager->getDefinitions() as $id => $definition) {
+      $providers[$id] = $this->providerManager->createInstance($id);
+    }
+
+    foreach ($providers as $provider) {
+      if ($provider->isUsable('text_to_image')) {
+        $options[$provider->getPluginId()] = $provider->getPluginDefinition()['label'];
+      }
+    }
+
     $form['aiimage']['source'] = [
       '#type' => 'select',
       '#title' => $this->t('AI engine'),
-      '#options' => [
-        'openai' => 'OpenAI',
-        'sd' => 'Stable Diffusion',
-      ],
-      '#default_value' => $this->configuration['aiimage']['source'] ?? 'openai',
+      '#options' => $options,
+      '#default_value' => $this->configuration['aiimage']['source'] ?? '000-AI-IMAGE-DEFAULT',
       '#description' => $this->t('Select which model to use to generate images.'),
-    ];
-
-    $form['aiimage']['openai_key'] = [
-      '#type' => 'key_select',
-      '#title' => $this->t('OpenAI secret key'),
-      '#default_value' => $this->configuration['aiimage']['openai_key'],
-    ];
-
-    $form['aiimage']['sd_key'] = [
-      '#type' => 'key_select',
-      '#title' => $this->t('Stable Diffusion secret key'),
-      '#default_value' => $this->configuration['aiimage']['sd_key'],
     ];
 
     $form['aiimage']['prompt_extra'] = [
@@ -94,12 +125,12 @@ class AiImage extends CKEditor5PluginDefault implements CKEditor5PluginConfigura
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->getValues();
-
     $this->configuration['aiimage']['source'] = $values['aiimage']['source'];
-    $this->configuration['aiimage']['openai_key'] = $values['aiimage']['openai_key'];
-    $this->configuration['aiimage']['sd_key'] = $values['aiimage']['sd_key'];
+    if ('000-AI-IMAGE-DEFAULT' == $this->configuration['aiimage']['source']) {
+      // Make sure a default is selected.
+      _ai_image_check_default_provider_and_model();
+    }
     $this->configuration['aiimage']['prompt_extra'] = $values['aiimage']['prompt_extra'];
-
   }
 
   /**
@@ -113,8 +144,6 @@ class AiImage extends CKEditor5PluginDefault implements CKEditor5PluginConfigura
       'ai_image_aiimg' => [
         'aiimage' => [
           'source' => $config['aiimage']['source'] ?? $options['aiimage']['source'],
-          'openai_key' => $config['aiimage']['openai_key'] ?? $options['aiimage']['openai_key'],
-          'sd_key' => $config['aiimage']['sd_key'] ?? $options['aiimage']['sd_key'],
           'prompt_extra' => $config['aiimage']['prompt_extra'] ?? $options['aiimage']['prompt_extra'],
         ],
       ],

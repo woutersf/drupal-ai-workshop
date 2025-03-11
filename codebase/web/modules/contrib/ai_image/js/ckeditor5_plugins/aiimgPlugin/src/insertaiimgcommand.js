@@ -36,7 +36,16 @@ export default class InsertAiImgCommand extends Command {
           credentials: 'same-origin',
           body: JSON.stringify({'prompt': prompt, 'options': this._config}),
         })
-          .then((response) => response.json())
+          .then((response) => {
+            if (!response.ok) {
+              // make the promise be rejected if we didn't get a 2xx response
+              console.log(response.statusText);
+              return response.statusText;
+            } else {
+              return response.json();
+            }
+          }
+        )
           .then((answer) => editor.model.insertContent(
             writer.createElement('imageBlock', {
                 src: answer.text,
@@ -44,7 +53,8 @@ export default class InsertAiImgCommand extends Command {
               }
             )))
           .then(() => this._hideUI()
-          );
+          )
+
       });
     });
 

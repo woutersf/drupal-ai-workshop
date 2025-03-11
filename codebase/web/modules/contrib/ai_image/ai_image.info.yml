@@ -1,12 +1,7 @@
-name: Artificial Intelligence Images Generator
+name: AI Images Generator (in Ckeditor)
 type: module
 description: Creates an image by taking user input and communicating with Open AI and Stable Diffusion APIs.
-package: Artificial Intelligence
-core_version_requirement: ^9 || ^10
+package: AI
+core_version_requirement: ^9 || ^10 || ^11
 dependencies:
-  - drupal:key
-
-# Information added by Drupal.org packaging script on 2023-08-17
-version: '1.0.0-beta1'
-project: 'ai_image'
-datestamp: 1692309430
+  - ai:ai

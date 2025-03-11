@@ -1,11 +1,3 @@
-ai_image:
-  path: 'ai-image/aiimgform'
-  defaults:
-    _title: 'AI Img Form'
-    _form: 'Drupal\ai_image\Form\AIImgForm'
-  requirements:
-    _permission: 'access content'
-
 ai_image.getimage:
   methods: [ POST ]
   path: '/api/ai-image/getimage'

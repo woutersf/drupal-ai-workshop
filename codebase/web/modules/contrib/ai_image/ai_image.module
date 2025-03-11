@@ -34,7 +34,7 @@ function ai_image_help($route_name, RouteMatchInterface $route_match) {
  * Implements  hook_page_attachments().
  */
 function ai_image_page_attachments(&$variables) {
-  $variables['#attached']['library'][] = 'cmsaiimg/cmsaiimg';
+  $variables['#attached']['library'][] = 'ai_image/ai_image';
 }
 
 
@@ -43,11 +43,37 @@ function ai_image_page_attachments(&$variables) {
  */
 function ai_image_library_info_alter(&$libraries, $extension) {
   if ($extension === 'ckeditor5' && isset($libraries['internal.drupal.ckeditor5'])) {
-    $libraries['internal.drupal.ckeditor5']['dependencies'][] = 'ckeditor5_dev/ckeditor5_dev';
+    $libraries['internal.drupal.ckeditor5']['dependencies'][] = 'ckeditor5/ckeditor5';
   }
   // @todo Remove when Drupal 9.4 is no longer supported.
   // @see https://www.drupal.org/project/drupal/issues/3307186
   if ($extension === 'ckeditor5' && isset($libraries['drupal.ckeditor5'])) {
-    $libraries['drupal.ckeditor5']['dependencies'][] = 'ckeditor5_dev/ckeditor5_dev';
+    $libraries['drupal.ckeditor5']['dependencies'][] = 'ckeditor5/ckeditor5';
+  }
+}
+
+
+/**
+ * Implements hook_install();
+ *
+ * @param $is_syncing
+ */
+function ai_image_install($is_syncing){
+  _ai_image_check_default_provider_and_model();
+}
+
+/**
+ * Check if default provider is chosen and model is selected.
+ */
+function _ai_image_check_default_provider_and_model() {
+  $ai_config = \Drupal::service('config.factory')->get('ai.settings');
+  $default_providers = $ai_config->get('default_providers') ?? [];
+  if(
+    !isset($default_providers['text_to_image']['provider_id']) && !isset($default_providers['text_to_image']['model_id'])
+    ||
+    $default_providers['text_to_image']['provider_id'] == ""
+    || $default_providers['text_to_image']['model_id'] == ''
+  ) {
+    \Drupal::messenger()->addMessage(t('Please set a default text_to_image provider & model in the <a href="/admin/config/ai/settings">AI module settings</a>.'), 'error', FALSE);
   }
 }
