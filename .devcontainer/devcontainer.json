@@ -1,10 +1,10 @@
 {
-  "name": "Drupal Workshop",
+  "name": "Drupal AI Workshop",
   "dockerComposeFile": [
     "../compose.yml"
   ],
   "service": "php", 
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/var/www/html",
   "postCreateCommand": "make",
   "forwardPorts": [80, 82, 8025],
   "portsAttributes": {
@@ -32,5 +32,6 @@
         "ms-azuretools.vscode-docker"
       ]
     }
-  }
+  },
+   "remoteUser": "www-data"
 }
