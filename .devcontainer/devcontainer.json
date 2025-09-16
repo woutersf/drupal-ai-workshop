@@ -3,6 +3,8 @@
   "dockerComposeFile": [
     "../compose.yml"
   ],
+  "service": "php", 
+  "workspaceFolder": "/workspace",
   "postCreateCommand": "make",
   "forwardPorts": [80, 82, 8025],
   "portsAttributes": {
