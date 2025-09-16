@@ -26,7 +26,8 @@
     "vscode": {
       "extensions": [
         "bmewburn.vscode-intelephense-client",  // PHP language support
-        "felixfbecker.php-debug"               // Debugger
+        "felixfbecker.php-debug",               // Debugger
+        "ms-azuretools.vscode-docker"
       ]
     }
   }
