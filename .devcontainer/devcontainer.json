@@ -1,0 +1,33 @@
+{
+  "name": "Drupal Workshop",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "make",
+  "forwardPorts": [80, 82, 8025],
+  "portsAttributes": {
+    "80": {
+      "label": "Drupal",
+      "onAutoForward": "openBrowser",
+      "visibility": "public"
+    },
+    "82": {
+      "label": "PhpMyAdmin",
+      "onAutoForward": "openBrowser",
+      "visibility": "private"
+    },
+    "8025": {
+      "label": "Mailpit",
+      "onAutoForward": "openBrowser",
+      "visibility": "private"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",  // PHP language support
+        "felixfbecker.php-debug"               // Debugger
+      ]
+    }
+  }
+}
