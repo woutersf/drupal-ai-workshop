@@ -6,6 +6,7 @@
   "service": "php", 
   "workspaceFolder": "/var/www/html",
   "postCreateCommand": "make",
+  "shutdownAction": "stopCompose",
   "forwardPorts": [80, 82, 8025],
   "portsAttributes": {
     "80": {
@@ -29,9 +30,14 @@
       "extensions": [
         "bmewburn.vscode-intelephense-client",  // PHP language support
         "felixfbecker.php-debug",               // Debugger
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.vscode-json"                 // JSON editing
       ]
     }
   },
-   "remoteUser": "www-data"
+  "remoteUser": "www-data",
+  "containerEnv": {
+    "SHELL": "/bin/bash"
+  },
+  "postStartCommand": "sudo chsh -s /bin/bash www-data"
 }
