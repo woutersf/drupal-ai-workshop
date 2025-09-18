@@ -1,0 +1,9 @@
+name: ConvertAPI
+description: PDF, Word, Excel to TXT.
+package: AI Tools
+type: module
+core_version_requirement: ^10.3 || ^11
+configure: convertapi.settings
+
+dependencies:
+  - key:key

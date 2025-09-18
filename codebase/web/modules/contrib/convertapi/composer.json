@@ -1,0 +1,15 @@
+{
+    "name": "drupal/convertapi",
+    "description": "Convert API for Drupal",
+    "type": "drupal-module",
+    "require": {
+        "convertapi/convertapi-php": "v1.7.0",
+        "drupal/key": "^1.18"
+    },
+    "authors": [
+        {
+            "name": "Marcus Johansson",
+            "email": "me@marcusmailbox.com"
+        }
+    ]
+}

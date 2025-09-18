@@ -30,7 +30,7 @@
         "drupal/ai_vdb_provider_pinecone": "^1.0@beta",
         "drupal/ai_vdb_provider_postgres": "^1.0@alpha",
         "drupal/backup_migrate": "^5.1",
-        "drupal/convertapi": "1.0.x-dev",
+        "drupal/convertapi": "1.0.x-dev@dev",
         "drupal/core-composer-scaffold": "^10",
         "drupal/core-project-message": "^10",
         "drupal/core-recommended": "^10",

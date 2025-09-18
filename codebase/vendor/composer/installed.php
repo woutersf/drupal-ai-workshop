@@ -3,7 +3,7 @@
         'name' => 'woutersf/drupal-ai-workshop',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '01ad442ea20e40171b99e30226043125ff5d26a3',
+        'reference' => 'bd9639cc3864913a8b423233cc4406372653b20a',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -1406,7 +1406,7 @@
         'woutersf/drupal-ai-workshop' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '01ad442ea20e40171b99e30226043125ff5d26a3',
+            'reference' => 'bd9639cc3864913a8b423233cc4406372653b20a',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

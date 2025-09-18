@@ -1,0 +1,7 @@
+convertapi.settings:
+  path: '/admin/config/convertapi/settings'
+  defaults:
+    _form: '\Drupal\convertapi\Form\ConvertApiConfigForm'
+    _title: 'Setup ConvertApi'
+  requirements:
+    _permission: 'administer site configuration'

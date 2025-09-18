@@ -1,0 +1,4 @@
+services:
+  convertapi.api:
+    class: Drupal\convertapi\ConvertApiService
+    arguments: ['@config.factory', '@key.repository']

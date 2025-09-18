@@ -1,0 +1,5 @@
+convertapi.settings:
+  title: "Convert API Config"
+  description: "Setup Convert API"
+  route_name: convertapi.settings
+  parent: system.admin_config_services
