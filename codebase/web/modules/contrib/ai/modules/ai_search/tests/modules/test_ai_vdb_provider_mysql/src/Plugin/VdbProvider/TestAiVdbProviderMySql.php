@@ -369,6 +369,7 @@ class TestAiVdbProviderMySql extends AiVdbProviderClientBase implements Containe
     string $collection_name,
     array $vector_input,
     array $output_fields,
+    QueryInterface $query,
     mixed $filters = '',
     int $limit = 10,
     int $offset = 0,

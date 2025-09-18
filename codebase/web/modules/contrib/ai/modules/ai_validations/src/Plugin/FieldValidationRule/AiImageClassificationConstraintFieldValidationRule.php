@@ -107,6 +107,7 @@ class AiImageClassificationConstraintFieldValidationRule extends ConstraintField
       '#options' => [
         'exact' => $this->t('Exact'),
         'contains' => $this->t('Contains'),
+        'substring' => $this->t('Contains (Case-Insensitive)'),
       ],
       '#required' => TRUE,
       '#default_value' => $this->configuration['finder'] ?? 'exact',

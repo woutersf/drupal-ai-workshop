@@ -21,6 +21,12 @@ parameters:
       text: "Ask me anything..."
       style:
         color: "#606060"
+  auxiliaryStyle:
+    "@keyframes pulse-color {
+      0%   { color: #555; }
+      50%  { color: #ccc; }
+      100% { color: #555; }
+    }"
   messageStyles:
     default:
       shared:

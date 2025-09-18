@@ -2,9 +2,7 @@
 
 namespace Drupal\admin_toolbar_tools\Plugin\Menu;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Menu\MenuLinkDefault;
-use Drupal\Core\Menu\StaticMenuLinkOverridesInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -15,40 +13,31 @@ class MenuLinkEntity extends MenuLinkDefault {
   /**
    * The entity represented in the menu link.
    *
-   * @var \Drupal\Core\Entity\EntityInterface
+   * @var \Drupal\Core\Entity\EntityInterface|\Drupal\Core\Entity\EntityDescriptionInterface|null
    */
   protected $entity;
 
   /**
-   * Constructs a new MenuLinkEntity.
+   * Adds the config entity bundle plugin to parent's container.
    *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The container to pull out services used in the plugin.
+   * @param array{field_definition: \Drupal\Core\Field\FieldDefinitionInterface, settings: array<string>, label: string, view_mode: string, third_party_settings: array<string>} $configuration
+   *   The configuration array containing information about the plugin instance.
    * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
+   *   The plugin ID for the plugin instance.
+   * @param array<string, array<string, string>> $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Menu\StaticMenuLinkOverridesInterface $static_override
-   *   The static override storage.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager.
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, StaticMenuLinkOverridesInterface $static_override, EntityTypeManagerInterface $entity_type_manager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $static_override);
-    $this->entity = $entity_type_manager->getStorage($this->pluginDefinition['metadata']['entity_type'])->load($this->pluginDefinition['metadata']['entity_id']);
-  }
-
-  /**
-   * {@inheritdoc}
+   *
+   * @return static
+   *   Returns an instance of this plugin.
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('menu_link.static.overrides'),
-      $container->get('entity_type.manager')
-    );
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->entity = $container->get('entity_type.manager')
+      ->getStorage($instance->pluginDefinition['metadata']['entity_type'])
+      ->load($instance->pluginDefinition['metadata']['entity_id']);
+    return $instance;
   }
 
   /**

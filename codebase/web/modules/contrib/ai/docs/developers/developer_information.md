@@ -22,7 +22,7 @@ This section covers all the documentation that you need to be able to contribute
 
 This section covers what you should think about, when you are writing a third party module using the AI module to give the end user the best possible experience.
 
-### [Contribute to the AI module](contribute.md)
+### [Contribute to the AI module](../contribute/index.md)
 
 This section covers how you can help out with the AI module and contribute with code, ideas or documentation.
 

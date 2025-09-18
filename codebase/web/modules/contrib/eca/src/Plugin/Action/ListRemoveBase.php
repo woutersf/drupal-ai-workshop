@@ -73,13 +73,13 @@ abstract class ListRemoveBase extends ListOperationBase {
 
       case 'value':
         $value = $this->getValueToRemove();
+        if ($value instanceof TypedDataInterface) {
+          $value = $value->getValue();
+        }
         if ($list instanceof DataTransferObject) {
           $item = $list->remove($value);
         }
         elseif ($values = $list->getValue()) {
-          if ($value instanceof TypedDataInterface) {
-            $value = $value->getValue();
-          }
           if (is_scalar($value) && ($list instanceof FieldItemListInterface)) {
             // Flatten the list of values for finding the specified value.
             $item_definition = $list->getFieldDefinition()->getItemDefinition();

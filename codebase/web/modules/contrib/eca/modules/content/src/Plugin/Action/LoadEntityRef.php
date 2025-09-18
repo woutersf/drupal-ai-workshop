@@ -32,9 +32,6 @@ class LoadEntityRef extends LoadEntity {
     if (is_null($entity)) {
       return NULL;
     }
-    if (!($entity instanceof EntityInterface)) {
-      throw new \InvalidArgumentException('No entity provided.');
-    }
     $reference_field_name = trim((string) $this->tokenService->replace($this->configuration['field_name_entity_ref']));
     if (($entity instanceof FieldableEntityInterface) && $entity->hasField($reference_field_name)) {
       $item_list = $entity->get($reference_field_name);

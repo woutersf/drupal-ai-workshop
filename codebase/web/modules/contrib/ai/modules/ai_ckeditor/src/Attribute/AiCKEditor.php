@@ -20,13 +20,16 @@ final class AiCKEditor extends Plugin {
    *   The plugin id.
    * @param \Drupal\Core\StringTranslation\TranslatableMarkup $label
    *   The human-readable name of the plugin.
-   * @param string $description
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $description
    *   The plugin description.
+   * @param array $module_dependencies
+   *   Module dependencies required for the plugin to function.
    */
   public function __construct(
     public readonly string $id,
     public readonly TranslatableMarkup $label,
-    public readonly TranslatableMarkup $description,
+    public readonly TranslatableMarkup|string $description,
+    public readonly array $module_dependencies = [],
   ) {
   }
 

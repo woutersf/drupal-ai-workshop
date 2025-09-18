@@ -1,0 +1,16 @@
+name: Postgres VDB Provider
+description: This enables the use of a Postgres (pgvector) VDB in the AI module.
+package: AI Vector Database Providers (Experimental)
+type: module
+core_version_requirement: ^10.2 || ^11
+configure: ai_vdb_provider_postgres.settings_form
+lifecycle: experimental
+
+dependencies:
+  - ai:ai
+  - key:key
+
+# Information added by Drupal.org packaging script on 2025-05-27
+version: '1.0.0-alpha2'
+project: 'ai_vdb_provider_postgres'
+datestamp: 1748339268

@@ -2,12 +2,13 @@
 
 namespace Drupal\ai\OperationType\TextToImage;
 
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for text to image input.
  */
-class TextToImageInput implements InputInterface {
+class TextToImageInput extends InputBase implements InputInterface {
   /**
    * The text to convert to image.
    *

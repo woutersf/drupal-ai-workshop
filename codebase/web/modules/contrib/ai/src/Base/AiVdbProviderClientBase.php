@@ -2,10 +2,12 @@
 
 namespace Drupal\ai\Base;
 
+use Drupal\ai\Exception\AiUnsafePromptException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -18,6 +20,7 @@ use Drupal\ai_search\Plugin\Exception\EmbeddingStrategyException;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Item\FieldInterface;
+use Drupal\search_api\ServerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,7 +28,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * Service to handle API requests server.
  */
 abstract class AiVdbProviderClientBase implements AiVdbProviderInterface, AiVdbProviderSearchApiInterface, ContainerFactoryPluginInterface {
+
   use StringTranslationTrait;
+
+  use LoggerChannelTrait;
 
   /**
    * Module Handler.
@@ -54,6 +60,13 @@ abstract class AiVdbProviderClientBase implements AiVdbProviderInterface, AiVdbP
    * @var array
    */
   protected array $configuration = [];
+
+  /**
+   * The server this backend is configured for.
+   *
+   * @var \Drupal\search_api\ServerInterface
+   */
+  protected ServerInterface $server;
 
   /**
    * Constructs a new AiVdbClientBase abstract class.
@@ -99,6 +112,26 @@ abstract class AiVdbProviderClientBase implements AiVdbProviderInterface, AiVdbP
       $container->get('entity_field.manager'),
       $container->get('messenger'),
     );
+  }
+
+  /**
+   * Retrieves the server instance this backend is configured for.
+   *
+   * @return \Drupal\search_api\ServerInterface|null
+   *   The server instance, or NULL if the server is not set yet.
+   */
+  public function getSearchApiServer(): ?ServerInterface {
+    return $this->server;
+  }
+
+  /**
+   * Sets the server the for this backend.
+   *
+   * @param \Drupal\search_api\ServerInterface|null $server
+   *   The server this backend associated with, or NULL.
+   */
+  public function setSearchApiServer(?ServerInterface $server = NULL): void {
+    $this->server = $server;
   }
 
   /**
@@ -260,14 +293,27 @@ abstract class AiVdbProviderClientBase implements AiVdbProviderInterface, AiVdbP
 
     /** @var \Drupal\search_api\Item\ItemInterface $item */
     foreach ($items as $item) {
-      $embeddings = $embedding_strategy->getEmbedding(
-        $configuration['embeddings_engine'],
-        $configuration['chat_model'],
-        $configuration['embedding_strategy_configuration'],
-        $item->getFields(),
-        $item,
-        $index,
-      );
+      $item_id = $item->getId();
+      try {
+        $embeddings = $embedding_strategy->getEmbedding(
+          $configuration['embeddings_engine'],
+          $configuration['chat_model'],
+          $configuration['embedding_strategy_configuration'],
+          $item->getFields(),
+          $item,
+          $index,
+        );
+      }
+      catch (AiUnsafePromptException $e) {
+        // Log the exception and skip this item.
+        $logger = $this->getLogger('ai_search');
+        $logger->warning('Skipping item @id due to unsafe prompt: @message', [
+          '@id' => $item_id,
+          '@message' => $e->getMessage(),
+        ]);
+        continue;
+      }
+
       foreach ($embeddings as $embedding) {
         // Ensure consistent embedding structure as per
         // EmbeddingStrategyInterface.
@@ -277,7 +323,7 @@ abstract class AiVdbProviderClientBase implements AiVdbProviderInterface, AiVdbP
         // structure and add additional details.
         $embedding = array_merge_recursive($embedding, $itemBase);
         $data['drupal_long_id'] = $embedding['id'];
-        $data['drupal_entity_id'] = $item->getId();
+        $data['drupal_entity_id'] = $item_id;
         $data['vector'] = $embedding['values'];
         foreach ($embedding['metadata'] as $key => $value) {
           $data[$key] = $value;
@@ -289,7 +335,7 @@ abstract class AiVdbProviderClientBase implements AiVdbProviderInterface, AiVdbP
         );
       }
 
-      $successfulItemIds[] = $item->getId();
+      $successfulItemIds[] = $item_id;
     }
 
     return $successfulItemIds;

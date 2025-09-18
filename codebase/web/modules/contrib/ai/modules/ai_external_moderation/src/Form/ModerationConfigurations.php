@@ -25,7 +25,7 @@ class ModerationConfigurations extends ConfigFormBase {
    *
    * @var \Drupal\ai\AiProviderPluginManager
    */
-  protected $providerManager;
+  protected AiProviderPluginManager $providerManager;
 
   /**
    * Constructor.
@@ -46,14 +46,14 @@ class ModerationConfigurations extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'ai_content_settings';
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames(): array {
     return [
       static::CONFIG_NAME,
     ];
@@ -63,12 +63,15 @@ class ModerationConfigurations extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+
     // Load config.
     $config = $this->config(static::CONFIG_NAME);
+    $providers = $this->providerManager->getProvidersForOperationType('chat');
 
     // Get all the setups.
     $i = 0;
     $moderations = $config->get('moderations') ?? [];
+
     // If its in the form state, then we are adding a new one.
     if (empty($moderations) && $form_state->getValue('moderations')) {
       $moderations = $form_state->getValue('moderations');
@@ -77,7 +80,13 @@ class ModerationConfigurations extends ConfigFormBase {
       $this->moderationForm($form, $moderation, $i);
       $i++;
     }
-    $this->moderationForm($form, [], $i, TRUE);
+
+    // $i is a count of how many moderation forms we've added: if we have more
+    // providers than this number, we'll need additional forms to let people add
+    // them.
+    if (count($providers) > $i) {
+      $this->moderationForm($form, [], $i, TRUE);
+    }
     return parent::buildForm($form, $form_state);
   }
 
@@ -181,12 +190,14 @@ class ModerationConfigurations extends ConfigFormBase {
       '#default_value' => $moderation['tags'] ?? NULL,
     ];
 
-    $model_order = $moderation['models'] ?? [];
+    $model_order = $moderation['models'] ?? [0 => NULL];
     $form['moderations'][$i]['model_title'] = [
       '#type' => 'item',
       '#title' => $this->t('Model Order'),
     ];
+
     $t = 0;
+
     foreach ($model_order as $t => $model) {
       $form['moderations'][$i]['models'][$t] = [
         '#type' => 'select',
@@ -194,27 +205,38 @@ class ModerationConfigurations extends ConfigFormBase {
         '#empty_option' => $this->t('Select a model'),
         '#default_value' => $model,
       ];
-      $t++;
-    }
-    $form['moderations'][$i]['models'][$t] = [
-      '#type' => 'select',
-      '#options' => $moderation_models,
-      '#empty_option' => $this->t('Select a model'),
-      '#default_value' => $moderation['model'] ?? NULL,
-    ];
 
-    $form['moderations'][$i]['add'] = [
-      '#type' => 'submit',
-      '#value' => 'Model (' . $i . ')',
-      '#attributes' => [
-        'data-add-model' => $i,
-      ],
-      '#submit' => ['::addModel'],
-      '#ajax' => [
-        'callback' => '::addModelCallback',
-        'wrapper' => 'moderations-' . $i,
-      ],
-    ];
+      // If we have no default value, this model still needs to be configured so
+      // we will force it to be open.
+      if (!$model) {
+        $form['moderations'][$i]['#open'] = TRUE;
+      }
+    }
+
+    // Moderation models includes an empty "choose an option" key, so the actual
+    // number of available models is this minus one.
+    $actual_models = count($moderation_models) - 1;
+
+    // Whereas $t is the count of models select options we've added starting at
+    // 0, so needs one adding to it to make the actual number.
+    $added_models = $t + 1;
+
+    // So now if we have more actual models than we've added select lists for,
+    // let the user add another.
+    if ($actual_models > $added_models) {
+      $form['moderations'][$i]['add'] = [
+        '#type' => 'submit',
+        '#value' => 'Add Another Model (' . $i . ')',
+        '#attributes' => [
+          'data-add-model' => $i,
+        ],
+        '#submit' => ['::addModel'],
+        '#ajax' => [
+          'callback' => '::addModelCallback',
+          'wrapper' => 'moderations-' . $i,
+        ],
+      ];
+    }
   }
 
   /**

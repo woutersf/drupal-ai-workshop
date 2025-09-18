@@ -50,7 +50,6 @@ class SetAjaxResponseCloseDialogCommand extends ResponseAjaxCommandBase {
         '#description' => $this->t('CSS selector string of the dialog to close; leave empty for the default.'),
         '#default_value' => $this->configuration['selector'],
         '#weight' => -45,
-        '#required' => TRUE,
         '#eca_token_replacement' => TRUE,
       ];
     }

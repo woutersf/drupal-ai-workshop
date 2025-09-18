@@ -1,0 +1,47 @@
+<?php
+
+use Drupal\ai_search\Plugin\search_api\backend\SearchApiAiSearchBackend;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\search_api\IndexInterface;
+
+/**
+ * Implements hook_search_api_index_update().
+ *
+ * When the search API index is updated, check the fields are correctly
+ * setup in Postgres.
+ */
+function ai_vdb_provider_postgres_search_api_index_update(IndexInterface $index) {
+  $server = $index->getServerInstance();
+  if (!($server->getBackend() instanceof SearchApiAiSearchBackend)) {
+    return;
+  }
+  $backend_config = $server->getBackendConfig();
+  if (!isset($backend_config['database'])) {
+    return;
+  }
+  if ($backend_config['database'] !== 'postgres') {
+    return;
+  }
+  $ai_vdb_provider_postgres = \Drupal::service('ai.vdb_provider')->createInstance('postgres');
+  $connection = $ai_vdb_provider_postgres->getConnection($backend_config['database_settings']['database_name']);
+  \Drupal::service('ai_vdb_provider_postgres.client')->updateFields(
+    $index->getFields(),
+    $backend_config['database_settings']['collection'],
+    $connection,
+  );
+}
+
+function ai_vdb_provider_postgres_is_field_multiple($field) {
+    $field_definition = $field->getDataDefinition()->getFieldDefinition();
+    if ($field_definition instanceof BaseFieldDefinition) {
+      $field_cardinality = $field_definition->getCardinality();
+    }
+    else {
+      $field_cardinality =
+        $field_definition->get('fieldStorage')->getCardinality();
+    }
+    if ($field_cardinality === 1) {
+      return FALSE;
+    }
+    return TRUE;
+}

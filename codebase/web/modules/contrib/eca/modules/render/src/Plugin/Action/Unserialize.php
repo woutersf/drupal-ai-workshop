@@ -70,6 +70,10 @@ class Unserialize extends Serialize {
     $serialized = (string) $this->tokenService->replace($value);
 
     $format = $this->configuration['format'];
+    if ($format === '_eca_token') {
+      $format = $this->getTokenValue('format', 'json');
+    }
+
     $type = $this->configuration['type'];
     if ($type === '_eca_token') {
       $type = $this->getTokenValue('type', 'array');

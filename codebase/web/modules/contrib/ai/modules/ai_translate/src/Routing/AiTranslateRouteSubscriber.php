@@ -2,6 +2,7 @@
 
 namespace Drupal\ai_translate\Routing;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Drupal\Core\Routing\RoutingEvents;
 use Symfony\Component\Routing\RouteCollection;
@@ -12,9 +13,24 @@ use Symfony\Component\Routing\RouteCollection;
 class AiTranslateRouteSubscriber extends RouteSubscriberBase {
 
   /**
+   * Constructs the AI Translate Route Subscriber.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
+   */
+  public function __construct(
+    protected ConfigFactoryInterface $configFactory,
+  ) {}
+
+  /**
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection): void {
+    // Only use AI Translate for the "Translate" tab if allowed.
+    if (!$this->configFactory->get('ai_translate.settings')->get('use_ai_translate')) {
+      return;
+    }
+
     // Look for routes that use  ContentTranslationController and change it
     // to our subclass.
     foreach ($collection as $route) {

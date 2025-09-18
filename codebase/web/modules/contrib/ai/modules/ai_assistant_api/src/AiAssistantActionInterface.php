@@ -99,4 +99,12 @@ interface AiAssistantActionInterface extends PluginFormInterface, ConfigurableIn
    */
   public function triggerRollback(): void;
 
+  /**
+   * Get function call schema.
+   *
+   * @return array
+   *   The function call schema.
+   */
+  public function getFunctionCallSchema(): array;
+
 }

@@ -18,21 +18,22 @@ Copy the file `docs/ddev-examples/nginx-site.conf` to your `.ddev/nginx_full` an
 
 ### Ollama
 
-[Ollama](https://ollama.com/) is a model provider that you can run locally. Its not really recommended to run in ddev since you usually want to share the host resource. To setup Ollama on your host machine and how to connect it, you can read in the [Ollama Provider](/modules/providers/provider_ollama/) documentation.
+[Ollama](https://ollama.com/) is a model provider that you can run locally. It's not really recommended to run in ddev since you usually want to share the host resource. To setup Ollama on your host machine and how to connect it, you can review the [Ollama Provider module](https://www.drupal.org/project/ai_provider_ollama).
 
-If you however want to setup Ollama via DDEV there is files under `docs/ddev-examples` that you can use. Copy the `docker-compose.ollama.yaml` to your `.ddev` directory if you run CPU or the file `docker-compose.ollama-gpu.yaml` to your `.ddev` directory if you want to run with an nvidia GPU. Then run `ddev restart`. The machine can be connected to on http://ollama:11434 or http://ollama-gpu:11434.
+If you however want to setup Ollama via DDEV there is files under `docs/ddev-examples` that you can use. Copy the `docker-compose.ollama.yaml` to your `.ddev` directory if you run CPU or the file `docker-compose.ollama-gpu.yaml` to your `.ddev` directory if you want to run with an nvidia GPU. Then run `ddev restart`. The machine can be connected to on `http://ollama:11434` or `http://ollama-gpu:11434`.
 
 ### Milvus
 
 [Milvus](https://milvus.io/) is a vector database that can be used together with AI Search, to set it up locally use the following file. More instruction
 
-To find information on how to set it up, look on the [Milvus help page](/modules/vdb_providers/vdb_provider_milvus/#using-with-ddev).
-This will expose milvus internally on http://milvus:19530 and an gui on {sitename}.ddev.site:8521.
+To find information on how to set it up, review the [Milvus module](https://git.drupalcode.org/project/ai_vdb_provider_milvus).
+
+This will expose milvus internally on `http://milvus:19530` and an gui on `{sitename}.ddev.site:8521`.
 
 ### Mockoon
 [Mockoon](https://mockoon.com/) is a service that can replicate certain repos. We currently use it for kernel and browser testing to not have to pay services to test them.
 
-There is a Mockoon file for this under tests/assets/mockoon/. If you want to run this you can use the following file.
+There is a Mockoon file for this under `tests/assets/mockoon/`. If you want to run this you can use the following file.
 
 docker-compose.mockoon.yaml
 ```yaml

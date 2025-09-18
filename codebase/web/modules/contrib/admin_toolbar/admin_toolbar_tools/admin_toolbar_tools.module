@@ -97,3 +97,18 @@ function admin_toolbar_tools_entity_delete(EntityInterface $entity) {
     }
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function admin_toolbar_tools_form_project_browser_settings_alter(&$form) {
+  // Project browser settings form: Add a submit handler to rebuild menu items.
+  $form['#submit'][] = 'admin_toolbar_tools_project_browser_settings_submit';
+}
+
+/**
+ * Project browser integration: Helper function callback to rebuild menu items.
+ */
+function admin_toolbar_tools_project_browser_settings_submit(&$form) {
+  \Drupal::service('plugin.manager.menu.link')->rebuild();
+}

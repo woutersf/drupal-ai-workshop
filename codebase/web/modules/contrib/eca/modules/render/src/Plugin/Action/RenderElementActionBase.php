@@ -10,6 +10,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\eca\Event\RenderEventInterface;
 use Drupal\eca\Plugin\ECA\PluginFormTrait;
+use Drupal\eca\Plugin\FormFieldMachineName;
 
 /**
  * Base class for actions that build up a render element.
@@ -171,21 +172,20 @@ abstract class RenderElementActionBase extends RenderActionBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['name'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Machine name'),
       '#description' => $this->t('Optionally define a machine name of this render element. It will be made available under that name in the render array of the current event in scope. Nested elements can be set with using "][" brackets, for example <em>details][title</em>.'),
       '#default_value' => $this->configuration['name'],
       '#required' => FALSE,
       '#weight' => -30,
+      '#eca_token_replacement' => TRUE,
     ];
     $form['token_name'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Token name'),
       '#description' => $this->t('Optionally define a token name of this render element. It will be made available under that token name for later usage.'),
       '#default_value' => $this->configuration['token_name'],

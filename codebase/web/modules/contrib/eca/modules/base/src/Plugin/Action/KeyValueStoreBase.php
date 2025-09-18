@@ -14,6 +14,7 @@ use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\Core\TempStore\SharedTempStore;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Drupal\eca\Plugin\Action\ConfigurableActionBase;
+use Drupal\eca\Plugin\FormFieldYamlTrait;
 use Drupal\eca\Service\YamlParser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -22,6 +23,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  * Base action to access the various key value stores.
  */
 abstract class KeyValueStoreBase extends ConfigurableActionBase {
+
+  use FormFieldYamlTrait;
 
   /**
    * The key value store factory.
@@ -145,6 +148,14 @@ abstract class KeyValueStoreBase extends ConfigurableActionBase {
     if (!$result->isAllowed()) {
       $result->setReason('The given collection and/or key is invalid.');
     }
+    elseif ($this->writeMode() && $this->configuration['use_yaml'] && $this->configuration['validate_yaml']) {
+      try {
+        $this->yamlParser->parse($this->configuration['value']);
+      }
+      catch (ParseException) {
+        $result = AccessResult::forbidden('YAML data is not valid.');
+      }
+    }
     return $return_as_object ? $result : $result->isAllowed();
   }
 
@@ -197,6 +208,7 @@ abstract class KeyValueStoreBase extends ConfigurableActionBase {
     if ($this->writeMode()) {
       $values['value'] = '';
       $values['use_yaml'] = FALSE;
+      $values['validate_yaml'] = FALSE;
       if ($this->supportsIfNotExists()) {
         $values['ifnotexists'] = FALSE;
       }
@@ -233,13 +245,12 @@ abstract class KeyValueStoreBase extends ConfigurableActionBase {
         '#weight' => -70,
         '#description' => $this->t('The value to store.'),
       ];
-      $form['use_yaml'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Interpret above value as YAML format'),
-        '#description' => $this->t('Nested data can be set using YAML format, for example <em>mykey: "My value"</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>title: "[node:title]"</em>'),
-        '#default_value' => $this->configuration['use_yaml'],
-        '#weight' => -65,
-      ];
+      $this->buildYamlFormFields(
+        $form,
+        $this->t('Interpret above value as YAML format'),
+        $this->t('Nested data can be set using YAML format, for example <em>mykey: "My value"</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>title: "[node:title]"</em>'),
+        -65,
+      );
       if ($this->supportsIfNotExists()) {
         $form['ifnotexists'] = [
           '#type' => 'checkbox',
@@ -272,6 +283,7 @@ abstract class KeyValueStoreBase extends ConfigurableActionBase {
     if ($this->writeMode()) {
       $this->configuration['value'] = $form_state->getValue('value');
       $this->configuration['use_yaml'] = $form_state->getValue('use_yaml');
+      $this->configuration['validate_yaml'] = !empty($form_state->getValue('validate_yaml'));
       if ($this->supportsIfNotExists()) {
         $this->configuration['ifnotexists'] = $form_state->getValue('ifnotexists');
       }

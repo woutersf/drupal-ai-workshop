@@ -6,6 +6,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\ai_logging\AiLogInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Defines the AI Log entity.
@@ -49,6 +50,8 @@ use Drupal\ai_logging\AiLogInterface;
  * )
  */
 class AiLog extends ContentEntityBase implements AiLogInterface {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -222,6 +225,13 @@ class AiLog extends ContentEntityBase implements AiLogInterface {
       ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): string {
+    return $this->t('Ai Log ID @id', ['@id' => $this->id()]);
   }
 
 }

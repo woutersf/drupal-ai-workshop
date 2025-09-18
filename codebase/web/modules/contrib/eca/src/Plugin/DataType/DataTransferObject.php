@@ -46,6 +46,13 @@ class DataTransferObject extends Map {
   protected ?string $stringRepresentation = NULL;
 
   /**
+   * Flag to indicate whether rekeying is enabled or disabled.
+   *
+   * @var bool
+   */
+  protected bool $disableRekey = FALSE;
+
+  /**
    * Creates a new instance of a DTO.
    *
    * @param mixed $value
@@ -489,8 +496,17 @@ class DataTransferObject extends Map {
     elseif (is_iterable($value)) {
       $this->writePropertyValue($property_name, $this->wrapIterableValue($property_name, $value));
     }
+    elseif ($value instanceof MarkupInterface) {
+      $this->writePropertyValue($property_name, $this->wrapScalarValue($property_name, (string) $value));
+    }
+    elseif ($value instanceof Url) {
+      $this->writePropertyValue($property_name, $this->wrapUrlValue($property_name, $value));
+    }
+    elseif (is_object($value) && method_exists($value, '__toString')) {
+      $this->writePropertyValue($property_name, $this->wrapAnyValue($property_name, $value));
+    }
     else {
-      throw new \InvalidArgumentException("Invalid value given. Value must be of a scalar type, an entity or a typed data object.");
+      throw new \InvalidArgumentException("Invalid value given. Value must be of a scalar type, an entity, stringable or a typed data object.");
     }
   }
 
@@ -917,6 +933,9 @@ class DataTransferObject extends Map {
    *   an item at a given index).
    */
   protected function rekey(int $from_index = 0): void {
+    if ($this->disableRekey) {
+      return;
+    }
     $assoc = [];
     $sequence = [];
     foreach ($this->properties as $p_name => $p_val) {
@@ -971,6 +990,30 @@ class DataTransferObject extends Map {
    */
   protected static function renderer(): RendererInterface {
     return \Drupal::service('renderer');
+  }
+
+  /**
+   * Gets the current disabled status of rekeying.
+   *
+   * @return bool
+   *   The current disabled status of rekeying.
+   */
+  public function rekeyDisabledStatus(): bool {
+    return $this->disableRekey;
+  }
+
+  /**
+   * Disables rekeying for this DTO entirely.
+   */
+  public function disableRekey(): void {
+    $this->disableRekey = TRUE;
+  }
+
+  /**
+   * Enables rekeying for this DTO entirely.
+   */
+  public function enableRekey(): void {
+    $this->disableRekey = FALSE;
   }
 
 }

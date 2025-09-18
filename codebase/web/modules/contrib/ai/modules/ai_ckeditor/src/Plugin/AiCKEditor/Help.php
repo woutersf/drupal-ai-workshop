@@ -16,6 +16,7 @@ use Drupal\ai_ckeditor\Attribute\AiCKEditor;
   id: 'ai_ckeditor_help',
   label: new TranslatableMarkup('Help and Support'),
   description: new TranslatableMarkup('Information on where to get AI help and support.'),
+  module_dependencies: [],
 )]
 final class Help extends AiCKEditorPluginBase {
 

@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\eca\Plugin\FormFieldMachineName;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -59,15 +60,15 @@ class EntityForm extends RenderElementActionBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['operation'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Operation'),
       '#default_value' => $this->configuration['operation'],
       '#description' => $this->t('Example: <em>default, save, delete</em>'),
       '#required' => TRUE,
       '#weight' => -30,
+      '#eca_token_replacement' => TRUE,
     ];
     return parent::buildConfigurationForm($form, $form_state);
   }
@@ -96,10 +97,11 @@ class EntityForm extends RenderElementActionBase {
           ->createAccess($object->bundle(), $account, [], TRUE);
       }
       else {
-        $op = $this->configuration['operation'] === 'delete' ? 'delete' : 'update';
+        $operation = trim((string) $this->tokenService->replaceClear($this->configuration['operation']));
+        $operation = $operation === 'delete' ? 'delete' : 'update';
         $access_result = $this->entityTypeManager
           ->getAccessControlHandler($object->getEntityTypeId())
-          ->access($object, $op, $account, TRUE);
+          ->access($object, $operation, $account, TRUE);
       }
     }
     return $return_as_object ? $access_result : $access_result->isAllowed();

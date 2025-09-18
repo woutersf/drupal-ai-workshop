@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ai_api_explorer\Plugin\AiApiExplorer;
 
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Renderer;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -12,9 +14,13 @@ use Drupal\ai\AiProviderPluginManager;
 use Drupal\ai\OperationType\Chat\ChatInput;
 use Drupal\ai\OperationType\Chat\ChatMessage;
 use Drupal\ai\OperationType\Chat\StreamedChatMessageIteratorInterface;
+use Drupal\ai\OperationType\Chat\Tools\ToolsInput;
 use Drupal\ai\OperationType\GenericType\ImageFile;
 use Drupal\ai\Plugin\ProviderProxy;
 use Drupal\ai\Service\AiProviderFormHelper;
+use Drupal\ai\Service\FunctionCalling\ExecutableFunctionCallInterface;
+use Drupal\ai\Service\FunctionCalling\FunctionCallPluginManager;
+use Drupal\ai\Service\FunctionCalling\FunctionGroupPluginManager;
 use Drupal\ai_api_explorer\AiApiExplorerPluginBase;
 use Drupal\ai_api_explorer\Attribute\AiApiExplorer;
 use Drupal\ai_api_explorer\ExplorerHelper;
@@ -51,8 +57,23 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
    *   The Provider Manager.
    * @param \Drupal\Core\Render\Renderer $renderer
    *   The Renderer service.
+   * @param \Drupal\ai\Service\FunctionCalling\FunctionCallPluginManager $functionCallPluginManager
+   *   The AI Function Calls.
+   * @param \Drupal\ai\Service\FunctionCalling\FunctionGroupPluginManager $functionGroupPluginManager
+   *   The AI Function Groups.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $requestStack, AiProviderFormHelper $aiProviderHelper, ExplorerHelper $explorerHelper, AiProviderPluginManager $providerManager, protected Renderer $renderer) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    RequestStack $requestStack,
+    AiProviderFormHelper $aiProviderHelper,
+    ExplorerHelper $explorerHelper,
+    AiProviderPluginManager $providerManager,
+    protected Renderer $renderer,
+    protected FunctionCallPluginManager $functionCallPluginManager,
+    protected FunctionGroupPluginManager $functionGroupPluginManager,
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $requestStack, $aiProviderHelper, $explorerHelper, $providerManager);
   }
 
@@ -69,6 +90,8 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
       $container->get('ai_api_explorer.helper'),
       $container->get('ai.provider'),
       $container->get('renderer'),
+      $container->get('plugin.manager.ai.function_calls'),
+      $container->get('plugin.manager.ai.function_groups'),
     );
   }
 
@@ -78,6 +101,7 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = $this->getFormTemplate($form, 'ai-text-response', 'three-column');
     $form['#attached']['library'][] = 'ai_api_explorer/stream';
+    $form['#attached']['library'][] = 'ai_api_explorer/multiselect';
 
     $form['left']['prompts'] = [
       '#type' => 'details',
@@ -133,11 +157,74 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
       '#description' => $this->t('If the provider supports streaming, the response will be streamed. <strong>Currently the image chat will not work with streaming in this explorer (however in the API it works).</strong>'),
     ];
 
-    $form['left']['submit'] = [
+    $form['left']['advanced'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced'),
+      '#open' => FALSE,
+    ];
+
+    $form['left']['advanced']['json_schema_detail'] = [
+      '#type' => 'details',
+      '#title' => $this->t('JSON Schema/Structured Output'),
+      '#open' => FALSE,
+    ];
+
+    $form['left']['advanced']['json_schema_detail']['json_schema'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('JSON Schema/Structured Output'),
+      '#description' => $this->t('If the provider supports structured JSON, you can enter the JSON schema here.'),
+      '#attributes' => [
+        'placeholder' => $this->t('{"type": "object", "properties": {"role": {"type": "string"}, "text": {"type": "string"}}}'),
+      ],
+    ];
+
+    $form['left']['advanced']['function_call_detail'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Function Calling'),
+      '#open' => FALSE,
+    ];
+
+    $options = [];
+    foreach ($this->functionCallPluginManager->getDefinitions() as $plugin_id => $definition) {
+      $group = $definition['group'];
+      if ($group && $this->functionGroupPluginManager->hasDefinition($group)) {
+        $group_details = $this->functionGroupPluginManager->getDefinition($group);
+        $options[(string) $group_details['group_name']][$plugin_id] = $definition['name'] . ' (' . $definition['provider'] . ')';
+      }
+      else {
+        $options['Other'][$plugin_id] = $definition['name'] . ' (' . $definition['provider'] . ')';
+      }
+
+    }
+    $form['left']['advanced']['function_call_detail']['function_calls'] = [
+      '#type' => 'select',
+      '#multiple' => TRUE,
+      '#title' => $this->t('Function Calling'),
+      '#description' => $this->t('The function to add to the call.'),
+      '#required' => FALSE,
+      '#options' => $options,
+    ];
+
+    $form['left']['advanced']['function_call_detail']['execute'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Execute Function Call'),
+      '#description' => $this->t('If you want to execute the function call and show the output.'),
+    ];
+
+    $form['left']['submit_wrapper'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['ai-submit-wrapper'],
+        'style' => 'display: flex; align-items: center; gap: 5px;',
+      ],
+    ];
+
+    $form['left']['submit_wrapper']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Ask The AI'),
       '#attributes' => [
         'data-response' => 'ai-text-response',
+        'class' => ['ai-submit-button'],
       ],
       '#ajax' => [
         'callback' => $this->getAjaxResponseId(),
@@ -145,6 +232,16 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
       ],
     ];
 
+    $form['left']['submit_wrapper']['loading'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'span',
+      '#attributes' => [
+        'id' => 'ai-loading-message-chat',
+        'class' => ['ai-loading'],
+        'style' => 'display: none;',
+      ],
+      '#value' => $this->t('Processing...'),
+    ];
     // Load the LLM configurations.
     $this->aiProviderHelper->generateAiProvidersForm($form['right'], $form_state, 'chat', 'chat', AiProviderFormHelper::FORM_CONFIGURATION_FULL, 1003);
 
@@ -160,96 +257,142 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
     // This runs on streamed.
     $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'chat', 'chat');
     $values = $form_state->getValues();
+    $prompt_message = $values['message_1'];
+
     // Get the messages.
     $messages = [];
     // Get potential files.
     $files = $this->getRequest()->files->all();
-    foreach ($values as $key => $value) {
-      if (str_starts_with($key, 'role_')) {
-        $index = substr($key, 5);
-        $role = $value;
-        $message = $values['message_' . $index];
-        // Load the file.
-        $image = "";
-        if (isset($files['files']['image_' . $index])) {
-          $raw_file = file_get_contents($files['files']['image_' . $index]->getPathname());
-          $image = new ImageFile($raw_file, $files['files']['image_' . $index]->getClientMimeType(), $files['files']['image_' . $index]->getClientOriginalName());
-        }
-        if ($role && $message) {
-          $images = [];
-          if ($image) {
-            $images[] = $image;
+    if (!empty($prompt_message)) {
+      foreach ($values as $key => $value) {
+        if (str_starts_with($key, 'role_')) {
+          $index = substr($key, 5);
+          $role = $value;
+          $message = $values['message_' . $index];
+          // Load the file.
+          $image = "";
+          if (isset($files['files']['image_' . $index])) {
+            $raw_file = file_get_contents($files['files']['image_' . $index]->getPathname());
+            $image = new ImageFile($raw_file, $files['files']['image_' . $index]->getClientMimeType(), $files['files']['image_' . $index]->getClientOriginalName());
           }
-          $messages[] = new ChatMessage($role, $message, $images);
+          if ($role && $message) {
+            $images = [];
+            if ($image) {
+              $images[] = $image;
+            }
+            $messages[] = new ChatMessage($role, $message, $images);
+          }
         }
       }
-    }
 
-    $input = new ChatInput($messages);
-
-    // Check for system message.
-    if ($form_state->getValue('system_message')) {
-      $provider->setChatSystemRole($form_state->getValue('system_message'));
-    }
-
-    $message = NULL;
-    $response = NULL;
-    try {
-      // If we should stream.
-      if ($form_state->getValue('streamed')) {
-        $provider->streamedOutput();
+      $functions = [];
+      $function_instances = [];
+      foreach ($values['function_calls'] as $function_call_name) {
+        $function_call = $this->functionCallPluginManager->createInstance($function_call_name);
+        $function_instances[$function_call->getFunctionName()] = $function_call;
+        $functions[] = $function_call->normalize();
       }
-      $response = $provider->chat($input, $form_state->getValue('chat_ai_model'), [
-        'chat_generation',
-        'ai_api_explorer',
-      ])->getNormalized();
-    }
-    catch (\Exception $e) {
-      $message = $this->explorerHelper->renderException($e);
-    }
 
-    // Generation code for normalization.
-    $code = $this->normalizeCodeExample($provider, $form_state, $messages);
+      $input = new ChatInput($messages);
 
-    if (is_object($response) && get_class($response) == ChatMessage::class) {
-      $form['middle']['response']['#context']['ai_response']['role'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'h4',
-        '#value' => 'Role: ' . $response->getRole(),
-      ];
-      $form['middle']['response']['#context']['ai_response']['text'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#value' => $response->getText(),
-      ];
-      $form['middle']['response']['#context']['ai_response']['code'] = $code;
-      $form_state->setRebuild();
-      return $form['middle'];
-    }
-    elseif ($response instanceof StreamedChatMessageIteratorInterface) {
-      $http_response = new StreamedResponse();
-      $http_response->setCallback(function () use ($response, $code) {
-        foreach ($response as $key => $chat_message) {
-          if ($chat_message->getRole() && !$key) {
-            echo '<h4>Role: ' . $chat_message->getRole() . "</h4><p>";
+      if (count($functions)) {
+        $input->setChatTools(new ToolsInput($functions));
+      }
+
+      // Check for system message.
+      if ($form_state->getValue('system_message')) {
+        $provider->setChatSystemRole($form_state->getValue('system_message'));
+      }
+
+      if ($form_state->getValue('json_schema')) {
+        $input->setChatStructuredJsonSchema(Json::decode($form_state->getValue('json_schema')));
+      }
+
+      $message = NULL;
+      $response = NULL;
+      try {
+        // If we should stream.
+        if ($form_state->getValue('streamed')) {
+          $provider->streamedOutput();
+        }
+        $response = $provider->chat($input, $form_state->getValue('chat_ai_model'), [
+          'chat_generation',
+          'ai_api_explorer',
+        ])->getNormalized();
+      }
+      catch (\Exception $e) {
+        $message = $this->explorerHelper->renderException($e);
+      }
+      $code = '';
+      $tools_output = '';
+      if ($response) {
+        if (method_exists($response, 'getTools') && $response->getTools()) {
+          $tools_output = $this->getToolsOutput($function_instances, $response->getTools(), $form_state->getValue('execute'));
+        }
+        // Generation code for normalization.
+        $code = $this->normalizeCodeExample($provider, $form_state, $messages);
+      }
+
+      if (is_object($response) && get_class($response) == ChatMessage::class) {
+        $output = $response->getText();
+        if ($form_state->getValue('json_schema')) {
+          // Decode && encode nicely.
+          $json = json_encode(Json::decode($output), JSON_PRETTY_PRINT);
+          if (!empty($json)) {
+            $output = '<pre>' . $json . '</pre>';
           }
-          echo $chat_message->getText();
+        }
+        $form['middle']['response']['#context']['ai_response']['role'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'h4',
+          '#value' => 'Role: ' . $response->getRole(),
+        ];
+        $form['middle']['response']['#context']['ai_response']['text'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => $output,
+        ];
+        if ($tools_output) {
+          $form['middle']['response']['#context']['ai_response']['tools_wrapper'] = [
+            '#type' => 'details',
+            '#title' => $this->t('Tools Output'),
+            '#open' => TRUE,
+          ];
+          $form['middle']['response']['#context']['ai_response']['tools_wrapper']['tools'] = [
+            '#type' => 'html_tag',
+            '#tag' => 'div',
+            '#value' => $tools_output,
+          ];
+        }
+        $form['middle']['response']['#context']['ai_response']['code'] = $code;
+        $form_state->setRebuild();
+        return $form['middle'];
+      }
+      elseif ($response instanceof StreamedChatMessageIteratorInterface) {
+        $http_response = new StreamedResponse();
+        $http_response->setCallback(function () use ($response, $code) {
+          foreach ($response as $key => $chat_message) {
+            if ($chat_message->getRole() && !$key) {
+              echo '<h4>Role: ' . $chat_message->getRole() . "</h4><p>";
+            }
+            echo $chat_message->getText();
+            ob_flush();
+            flush();
+          }
+          echo $this->renderer->render($code);
           ob_flush();
           flush();
-        }
-        echo $this->renderer->render($code);
-        ob_flush();
-        flush();
-      });
-      $form_state->setResponse($http_response);
-    }
-    else {
-      $form['middle']['response']['#context']['ai_response']['#markup'] = $message;
-      $form_state->setRebuild();
-      return $form['middle'];
+        });
+        $form_state->setResponse($http_response);
+      }
+      else {
+        $form['middle']['response']['#context']['ai_response']['#markup'] = $message;
+        $form_state->setRebuild();
+        return $form['middle'];
+      }
     }
 
-    return [];
+    return $form['middle'] ?? [];
   }
 
   /**
@@ -257,6 +400,51 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this->getResponse($form, $form_state);
+  }
+
+  /**
+   * Gets the tools output.
+   *
+   * @param \Drupal\ai\Service\FunctionCalling\FunctionCallInterface[] $functions
+   *   The functions.
+   * @param \Drupal\ai\OperationType\Chat\Tools\ToolsFunctionOutput[] $outputs
+   *   The outputs.
+   * @param int $execute
+   *   If the functions should be executed.
+   *
+   * @return string
+   *   The tools output.
+   */
+  public function getToolsOutput(array $functions, array $outputs, int $execute): string {
+    $output = '';
+    $i = 1;
+    foreach ($outputs as $tool) {
+      $output .= '<h4>#' . $i . ' tool usage:</h4>';
+      $output .= $this->t('<strong>Tool name</strong>') . ' ' . $tool->getName() . '<br>';
+      $output .= $this->t('<strong>Arguments from LLM:</strong>') . '<br>';
+      foreach ($tool->getArguments() as $argument) {
+        $output .= '- <em>' . $argument->getName() . '</em>: ' . Json::encode($argument->getValue()) . '<br>';
+      }
+      $function = $this->functionCallPluginManager->convertToolResponseToObject($tool);
+
+      // Validate the context.
+      $violations = $function->validateContexts();
+      if ($violations->count()) {
+        $output .= $this->t('<strong>Validation errors</strong>:') . '<br>';
+        foreach ($violations as $violation) {
+          $output .= '- ' . new FormattableMarkup('@property: @violation', [
+            '@property' => $violation->getRoot()->getDataDefinition()->getLabel(),
+            '@violation' => $violation->getMessage(),
+          ]) . '<br/>';
+        }
+      }
+      elseif ($function instanceof ExecutableFunctionCallInterface && $execute) {
+        $function->execute();
+        $output .= $this->t('<strong>Executed value</strong>:') . ' ' . $function->getReadableOutput() . '<br>';
+      }
+      $i++;
+    }
+    return $output;
   }
 
   /**
@@ -295,13 +483,27 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
       }
     }
     $code['code']['#value'] .= ']);<br><br>';
+    if (!empty($form_state->getValue('function_calls'))) {
+      $code['code']['#value'] .= '$functions_array = [];<br>';
+      $code['code']['#value'] .= '// Example call for tools plugin for function calling.<br>';
+      $code['code']['#value'] .= '$tools = ["' . implode('", "', $form_state->getValue('function_calls')) . '"];<br>';
+      $code['code']['#value'] .= 'foreach ($tools as $tool_id) {<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;$tool = \Drupal::provider("plugin.manager.ai.function_calls")->createInstance($tool_id);<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;$functions_array[] = $tool->normalize();<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;$functions[$tool->getName()] = $tool;<br>';
+      $code['code']['#value'] .= '}<br>';
+      $code['code']['#value'] .= '$input->setChatTools(new \Drupal\ai\OperationType\Chat\Tools\ToolsInput($functions));<br><br>';
+    }
 
     $code['code']['#value'] .= "\$ai_provider = \Drupal::service('ai.provider')->createInstance('" . $form_state->getValue('chat_ai_provider') . '\');<br>';
     if ($show_config) {
       $code['code']['#value'] .= "\$ai_provider->setConfiguration(\$config);<br>";
     }
+    if ($form_state->getValue('json_schema')) {
+      $code['code']['#value'] .= '$ai_provider->setChatStructuredJsonSchema(' . $form_state->getValue('json_schema') . ');<br>';
+    }
     if ($form_state->getValue('system_message')) {
-      $code['code']['#value'] .= '$ai_provider->setChatSystemRole("' . $form_state->getValue('system_message') . '");<br>';
+      $code['code']['#value'] .= '$ai_provider->setChatSystemRole("' . Json::decode($form_state->getValue('system_message')) . '");<br>';
     }
     if ($form_state->getValue('streamed')) {
       $code['code']['#value'] .= "// If you want to stream the response normalized you have to make sure<br>";
@@ -310,6 +512,24 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
     $code['code']['#value'] .= "// Normalized \$response will be a ChatMessage object.<br>";
     $code['code']['#value'] .= "\$response = \$ai_provider->chat(\$input, '" . $form_state->getValue('chat_ai_model') . '\', ["your_module_name"])->getNormalized();<br>';
 
+    if (!empty($form_state->getValue('function_calls'))) {
+      $code['code']['#value'] .= '// Example call for tools output for function calling.<br>';
+      $code['code']['#value'] .= 'if ($response->getTools()) {<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;foreach($response->getTools() as $tool) {<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;// Get the actual object.<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;$function = $functions[$tool->getName()];<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;// Seed it.<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;$function->populateValues($tool);<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;// Execute it if possible.<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;if ($function instanceof \Drupal\ai\Service\FunctionCalling\ExecutableFunctionCallInterface) {<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$function->execute();<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Get the readable output.<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$function->getReadableOutput();<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;&nbsp;&nbsp;}<br>';
+      $code['code']['#value'] .= '&nbsp;&nbsp;}<br>';
+      $code['code']['#value'] .= '}<br>';
+
+    }
     // If there is a streaming response.
     if ($form_state->getValue('streamed')) {
       $code['code']['#value'] .= "<br><br>// If you want to stream the response normalized you have to make sure<br>";
@@ -356,6 +576,9 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
       $code['code']['#value'] .= '$ai_provider->setChatSystemRole("' . $form_state->getValue('system_message') . '");<br>';
     }
     $code['code']['#value'] .= "\$ai_provider->setConfiguration(\$config);<br>";
+    if (!empty($form_state->getValue('function_calls'))) {
+      $code['code']['#value'] .= '// Some custom code for function calling per model.<br>';
+    }
     $code['code']['#value'] .= "// Normalized \$response will be what ever the provider gives back.<br>";
     $code['code']['#value'] .= "\$response = \$ai_provider->chat(\$expectedInputFromProviderClient, '" . $form_state->getValue('chat_ai_model') . '\', ["your_module_name"])->getRawOutput();';
 

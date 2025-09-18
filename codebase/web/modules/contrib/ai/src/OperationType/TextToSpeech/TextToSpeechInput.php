@@ -2,12 +2,13 @@
 
 namespace Drupal\ai\OperationType\TextToSpeech;
 
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for text to speech input.
  */
-class TextToSpeechInput implements InputInterface {
+class TextToSpeechInput extends InputBase implements InputInterface {
   /**
    * The text to convert to speech.
    *

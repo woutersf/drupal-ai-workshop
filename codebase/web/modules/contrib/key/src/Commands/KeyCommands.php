@@ -314,7 +314,7 @@ class KeyCommands extends DrushCommands {
     $tags = StringUtils::csvToArray($options['tags']);
     if ($options['storage-method']) {
       @trigger_error("The Drush --storage-method option is deprecated in key:1.18.0 and is removed from key:2.0.0. Use the --tags option instead. See https://www.drupal.org/node/3364701", E_USER_DEPRECATED);
-      \Drupal::logger('key')->log('warning', (dt("The Drush --storage-method option is deprecated in key:1.18.0 and is removed from key:2.0.0. Use the --tags option instead. See https://www.drupal.org/node/3364701", E_USER_DEPRECATED)));
+      \Drupal::logger('key')->log('warning', (dt("The Drush --storage-method option is deprecated in key:1.18.0 and is removed from key:2.0.0. Use the --tags option instead. See https://www.drupal.org/node/3364701")));
       $tags[] = $options['storage-method'];
       $tags = array_unique($tags);
     }

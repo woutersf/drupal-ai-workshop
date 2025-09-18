@@ -240,5 +240,5 @@ own implementation.
 ```
 
 ## Developer documentation
-Check the [developers guide](../../developers/writing_an_ai_automators_plugin) for
+Check the [developers guide](../../developers/writing_an_ai_automators_plugin.md) for
 information on how to write a third party module using the AI module.

@@ -1,0 +1,10 @@
+name: Simple Crawler
+description: Fetches data from websites via CURL.
+package: AI Tools
+type: module
+core_version_requirement: ^10.2 || ^11
+
+# Information added by Drupal.org packaging script on 2025-01-02
+version: '1.0.0-beta2'
+project: 'simple_crawler'
+datestamp: 1735851322

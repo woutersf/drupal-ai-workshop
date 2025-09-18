@@ -368,7 +368,7 @@ class GeneralHelper {
     ];
     $joiners = array_merge_recursive($joiners, $extraJoiners);
     $storage = $this->entityTypeManager->getStorage('ai_automator');
-    $fields = $storage->loadByProperties([
+    $storage->loadByProperties([
       'entity_type' => $entity->getEntityTypeId(),
       'bundle' => $entity->bundle(),
     ]);
@@ -553,7 +553,7 @@ class GeneralHelper {
    * @return string|null
    *   The format.
    */
-  public function calculateTextFormat(FieldDefinitionInterface $fieldDefinition) {
+  public function calculateTextFormat(FieldDefinitionInterface $fieldDefinition): ?string {
     $allFormats = $this->entityTypeManager->getStorage('filter_format')->loadMultiple();
     // Maybe no formats are available.
     if (empty($allFormats)) {
@@ -561,7 +561,7 @@ class GeneralHelper {
     }
     $formatsAllowed = $fieldDefinition->getSetting('allowed_formats');
     // All formats are allowed.
-    if (!count($formatsAllowed)) {
+    if (empty($formatsAllowed)) {
       $formatsAllowed = array_keys($allFormats);
     }
     foreach ($formatsAllowed as $format) {
@@ -588,7 +588,12 @@ class GeneralHelper {
    *   An array of all image styles.
    */
   public function getImageStyles($none = TRUE) {
-    $imageStyles = $this->entityTypeManager->getStorage('image_style')->loadMultiple();
+    if ($this->entityTypeManager->hasDefinition('image_style')) {
+      $imageStyles = $this->entityTypeManager->getStorage('image_style')->loadMultiple();
+    }
+    else {
+      $imageStyles = [];
+    }
     $imageStylesOptions = [];
     if ($none) {
       $imageStylesOptions[''] = $this->t('-- None --');

@@ -3,6 +3,7 @@
 namespace Drupal\eca\Plugin\ECA;
 
 use Drupal\Core\Render\Element;
+use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\eca\Plugin\DataType\DataTransferObject;
 
 /**
@@ -43,6 +44,9 @@ trait PluginFormTrait {
   protected function getTokenValue(string $fieldKey, string $default): string {
     $value = $this->tokenService->getTokenData($this->buildTokenName($fieldKey));
     if ($value instanceof DataTransferObject) {
+      $value = $value->getValue();
+    }
+    if ($value instanceof TypedDataInterface) {
       $value = $value->getValue();
     }
     return is_scalar($value) ? (string) $value : $default;

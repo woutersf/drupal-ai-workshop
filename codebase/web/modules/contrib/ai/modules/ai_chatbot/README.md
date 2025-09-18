@@ -10,4 +10,4 @@ In the backend it uses Deepchat by OvidijusParsiunas. To have the Chatbot
 responses display correctly you **MUST** install the league/commonmark library.
 
 ## Using the module
-For more information, please see the [AI Assistant API module documentation](https://project.pages.drupalcode.org/ai/modules/ai_assistant_api/).
+For more information, please see the [AI Assistant API module documentation](https://project.pages.drupalcode.org/ai/latest/modules/ai_assistant_api/).

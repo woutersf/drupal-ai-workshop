@@ -6,6 +6,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\eca\Plugin\Action\ConfigurableActionBase;
+use Drupal\eca\Plugin\FormFieldYamlTrait;
 use Drupal\eca\Service\YamlParser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -21,6 +22,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  * )
  */
 class EcaStateWrite extends ConfigurableActionBase {
+
+  use FormFieldYamlTrait;
 
   /**
    * The YAML parser.
@@ -46,6 +49,14 @@ class EcaStateWrite extends ConfigurableActionBase {
     $result = AccessResult::allowedIf(is_string($key) && $key !== '');
     if (!$result->isAllowed()) {
       $result->setReason('The given key is invalid.');
+    }
+    if ($result->isAllowed() && $this->configuration['use_yaml'] && $this->configuration['validate_yaml']) {
+      try {
+        $this->yamlParser->parse($this->configuration['value']);
+      }
+      catch (ParseException) {
+        $result = AccessResult::forbidden('YAML data is not valid.');
+      }
     }
     return $return_as_object ? $result : $result->isAllowed();
   }
@@ -81,6 +92,7 @@ class EcaStateWrite extends ConfigurableActionBase {
       'key' => '',
       'value' => '',
       'use_yaml' => FALSE,
+      'validate_yaml' => FALSE,
     ] + parent::defaultConfiguration();
   }
 
@@ -104,13 +116,12 @@ class EcaStateWrite extends ConfigurableActionBase {
       '#description' => $this->t('The key, where the value is stored into.'),
       '#eca_token_replacement' => TRUE,
     ];
-    $form['use_yaml'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Interpret above config value as YAML format'),
-      '#description' => $this->t('Nested data can be set using YAML format, for example <em>mykey: myvalue</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>title: "[node:title]"</em>'),
-      '#default_value' => $this->configuration['use_yaml'],
-      '#weight' => -10,
-    ];
+    $this->buildYamlFormFields(
+      $form,
+      $this->t('Interpret above config value as YAML format'),
+      $this->t('Nested data can be set using YAML format, for example <em>mykey: myvalue</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>title: "[node:title]"</em>'),
+      -10,
+    );
     return parent::buildConfigurationForm($form, $form_state);
   }
 
@@ -121,6 +132,7 @@ class EcaStateWrite extends ConfigurableActionBase {
     $this->configuration['key'] = $form_state->getValue('key');
     $this->configuration['value'] = $form_state->getValue('value');
     $this->configuration['use_yaml'] = !empty($form_state->getValue('use_yaml'));
+    $this->configuration['validate_yaml'] = !empty($form_state->getValue('validate_yaml'));
     parent::submitConfigurationForm($form, $form_state);
   }
 

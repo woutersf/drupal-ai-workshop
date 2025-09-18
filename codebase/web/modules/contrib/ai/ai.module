@@ -52,28 +52,3 @@ function ai_module_preuninstall($module) {
     }
   }
 }
-
-/**
- * Mapping from the provider submodules to the new external modules.
- *
- * To be removed when the internal providers are removed.
- *
- * @return string[]
- *   The submodule providers mapped to the external module providers.
- *
- * @internal
- */
-function _ai_providers_mapping(): array {
-  // @todo verify the destination ai providers are correct.
-  return [
-    'provider_anthropic' => 'ai_provider_anthropic',
-    'provider_groq' => 'ai_provider_groq',
-    'provider_huggingface' => 'ai_provider_huggingface',
-    'provider_lmstudio' => 'ai_provider_lmstudio',
-    'provider_mistral' => 'ai_provider_mistral',
-    'provider_ollama' => 'ai_provider_ollama',
-    'provider_openai' => 'ai_provider_openai',
-    'vdb_provider_pinecone' => 'ai_vdb_provider_pinecone',
-    'vdb_provider_milvus' => 'ai_vdb_provider_milvus',
-  ];
-}

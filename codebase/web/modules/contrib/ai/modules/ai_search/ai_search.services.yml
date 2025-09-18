@@ -6,3 +6,8 @@ services:
     class: Drupal\ai_search\EventSubscriber\SolrBoostByAiSearchEventSubscriber
     tags:
       - { name: event_subscriber }
+  ai_search.event_subscriber.new_server:
+    class: Drupal\ai_search\EventSubscriber\NewServerEventSubscriber
+    tags:
+      - { name: event_subscriber }
+    arguments: ['@ai.vdb_provider']

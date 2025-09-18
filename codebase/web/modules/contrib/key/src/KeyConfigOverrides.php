@@ -50,7 +50,7 @@ class KeyConfigOverrides implements ConfigFactoryOverrideInterface {
    * @param \Drupal\Core\Cache\CacheBackendInterface|null $cache_backend
    *   The cache backend.
    */
-  public function __construct(ConfigFactoryInterface $config_factory = NULL, CacheBackendInterface $cache_backend = NULL) {
+  public function __construct(?ConfigFactoryInterface $config_factory = NULL, ?CacheBackendInterface $cache_backend = NULL) {
     $this->configFactory = $config_factory ?: \Drupal::configFactory();
     $this->cacheBackend = $cache_backend ?: \Drupal::cache('data');
   }

@@ -109,6 +109,9 @@ abstract class AdminToolbarSearchTestBase extends WebDriverTestBase {
    *   The string to search for.
    * @param string $contains
    *   Some HTML that is expected to be within the suggestions element.
+   *
+   * @return void
+   *   Nothing to return.
    */
   protected function assertSuggestionContains($search, $contains) {
     $this->resetSearch();
@@ -132,6 +135,9 @@ abstract class AdminToolbarSearchTestBase extends WebDriverTestBase {
    *   The string to search for.
    * @param string $contains
    *   Some HTML that is not expected to be within the suggestions element.
+   *
+   * @return void
+   *   Nothing to return.
    */
   protected function assertSuggestionNotContains($search, $contains) {
     $this->resetSearch();
@@ -152,6 +158,9 @@ abstract class AdminToolbarSearchTestBase extends WebDriverTestBase {
 
   /**
    * Search for an empty string to clear out the autocomplete suggestions.
+   *
+   * @return void
+   *   Nothing to return.
    */
   protected function resetSearch() {
     $page = $this->getSession()->getPage();
@@ -169,6 +178,9 @@ abstract class AdminToolbarSearchTestBase extends WebDriverTestBase {
    * @param string $url
    *   The url to assert exists in the admin menu.
    *
+   * @return void
+   *   Nothing to return.
+   *
    * @throws \Behat\Mink\Exception\ElementNotFoundException
    */
   protected function assertMenuHasHref($url) {
@@ -181,6 +193,9 @@ abstract class AdminToolbarSearchTestBase extends WebDriverTestBase {
    *
    * @param string $url
    *   The url to assert exists in the admin menu.
+   *
+   * @return void
+   *   Nothing to return.
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    */

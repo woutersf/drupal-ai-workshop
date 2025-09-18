@@ -17,6 +17,7 @@ use Drupal\taxonomy\Entity\Term;
   id: 'ai_ckeditor_tone',
   label: new TranslatableMarkup('Tone'),
   description: new TranslatableMarkup('Convert tone of selected text.'),
+  module_dependencies: ['taxonomy'],
 )]
 final class Tone extends AiCKEditorPluginBase {
 
@@ -88,9 +89,13 @@ final class Tone extends AiCKEditorPluginBase {
     $form['prompt'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Change tone prompt'),
-      '#required' => TRUE,
       '#default_value' => $prompt_tone,
       '#description' => $this->t('This prompt will be used to change the tone of voice. {{ tone }} is the target tone of voice that is chosen.'),
+      '#states' => [
+        'required' => [
+          ':input[name="editor[settings][plugins][ai_ckeditor_ai][plugins][ai_ckeditor_tone][enabled]"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     return $form;
@@ -99,8 +104,22 @@ final class Tone extends AiCKEditorPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+  protected function getGenerateButtonLabel() {
+    return $this->t('Change the tone');
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function getSelectedTextLabel() {
+    return $this->t('Selected text to convert');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getAiResponseLabel() {
+    return $this->t('Suggested conversion');
   }
 
   /**
@@ -120,15 +139,6 @@ final class Tone extends AiCKEditorPluginBase {
    * {@inheritdoc}
    */
   public function buildCkEditorModalForm(array $form, FormStateInterface $form_state, array $settings = []) {
-    $storage = $form_state->getStorage();
-    $editor_id = $this->requestStack->getParentRequest()->get('editor_id');
-
-    if (empty($storage['selected_text'])) {
-      return [
-        '#markup' => '<p>' . $this->t('You must select some text before you can change its tone.') . '</p>',
-      ];
-    }
-
     $form = parent::buildCkEditorModalForm($form, $form_state);
 
     $form['tone'] = [
@@ -154,26 +164,6 @@ final class Tone extends AiCKEditorPluginBase {
         'bundle' => $this->configuration['tone_vocabulary'],
       ];
     }
-
-    $form['selected_text'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Selected text to convert'),
-      '#disabled' => TRUE,
-      '#default_value' => $storage['selected_text'],
-    ];
-
-    $form['response_text'] = [
-      '#type' => 'text_format',
-      '#title' => $this->t('Suggested conversion'),
-      '#description' => $this->t('The response from AI will appear in the box above. You can edit and tweak the response before saving it back to the main editor.'),
-      '#prefix' => '<div id="ai-ckeditor-response">',
-      '#suffix' => '</div>',
-      '#default_value' => '',
-      '#allowed_formats' => [$editor_id],
-      '#format' => $editor_id,
-    ];
-
-    $form['actions']['generate']['#value'] = $this->t('Change the tone');
 
     return $form;
   }
@@ -211,18 +201,18 @@ final class Tone extends AiCKEditorPluginBase {
       $prompts_config = $this->getConfigFactory()->get('ai_ckeditor.settings');
       $prompt = $prompts_config->get('prompts.tone');
       $prompt = str_replace('{{ tone }}', $term->label(), $prompt);
-      if ($this->configuration['use_description'] && !empty($term->description->value)) {
-        $prompt .= 'That tone can described as: ' . strip_tags($term->description->value);
+      if ($this->configuration['use_description'] && !empty($term->getDescription())) {
+        $prompt .= 'That tone can described as: ' . strip_tags($term->getDescription());
       }
-      $prompt .= "\n\nThe text that we want to change is the following:\n" . $values["plugin_config"]["selected_text"];
+      $prompt .= "\n\nThe text that we want to change is the following:\n" . $values['plugin_config']['selected_text'];
       $response = new AjaxResponse();
       $values = $form_state->getValues();
-      $response->addCommand(new AiRequestCommand($prompt, $values["editor_id"], $this->pluginDefinition['id'], 'ai-ckeditor-response'));
+      $response->addCommand(new AiRequestCommand($prompt, $values['editor_id'], $this->pluginDefinition['id'], 'ai-ckeditor-response'));
       return $response;
     }
     catch (\Exception $e) {
       $this->logger->error("There was an error in the Tone AI plugin for CKEditor.");
-      return $form['plugin_config']['response_text']['#value'] = "There was an error in the Tone AI plugin for CKEditor.";
+      return $form['plugin_config']['response_wrapper']['response_text']['#value'] = 'There was an error in the Tone AI plugin for CKEditor.';
     }
   }
 

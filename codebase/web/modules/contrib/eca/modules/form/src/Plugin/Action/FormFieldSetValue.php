@@ -3,9 +3,12 @@
 namespace Drupal\eca_form\Plugin\Action;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\eca\Plugin\Action\ConfigurableActionBase;
 use Drupal\eca\Plugin\FormFieldPluginTrait;
+use Drupal\eca\Plugin\FormFieldYamlTrait;
 use Drupal\eca\Service\YamlParser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -15,8 +18,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  *
  * @Action(
  *   id = "eca_form_field_set_value",
- *   label = @Translation("Form field: set submitted value"),
- *   description = @Translation("Set or overwrite the submitted input value of a form field."),
+ *   label = @Translation("Form field: set value"),
+ *   description = @Translation("Set or overwrite the submitted input value of a form field. This also works to set form field value when a form gets rebuilt, e.g. during an ajax request."),
  *   eca_version_introduced = "1.0.0",
  *   type = "form"
  * )
@@ -24,6 +27,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
 class FormFieldSetValue extends ConfigurableActionBase {
 
   use FormFieldPluginTrait;
+  use FormFieldYamlTrait;
 
   /**
    * The YAML parser.
@@ -44,10 +48,27 @@ class FormFieldSetValue extends ConfigurableActionBase {
   /**
    * {@inheritdoc}
    */
+  public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
+    $result = parent::access($object, $account, TRUE);
+    if ($result->isAllowed() && $this->configuration['use_yaml'] && $this->configuration['validate_yaml']) {
+      try {
+        $this->yamlParser->parse($this->configuration['value']);
+      }
+      catch (ParseException) {
+        $result = AccessResult::forbidden('YAML data is not valid.');
+      }
+    }
+    return $return_as_object ? $result : $result->isAllowed();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function defaultConfiguration(): array {
     return [
       'field_value' => '',
       'use_yaml' => FALSE,
+      'validate_yaml' => FALSE,
     ] + $this->defaultFormFieldConfiguration() + parent::defaultConfiguration();
   }
 
@@ -62,13 +83,12 @@ class FormFieldSetValue extends ConfigurableActionBase {
       '#weight' => -45,
       '#eca_token_replacement' => TRUE,
     ];
-    $form['use_yaml'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Interpret above value as YAML format'),
-      '#description' => $this->t('Nested data can be set using YAML format, for example <em>mykey: "My value"</em>. When using this format, this options needs to be enabled.'),
-      '#default_value' => $this->configuration['use_yaml'],
-      '#weight' => -43,
-    ];
+    $this->buildYamlFormFields(
+      $form,
+      $this->t('Interpret above value as YAML format'),
+      $this->t('Nested data can be set using YAML format, for example <em>mykey: "My value"</em>. When using this format, this options needs to be enabled.'),
+      -43,
+    );
     $form = $this->buildFormFieldConfigurationForm($form, $form_state);
     return parent::buildConfigurationForm($form, $form_state);
   }
@@ -87,6 +107,7 @@ class FormFieldSetValue extends ConfigurableActionBase {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['field_value'] = $form_state->getValue('field_value');
     $this->configuration['use_yaml'] = !empty($form_state->getValue('use_yaml'));
+    $this->configuration['validate_yaml'] = !empty($form_state->getValue('validate_yaml'));
     $this->submitFormFieldConfigurationForm($form, $form_state);
     parent::submitConfigurationForm($form, $form_state);
   }
@@ -113,6 +134,10 @@ class FormFieldSetValue extends ConfigurableActionBase {
       $value = (string) $this->tokenService->replaceClear($value);
     }
     $this->filterFormFieldValue($value);
+
+    if ($element = &$this->getTargetElement()) {
+      $element['#value'] = $value;
+    }
 
     $original_field_name = $this->configuration['field_name'];
     $this->configuration['field_name'] = (string) $this->tokenService->replace($original_field_name);

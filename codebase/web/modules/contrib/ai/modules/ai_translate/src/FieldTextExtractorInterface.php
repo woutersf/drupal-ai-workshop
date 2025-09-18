@@ -35,7 +35,18 @@ interface FieldTextExtractorInterface {
    *   Field name.
    *
    * @return array
-   *   Array of text metadata to translate.
+   *   Array of text metadata arrays to translate.
+   *   Metadata array has a special "_columns" key to specify which
+   *   parts of metadata should be translated.
+   *   Example text metadata:
+   *   [
+   *     'delta' => 0,
+   *     'field_name' => 'field_faq',
+   *     'question' => 'What is the capital of the United Kingdom?',
+   *     'answer' => 'London',
+   *     '_columns' => ['question', 'answer'],
+   *   ].
+   *   Default value for '_columns' is ['value'].
    */
   public function extract(ContentEntityInterface $entity, string $fieldName)
     : array;

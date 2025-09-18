@@ -48,7 +48,7 @@ will learn from this. **Implementing this may require advanced knowledge of LLMs
 and their workings**.
 
 ### Examples
-For working examples, please see the code of the [AI search](../modules/ai_search/)
+For working examples, please see the code of the [AI search](../modules/ai_search/index.md)
 sub-module or the [AI Agents](https://www.drupal.org/project/ai_agents) module.
 
 For an example of how to provide a user-facing interface for an AI Assistant,

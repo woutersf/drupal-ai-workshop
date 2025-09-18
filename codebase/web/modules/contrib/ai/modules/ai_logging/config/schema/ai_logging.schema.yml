@@ -14,3 +14,14 @@ ai_logging.settings:
     prompt_logging_max_age:
       type: integer
       label: 'Maximum age of messages to log in days'
+
+ai_logging.ai_log_type.*:
+  type: config_entity
+  label: 'AI Log type'
+  mapping:
+    label:
+      type: required_label
+      label: 'Name'
+    id:
+      type: machine_name
+      label: 'Machine-readable name'

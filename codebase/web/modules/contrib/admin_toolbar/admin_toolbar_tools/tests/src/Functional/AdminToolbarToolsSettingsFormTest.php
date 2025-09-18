@@ -5,7 +5,7 @@ namespace Drupal\Tests\admin_toolbar_tools\Functional;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- * Test the Admin Toolbar settings form.
+ * Test the Admin Toolbar Tools settings form.
  *
  * @group admin_toolbar
  */
@@ -54,9 +54,11 @@ class AdminToolbarToolsSettingsFormTest extends BrowserTestBase {
     // Log in as an admin user to test admin pages.
     $this->drupalLogin($this->adminUser);
 
-    // Test the 'Admin Toolbar settings' page form submission and fields.
+    // Test the 'Admin Toolbar Tools settings' page form submission and fields.
     $this->drupalGet('admin/config/user-interface/admin-toolbar-tools');
+    // Submit the form with default values.
     $this->submitForm([], 'Save configuration');
+    // Check the form submission was successful.
     $assert->pageTextContains('The configuration options have been saved.');
   }
 

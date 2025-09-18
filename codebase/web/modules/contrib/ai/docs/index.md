@@ -22,6 +22,16 @@ integrating various AI models and services into your Drupal site.
    updating the settings manually.
 4. Enable your desired submodules for specific functionality.
 
+## Try Drupal AI
+
+If you're looking to explore the capabilities of the Drupal AI module without the need to download or set up a full Drupal environment, several platforms offer convenient ways to try out AI solutions.
+
+These platforms provide trial environments for Drupal AI with pre-configured provider integrations, allowing you to directly experience the module's features.
+
+- **[amazee.ai](https://amazee.ai)** offers **open source private AI infrastructure** for Drupal, emphasizing compliance, privacy, and data sovereignty for enterprises. It provides managed AI solutions to enhance content and security.
+
+- **[Drupal Forge](https://drupalforge.org)** provides **instant pre-configured templates for launching** new Drupal trial sites. Quickly spin up temporary sites for testing or development, with an option for a cloud development environment.
+
 ## Develop for it
 
 Check the [developers guide](developers/developer_information.md) for

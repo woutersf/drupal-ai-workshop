@@ -11,14 +11,12 @@ use Drupal\ai\OperationType\GenericType\AbstractFileBase;
 use Drupal\file\Entity\File;
 use Drupal\media\Entity\Media;
 use Drupal\media\Entity\MediaType;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests for the GenerateMediaEntityTrait class.
  *
  * @group ai
  */
-#[Group('ai')]
 final class GenerateMediaEntityTraitTest extends KernelTestBase {
 
   use MediaTypeCreationTrait;

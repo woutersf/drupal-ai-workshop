@@ -3,12 +3,13 @@
 namespace Drupal\ai\OperationType\AudioToAudio;
 
 use Drupal\ai\OperationType\GenericType\AudioFile;
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for audio to audio input.
  */
-class AudioToAudioInput implements InputInterface {
+class AudioToAudioInput extends InputBase implements InputInterface {
 
   /**
    * The audio file to convert.

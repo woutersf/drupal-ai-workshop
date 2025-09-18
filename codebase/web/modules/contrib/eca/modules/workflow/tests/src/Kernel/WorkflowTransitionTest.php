@@ -110,8 +110,12 @@ class WorkflowTransitionTest extends KernelTestBase {
   public function testTransition(): void {
     /** @var \Drupal\eca_workflow\Plugin\Action\WorkflowTransition $workflowTransition */
     $workflowTransition = $this->actionManager
-      ->createInstance('eca_workflow_transition:editorial', ['new_state' => 'published']
+      ->createInstance('eca_workflow_transition:editorial', [
+        'new_state' => 'published',
+        'revision_log' => 'before [entity:label] after',
+      ]
     );
+    $this->container->get('eca.token_services')->addTokenData('entity', $this->node);
 
     $workflowTransition->execute($this->node);
     $this->assertEquals('draft', $this->node->get('moderation_state')->value);
@@ -119,6 +123,8 @@ class WorkflowTransitionTest extends KernelTestBase {
     $storage = $this->entityTypeManager->getStorage($this->node->getEntityTypeId());
     $this->assertEquals('published', $storage->loadRevision(2)
       ->get('moderation_state')->value);
+    $this->assertEquals('before Test node after', $storage->loadRevision(2)
+      ->get('revision_log')->value);
   }
 
   /**

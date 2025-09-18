@@ -3,11 +3,11 @@
 namespace Drupal\{{ machine_name }}\Plugin\ECA\Event;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
+use Drupal\eca\Entity\Objects\EcaEvent;
 use Drupal\eca\Event\Tag;
 use Drupal\eca\Plugin\CleanupInterface;
 use Drupal\eca\Plugin\ECA\Event\EventBase;
-use Drupal\{{ machine_name }}\EcaEvents;
 use Drupal\{{ machine_name }}\Event\MyEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -100,8 +100,7 @@ class EcaEvent extends EventBase implements CleanupInterface {
 
       case 'event1':
         // @todo Do something if necessary.
-
-      }
+        break;
     }
   }
 

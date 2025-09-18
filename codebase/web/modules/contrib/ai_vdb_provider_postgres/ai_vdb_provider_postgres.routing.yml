@@ -1,0 +1,8 @@
+ai_vdb_provider_postgres.settings_form:
+  path: '/admin/config/ai/vdb_providers/postgres'
+  defaults:
+    _form: '\Drupal\ai_vdb_provider_postgres\Form\PostgresConfigForm'
+    _title: 'Configure Postgres'
+  requirements:
+    _permission: 'administer ai providers'
+

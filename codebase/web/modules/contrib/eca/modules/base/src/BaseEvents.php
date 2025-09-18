@@ -25,4 +25,22 @@ final class BaseEvents {
    */
   public const CUSTOM = 'eca_base.custom';
 
+  /**
+   * Dispatches a tool event.
+   *
+   * @Event
+   *
+   * @var string
+   */
+  public const TOOL = 'eca_base.tool';
+
+  /**
+   * Dispatches a field widget event.
+   *
+   * @Event
+   *
+   * @var string
+   */
+  public const FIELD_WIDGET = 'eca_base.field_widget';
+
 }

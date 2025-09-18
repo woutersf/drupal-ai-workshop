@@ -38,4 +38,29 @@ class AiCKEditorPluginManager extends DefaultPluginManager {
     $this->setCacheBackend($cache_backend, 'ai_ckeditor_plugins');
   }
 
+  /**
+   * Finds plugin definitions.
+   *
+   * @return array
+   *   List of definitions to store in cache.
+   */
+  protected function findDefinitions():array {
+    $definitions = parent::findDefinitions();
+
+    foreach ($definitions as $id => $definition) {
+      if (!empty($definition['module_dependencies'])) {
+
+        // Check if all modules are installed, otherwise remove this.
+        foreach ($definition['module_dependencies'] as $module) {
+          if (!$this->providerExists($module)) {
+            unset($definitions[$id]);
+            break;
+          }
+        }
+      }
+    }
+
+    return $definitions;
+  }
+
 }

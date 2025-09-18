@@ -10,5 +10,5 @@ configured, and a valid AI Provider module to be enabled and configured.
 It also requires the [Field Validation module](https://www.drupal.org/project/field_validation).
 
 ## Using the module
-Check the [AI Validation module guide](https://project.pages.drupalcode.org/ai/modules/ai_validations/) for
+Check the [AI Validation module guide](https://project.pages.drupalcode.org/ai/latest/modules/ai_validations/) for
 information on using the module.

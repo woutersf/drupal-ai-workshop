@@ -55,7 +55,7 @@ abstract class CacheInvalidate extends CacheActionBase {
     $tags = $this->getCacheTags();
 
     if (empty($tags)) {
-      $cache->invalidateAll();
+      $cache->deleteAll();
     }
     else {
       Cache::invalidateTags($tags);

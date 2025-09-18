@@ -291,9 +291,16 @@ abstract class EntityReference extends RuleBase {
    * @return bool
    *   If the field is formatted.
    */
-  public function isFormattedField($fieldName, ContentEntityInterface $entity): bool {
+  public function isFormattedField(string $fieldName, ContentEntityInterface $entity): bool {
     $fieldDefinition = $entity->getFieldDefinition($fieldName);
-    return in_array($fieldDefinition->getType(), ['text', 'text_long', 'text_with_summary']);
+    if ($fieldDefinition === NULL) {
+      return FALSE;
+    }
+    return in_array($fieldDefinition->getType(), [
+      'text',
+      'text_long',
+      'text_with_summary',
+    ], TRUE);
   }
 
   /**

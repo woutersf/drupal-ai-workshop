@@ -9,7 +9,7 @@ dependencies:
   - ai:ai
   - key:key
 
-# Information added by Drupal.org packaging script on 2025-02-05
-version: '1.0.2'
+# Information added by Drupal.org packaging script on 2025-06-12
+version: '1.1.0'
 project: 'ai_provider_openai'
-datestamp: 1738761669
+datestamp: 1749732138

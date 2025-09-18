@@ -7,7 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountSwitcherInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\EcaEvents;
 use Drupal\eca\Event\AfterInitialExecutionEvent;
 use Drupal\eca\Event\BeforeInitialExecutionEvent;

@@ -1,0 +1,267 @@
+<?php
+
+/**
+ * @file
+ * Update functions for the ai module.
+ */
+
+use Drupal\Core\Config\FileStorage;
+
+/**
+ * Update hook to install the extra module.
+ */
+function ai_agents_update_10300() {
+  // If its an old environment, we install the extra module.
+  if (!\Drupal::moduleHandler()->moduleExists('ai_agents_extra')) {
+    \Drupal::service('module_installer')->install(['ai_agents_extra']);
+  }
+}
+
+/**
+ * Update hook to install the config entity.
+ */
+function ai_agents_update_10301() {
+  if (!\Drupal::service('config.factory')->getEditable('ai_agents.ai_agent.default')->isNew()) {
+    return;
+  }
+
+  $config_storage = \Drupal::service('config.storage');
+  if ($default_config = $config_storage->read('ai_agents.ai_agent.default')) {
+    \Drupal::configFactory()->getEditable('ai_agents.ai_agent.default')
+      ->setData($default_config)
+      ->save();
+  }
+}
+
+/**
+ * Update hook to reset the plugin managers argument cache.
+ */
+function ai_agents_update_10302() {
+  // Reset the plugin manager cache.
+  \Drupal::service('kernel')->invalidateContainer();
+}
+
+/**
+ * Update hook to install the config agents.
+ */
+function ai_agents_update_10303() {
+  $module_path = \Drupal::service('extension.list.module')->getPath('ai_agents');
+  $config_path = $module_path . '/config/install';
+  $source_storage = new FileStorage($config_path);
+  // Check in config install and install the agent configs.
+  foreach (['content_type_agent_triage', 'field_agent_triage', 'taxonomy_agent_config'] as $agent) {
+    $config_name = 'ai_agents.ai_agent.' . $agent;
+    $config = \Drupal::config($config_name);
+
+    if ($config->isNew()) {
+      $config_data = $source_storage->read($config_name);
+      if ($config_data) {
+        $config = \Drupal::configFactory()->getEditable($config_name);
+
+        // Set the configuration values.
+        foreach ($config_data as $key => $value) {
+          $config->set($key, $value);
+        }
+
+        // Save the configuration.
+        $config->save();
+      }
+    }
+  }
+}
+
+/**
+ * Update hook to update the secured prompt.
+ */
+function ai_agents_update_10304() {
+  // Load all the agents.
+  $agents = \Drupal::entityTypeManager()->getStorage('ai_agent')->loadMultiple();
+  foreach ($agents as $agent) {
+    // Check if the agent has a secured prompt.
+    if ($agent->get('secured_system_prompt')) {
+      // If the agent is set to [agent_instructions], update it.
+      if ($agent->get('secured_system_prompt') == trim('[agent_instructions]')) {
+        $agent->set('secured_system_prompt', '[ai_agent:agent_instructions]');
+        $agent->save();
+      }
+    }
+    else {
+      // If the agent does not have a secured prompt, set it.
+      $agent->set('secured_system_prompt', '[ai_agent:agent_instructions]');
+      $agent->save();
+    }
+  }
+}
+
+/**
+ * Update agent tool IDs to use the new double colon format.
+ */
+function ai_agents_update_10305(&$sandbox) {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $storage = $entity_type_manager->getStorage('ai_agent');
+  $plugin_manager = \Drupal::service('plugin.manager.ai.function_calls');
+
+  // Initialize the sandbox.
+  if (!isset($sandbox['progress'])) {
+    $sandbox['progress'] = 0;
+    $sandbox['current'] = 0;
+    $sandbox['max'] = $storage->getQuery()->accessCheck(FALSE)->count()->execute();
+  }
+
+  // Process entities in batches of 50.
+  $batch_size = 50;
+  $entity_ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->range($sandbox['current'], $batch_size)
+    ->execute();
+
+  $entities = $storage->loadMultiple($entity_ids);
+
+  foreach ($entities as $entity) {
+    $tools = $entity->get('tools') ?? [];
+    $updated_tools = [];
+    $tool_settings = $entity->get('tool_settings') ?? [];
+    $updated_tool_settings = [];
+    $tool_usage_limits = $entity->get('tool_usage_limits') ?? [];
+    $updated_tool_usage_limits = [];
+
+    foreach ($tools as $tool_id => $enabled) {
+      // Skip if already in the target format.
+      if (strpos($tool_id, 'ai_agents::ai_agent::') === 0) {
+        $updated_tools[$tool_id] = $enabled;
+        if (isset($tool_settings[$tool_id])) {
+          $updated_tool_settings[$tool_id] = $tool_settings[$tool_id];
+        }
+        if (isset($tool_usage_limits[$tool_id])) {
+          $updated_tool_usage_limits[$tool_id] = $tool_usage_limits[$tool_id];
+        }
+        continue;
+      }
+
+      // Test the old format.
+      $plugin_definition = $plugin_manager->getDefinition($tool_id, FALSE);
+      if (empty($plugin_definition)) {
+        // Convert the tool ID to the new format and test.
+        $new_definition_id = str_replace('ai_agent:', 'ai_agents::ai_agent::', $tool_id);
+        $plugin_definition = $plugin_manager->getDefinition($new_definition_id, FALSE);
+        if (!empty($plugin_definition)) {
+          // Load the instance to get the agent ID.
+          $instance = $plugin_manager->createInstance($new_definition_id);
+          $config_name = $instance->getAgent()->getId();
+          $new_tool_id = 'ai_agents::ai_agent::' . $config_name;
+
+          $updated_tools[$new_tool_id] = $enabled;
+          if (isset($tool_settings[$tool_id])) {
+            $updated_tool_settings[$new_tool_id] = $tool_settings[$tool_id];
+          }
+          if (isset($tool_usage_limits[$tool_id])) {
+            $updated_tool_usage_limits[$new_tool_id] = $tool_usage_limits[$tool_id];
+          }
+          continue;
+        }
+      }
+      // Anything else is just a tool.
+      $updated_tools[$tool_id] = $enabled;
+      if (isset($tool_settings[$tool_id])) {
+        $updated_tool_settings[$tool_id] = $tool_settings[$tool_id];
+      }
+      if (isset($tool_usage_limits[$tool_id])) {
+        $updated_tool_usage_limits[$tool_id] = $tool_usage_limits[$tool_id];
+      }
+    }
+
+    // Update the entity only if changes were made.
+    if ($updated_tools !== $tools || $updated_tool_settings !== $tool_settings || $updated_tool_usage_limits !== $tool_usage_limits) {
+      $entity->set('tools', $updated_tools);
+      if (!empty($updated_tool_settings)) {
+        $entity->set('tool_settings', $updated_tool_settings);
+      }
+      if (!empty($updated_tool_usage_limits)) {
+        $entity->set('tool_usage_limits', $updated_tool_usage_limits);
+      }
+      $entity->save();
+    }
+
+    $sandbox['progress']++;
+    $sandbox['current']++;
+  }
+
+  // Indicate whether the update is finished.
+  $sandbox['#finished'] = empty($entities) ? 1 : ($sandbox['progress'] / $sandbox['max']);
+
+  if ($sandbox['#finished'] == 1) {
+    return t('Updated @count subagent tool IDs to use the new double colon format.', ['@count' => $sandbox['progress']]);
+  }
+}
+
+/**
+ * Update hook to update the config agents.
+ */
+function ai_agents_update_10306() {
+  $module_path = \Drupal::service('extension.list.module')->getPath('ai_agents');
+  $config_path = $module_path . '/config/install';
+  $source_storage = new FileStorage($config_path);
+  // Check in config install and install the agent configs.
+  foreach (['content_type_agent_triage', 'field_agent_triage', 'taxonomy_agent_config'] as $agent) {
+    $config_name = 'ai_agents.ai_agent.' . $agent;
+    $config = \Drupal::config($config_name);
+
+    $config_data = $source_storage->read($config_name);
+    if ($config_data) {
+      $config = \Drupal::configFactory()->getEditable($config_name);
+
+      // Set the configuration values.
+      foreach ($config_data as $key => $value) {
+        $config->set($key, $value);
+      }
+
+      // Save the configuration.
+      $config->save();
+    }
+  }
+}
+
+/**
+ * Update hook to clean up tool usage property restrictions.
+ */
+function ai_agents_update_10307() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $storage = $entity_type_manager->getStorage('ai_agent');
+
+  // Load all agents.
+  $agents = $storage->loadMultiple();
+
+  foreach ($agents as $agent) {
+    $tool_usage_limits = $agent->get('tool_usage_limits') ?? [];
+    $changed = FALSE;
+    foreach ($tool_usage_limits as $tool_id => $properties) {
+      // Clean up property restrictions.
+      if (!is_array($properties) || empty($properties)) {
+        continue;
+      }
+      foreach ($properties as $property_name => $values) {
+        // Check if values exists.
+        if (!empty($values['values']) && is_array($values['values'])) {
+          foreach ($values['values'] as $key => $value) {
+            // If the value ends with a \r, remove it.
+            if (substr($value, -1) === "\r") {
+              $tool_usage_limits[$tool_id][$property_name]['values'][$key] = rtrim($value, "\r");
+              $changed = TRUE;
+            }
+            // Remove empty values.
+            elseif ($value === '') {
+              unset($tool_usage_limits[$tool_id][$property_name]['values'][$key]);
+              $changed = TRUE;
+            }
+          }
+        }
+      }
+
+    }
+    // Set the cleaned tool usage limits back to the agent.
+    if ($changed) {
+      $agent->set('tool_usage_limits', $tool_usage_limits);
+      $agent->save();
+    }
+  }
+}

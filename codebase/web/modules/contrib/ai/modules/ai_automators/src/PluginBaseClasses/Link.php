@@ -11,6 +11,36 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 class Link extends RuleBase {
 
   /**
+   * The JSON Schema.
+   *
+   * @var array
+   */
+  public array $jsonSchema = [
+    'name' => 'Link',
+    'schema' => [
+      'type' => 'object',
+      'properties' => [
+        'values' => [
+          'type' => 'array',
+          'items' => [
+            'type' => 'object',
+            'properties' => [
+              'uri' => [
+                'type' => 'string',
+                'format' => 'uri',
+              ],
+              'title' => [
+                'type' => 'string',
+              ],
+            ],
+            'required' => ['uri'],
+          ],
+        ],
+      ],
+    ],
+  ];
+
+  /**
    * {@inheritDoc}
    */
   public function helpText() {
@@ -21,7 +51,7 @@ class Link extends RuleBase {
    * {@inheritDoc}
    */
   public function placeholderText() {
-    return "Based on the context text return all links listed.\n\nContext:\n{{ context }}";
+    return "Based on the context text return all links listed.\n\nContext:\n{{ raw_context }}";
   }
 
   /**
@@ -33,7 +63,9 @@ class Link extends RuleBase {
 
     // Add JSON output.
     foreach ($prompts as $key => $prompt) {
-      $prompt .= "\n\nDo not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.\n[{\"value\": {\"uri\": \"The raw url\", \"title\": \"The link text if available\"}}]";
+      if (!$this->getJsonSchema()) {
+        $prompt .= "\n\nDo not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation.\n[{\"value\": {\"uri\": \"The raw url\", \"title\": \"The link text if available\"}}]";
+      }
       $prompts[$key] = $prompt;
     }
     $total = [];

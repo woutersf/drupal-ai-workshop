@@ -16,8 +16,18 @@ use Drupal\ai_ckeditor\Command\AiRequestCommand;
   id: 'ai_ckeditor_completion',
   label: new TranslatableMarkup('Generate with AI'),
   description: new TranslatableMarkup('Get ideas and text completion assistance from AI.'),
+  module_dependencies: [],
 )]
 final class Completion extends AiCKEditorPluginBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'provider' => NULL,
+    ];
+  }
 
   /**
    * {@inheritdoc}
@@ -50,13 +60,6 @@ final class Completion extends AiCKEditorPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['provider'] = $form_state->getValue('provider');
     $newPrompt = $form_state->getValue('prompt');
@@ -67,28 +70,23 @@ final class Completion extends AiCKEditorPluginBase {
   /**
    * {@inheritdoc}
    */
+  protected function needsSelectedText() {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildCkEditorModalForm(array $form, FormStateInterface $form_state, array $settings = []): array {
     $form = parent::buildCkEditorModalForm($form, $form_state);
-
-    $editor_id = $this->requestStack->getParentRequest()->get('editor_id');
 
     $form['text_to_submit'] = [
       '#type' => 'textarea',
       '#title' => $this->t('What would you like to ask or get ideas for?'),
       '#default_value' => '',
       '#required' => TRUE,
-    ];
-
-    $form['response_text'] = [
-      '#type' => 'text_format',
-      '#title' => $this->t('Response from AI'),
-      '#description' => $this->t('The response from AI will appear in the box above. You can edit and tweak the response before saving it back to the main editor.'),
-      '#prefix' => '<div id="ai-ckeditor-response">',
-      '#suffix' => '</div>',
-      '#default_value' => '',
-      '#allowed_formats' => [$editor_id],
-      '#format' => $editor_id,
-      '#ai_ckeditor_response' => TRUE,
+      // Ensure this comes before the generate button.
+      '#weight' => 5,
     ];
 
     return $form;
@@ -103,10 +101,10 @@ final class Completion extends AiCKEditorPluginBase {
     $prompts_config = $this->getConfigFactory()->get('ai_ckeditor.settings');
     $prompt_complete = $prompts_config->get('prompts.complete');
     if (!empty($prompt_complete)) {
-      $prompt = $prompt_complete . PHP_EOL . $values["plugin_config"]["text_to_submit"];
+      $prompt = $prompt_complete . PHP_EOL . $values['plugin_config']['text_to_submit'];
     }
     else {
-      $prompt = $values["plugin_config"]["text_to_submit"];
+      $prompt = $values['plugin_config']['text_to_submit'];
     }
     $response->addCommand(new AiRequestCommand($prompt, $values["editor_id"], $this->pluginDefinition['id'], 'ai-ckeditor-response'));
 

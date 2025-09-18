@@ -17,7 +17,6 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
-        '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '89efb1254ef2d1c5d80096acd12c4098' => __DIR__ . '/..' . '/twig/twig/src/Resources/core.php',
         'ffecb95d45175fd40f75be8a23b34f90' => __DIR__ . '/..' . '/twig/twig/src/Resources/debug.php',
@@ -25,8 +24,9 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         'f844ccf1d25df8663951193c3fc307c8' => __DIR__ . '/..' . '/twig/twig/src/Resources/string_loader.php',
         'def43f6c87e4f8dfd0c9e1b1bab14fe8' => __DIR__ . '/..' . '/symfony/polyfill-iconv/bootstrap.php',
         '2f69d3914119f042cca9e44442d5ce95' => __DIR__ . '/../..' . '/web/core/includes/bootstrap.inc',
-        '029bffbd721800038bcfaf4916fa491c' => __DIR__ . '/..' . '/mtownsend/xml-to-array/src/helpers.php',
+        '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
         '61ba3e92ef91a7a0f1cc260ebd9290e4' => __DIR__ . '/..' . '/openai-php/client/src/OpenAI.php',
+        '029bffbd721800038bcfaf4916fa491c' => __DIR__ . '/..' . '/mtownsend/xml-to-array/src/helpers.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
     );
@@ -38,9 +38,9 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
             'phootwork\\lang\\' => 15,
             'phootwork\\collection\\' => 21,
         ),
-        'c' => 
+        'i' => 
         array (
-            'cweagans\\Composer\\' => 18,
+            'ivan_boring\\Readability\\' => 24,
         ),
         'Y' => 
         array (
@@ -85,7 +85,6 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
             'Symfony\\Component\\Filesystem\\' => 29,
             'Symfony\\Component\\EventDispatcher\\' => 34,
             'Symfony\\Component\\ErrorHandler\\' => 31,
-            'Symfony\\Component\\DomCrawler\\' => 29,
             'Symfony\\Component\\DependencyInjection\\' => 38,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Bridge\\PsrHttpMessage\\' => 30,
@@ -113,17 +112,27 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         array (
             'OpenAI\\' => 7,
         ),
+        'N' => 
+        array (
+            'Nette\\' => 6,
+        ),
         'M' => 
         array (
             'Mtownsend\\XmlToArray\\' => 21,
             'Masterminds\\' => 12,
+            'MabeEnum\\' => 9,
         ),
         'L' => 
         array (
+            'League\\Uri\\' => 11,
             'League\\HTMLToMarkdown\\' => 22,
             'League\\Container\\' => 17,
             'League\\Config\\' => 14,
             'League\\CommonMark\\' => 18,
+        ),
+        'J' => 
+        array (
+            'JsonSchema\\' => 11,
         ),
         'H' => 
         array (
@@ -188,9 +197,9 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         array (
             0 => __DIR__ . '/..' . '/phootwork/collection',
         ),
-        'cweagans\\Composer\\' => 
+        'ivan_boring\\Readability\\' => 
         array (
-            0 => __DIR__ . '/..' . '/cweagans/composer-patches/src',
+            0 => __DIR__ . '/..' . '/ivan_boring/readability.php/src',
         ),
         'Yethee\\Tiktoken\\' => 
         array (
@@ -320,10 +329,6 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         array (
             0 => __DIR__ . '/..' . '/symfony/error-handler',
         ),
-        'Symfony\\Component\\DomCrawler\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/dom-crawler',
-        ),
         'Symfony\\Component\\DependencyInjection\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/dependency-injection',
@@ -393,6 +398,10 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         array (
             0 => __DIR__ . '/..' . '/openai-php/client/src',
         ),
+        'Nette\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nette/utils/src',
+        ),
         'Mtownsend\\XmlToArray\\' => 
         array (
             0 => __DIR__ . '/..' . '/mtownsend/xml-to-array/src',
@@ -400,6 +409,15 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         'Masterminds\\' => 
         array (
             0 => __DIR__ . '/..' . '/masterminds/html5/src',
+        ),
+        'MabeEnum\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/marc-mabe/php-enum/src',
+        ),
+        'League\\Uri\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/uri',
+            1 => __DIR__ . '/..' . '/league/uri-interfaces',
         ),
         'League\\HTMLToMarkdown\\' => 
         array (
@@ -416,6 +434,10 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         'League\\CommonMark\\' => 
         array (
             0 => __DIR__ . '/..' . '/league/commonmark/src',
+        ),
+        'JsonSchema\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/justinrainbow/json-schema/src/JsonSchema',
         ),
         'Http\\Message\\MultipartStream\\' => 
         array (
@@ -542,6 +564,10 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
     public static $prefixesPsr0 = array (
         'C' => 
         array (
+            'ConvertApi\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/convertapi/convertapi-php/lib',
+            ),
             'Console' => 
             array (
                 0 => __DIR__ . '/..' . '/pear/console_getopt',
@@ -619,6 +645,7 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         'Nette\\Schema\\Processor' => __DIR__ . '/..' . '/nette/schema/src/Schema/Processor.php',
         'Nette\\Schema\\Schema' => __DIR__ . '/..' . '/nette/schema/src/Schema/Schema.php',
         'Nette\\Schema\\ValidationException' => __DIR__ . '/..' . '/nette/schema/src/Schema/ValidationException.php',
+        'Nette\\ShouldNotHappenException' => __DIR__ . '/..' . '/nette/utils/src/exceptions.php',
         'Nette\\SmartObject' => __DIR__ . '/..' . '/nette/utils/src/SmartObject.php',
         'Nette\\StaticClass' => __DIR__ . '/..' . '/nette/utils/src/StaticClass.php',
         'Nette\\UnexpectedValueException' => __DIR__ . '/..' . '/nette/utils/src/exceptions.php',
@@ -678,7 +705,7 @@ class ComposerStaticInit626b8a915b324602643d341eeed0f6bc
         'SebastianBergmann\\Diff\\Output\\UnifiedDiffOutputBuilder' => __DIR__ . '/..' . '/sebastian/diff/src/Output/UnifiedDiffOutputBuilder.php',
         'SebastianBergmann\\Diff\\Parser' => __DIR__ . '/..' . '/sebastian/diff/src/Parser.php',
         'SebastianBergmann\\Diff\\TimeEfficientLongestCommonSubsequenceCalculator' => __DIR__ . '/..' . '/sebastian/diff/src/TimeEfficientLongestCommonSubsequenceCalculator.php',
-        'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
+        'Stringable' => __DIR__ . '/..' . '/marc-mabe/php-enum/stubs/Stringable.php',
         'System' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/System.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',

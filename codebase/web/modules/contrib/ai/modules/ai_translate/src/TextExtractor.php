@@ -64,6 +64,10 @@ class TextExtractor implements TextExtractorInterface {
             $fieldParents = array_merge($fieldParents, $meta['parents']);
           }
           $meta['parents'] = $fieldParents;
+
+          if (!isset($meta['_columns'])) {
+            $meta['_columns'] = ['value'];
+          }
           $metadata[] = [
             'field_name' => $field_name,
             'field_type' => $fieldType,
@@ -83,8 +87,12 @@ class TextExtractor implements TextExtractorInterface {
     foreach ($metadata as $singleValue) {
       $parents = $singleValue['parents'];
       unset($singleValue['parents']);
-      $singleValue['value'] = $singleValue['translated'];
+      // Update all field properties with their translated values.
+      foreach ($singleValue['_columns'] as $column) {
+        $singleValue[$column] = $singleValue['translated'][$column];
+      }
       unset($singleValue['translated']);
+      unset($singleValue['field_properties']);
       NestedArray::setValue($nestedValue, $parents, $singleValue);
     }
     foreach ($nestedValue as $fieldName => $fieldValue) {

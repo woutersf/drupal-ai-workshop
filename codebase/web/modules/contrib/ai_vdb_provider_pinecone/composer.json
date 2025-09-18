@@ -3,7 +3,7 @@
   "description": "Pinecone VDB provider implementation for the AI module for Drupal",
   "type": "drupal-module",
   "require": {
-    "drupal/ai": "^1.0.0-beta1",
+    "drupal/ai": "^1.1.0",
     "drupal/key": "^1.18",
     "scotteuser/pinecone-php": "^1.0.2"
   },

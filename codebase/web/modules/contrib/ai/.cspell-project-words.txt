@@ -124,6 +124,7 @@ octect
 octocat
 oden
 oneshot
+operationtype
 outro
 overriden
 paranthesis
@@ -168,6 +169,8 @@ wantm
 Webform
 WHATWG
 whiteline
+wireframe
+wireframes
 womens
 XFALSE
 XTRUE
@@ -198,6 +201,7 @@ bundlable
 utilises
 Automator
 automator
+aboriginalisms
 fireworksai
 Fireworksai
 utilising
@@ -218,3 +222,15 @@ UNHEX
 Rerank
 COSIM
 subprompt
+voiceovers
+amazee
+fontawesome
+glightbox
+autohide
+pymdownx
+Anthropics
+loggability
+agentic
+minikanban
+johansson
+RTBC

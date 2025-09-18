@@ -270,4 +270,20 @@ abstract class AiAssistantActionBase implements AiAssistantActionInterface, Cont
     $this->getTempStore()->set($this->threadId, $session);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getFunctionCallSchema(): array {
+    return [
+      'action' => [
+        'type' => 'string',
+        'description' => $this->t('The action to call.'),
+      ],
+      'query' => [
+        'type' => 'string',
+        'description' => $this->t('The query to the action.'),
+      ],
+    ];
+  }
+
 }

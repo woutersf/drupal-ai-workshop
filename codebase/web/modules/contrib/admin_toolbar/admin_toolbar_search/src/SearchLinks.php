@@ -91,13 +91,19 @@ class SearchLinks {
   /**
    * Gets extra links for admin toolbar search feature.
    *
-   * @return array
+   * @return array<mixed>
    *   An array of link data for the JSON used for search.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function getLinks() {
+    // If the 'admin_toolbar_tools' module is disabled, the following code
+    // should not be executed.
+    if (!$this->moduleHandler->moduleExists('admin_toolbar_tools')) {
+      return [];
+    }
+
     $max_bundle_number = $this->config->get('max_bundle_number');
     $additional_keys = $this->cacheContextManager->convertTokensToKeys([
       'languages:' . LanguageInterface::TYPE_INTERFACE,
@@ -121,10 +127,10 @@ class SearchLinks {
       // Load the remaining items that were not loaded by the toolbar.
       $content_entity_bundle_storage = $this->entityTypeManager->getStorage($content_entity_bundle);
       $bundles_ids = $content_entity_bundle_storage->getQuery()
-        ->accessCheck()
         ->sort('weight')
-        ->sort($this->entityTypeManager->getDefinition($content_entity_bundle)->getKey('label'))
+        ->sort($this->entityTypeManager->getDefinition($content_entity_bundle)->getKey('label') ?: '')
         ->range($max_bundle_number)
+        ->accessCheck()
         ->execute();
       if (!empty($bundles_ids)) {
         $bundles = $this->entityTypeManager
@@ -289,7 +295,7 @@ class SearchLinks {
   /**
    * Gets a list of content entities.
    *
-   * @return array
+   * @return array<string, mixed>
    *   An array of metadata about content entities.
    */
   protected function getBundleableEntitiesList() {

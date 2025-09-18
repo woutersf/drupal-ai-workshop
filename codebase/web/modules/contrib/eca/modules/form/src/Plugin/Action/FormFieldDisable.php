@@ -29,29 +29,24 @@ class FormFieldDisable extends FormFlagFieldActionBase {
    */
   protected function flagAllChildren(&$element, bool $flag): void {
     parent::flagAllChildren($element, $flag);
-    $this->setFormFieldAttributes($element);
-  }
-
-  /**
-   * Set form field attributes on the given element.
-   *
-   * Sometimes it is too late that the form builder sets proper HTML attributes.
-   * Therefore, this helper method assures they are set.
-   *
-   * @param array &$element
-   *   The form element.
-   *
-   * @see \Drupal\Core\Form\FormBuilder::handleInputElement
-   */
-  protected function setFormFieldAttributes(array &$element): void {
     if (empty($element['#input'])) {
       return;
     }
     if (!empty($element['#allow_focus'])) {
-      $element['#attributes']['readonly'] = 'readonly';
+      if ($flag) {
+        $element['#attributes']['readonly'] = 'readonly';
+      }
+      else {
+        unset($element['#attributes']['readonly']);
+      }
     }
     else {
-      $element['#attributes']['disabled'] = 'disabled';
+      if ($flag) {
+        $element['#attributes']['disabled'] = 'disabled';
+      }
+      else {
+        unset($element['#attributes']['disabled']);
+      }
     }
   }
 

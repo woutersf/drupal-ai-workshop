@@ -6,6 +6,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\eca\Plugin\FormFieldMachineName;
 
 /**
  * View a specified entity.
@@ -41,15 +42,15 @@ class EntityView extends RenderElementActionBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['view_mode'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('View mode'),
       '#default_value' => $this->configuration['view_mode'],
       '#description' => $this->t('Example: <em>default, teaser</em>'),
       '#required' => TRUE,
       '#weight' => -30,
+      '#eca_token_replacement' => TRUE,
     ];
     return parent::buildConfigurationForm($form, $form_state);
   }

@@ -187,7 +187,7 @@ class ExportRecipe {
    * @param array $modules
    *   The list of required module names.
    *
-   * @return string[]
+   * @return array<string, array<string, string>|string>
    *   The content of the composer.json file as an array.
    */
   protected function getComposer(string $id, string $namespace, string $description, array $modules = []): array {
@@ -232,7 +232,7 @@ class ExportRecipe {
    * @param array $imports
    *   The list of config imports keyed by module name.
    *
-   * @return string[]
+   * @return array<string, array|string>
    *   The content of the recipe file as an array.
    */
   protected function getRecipe(string $name, string $description, array $modules = [], array $actions = [], array $imports = []): array {

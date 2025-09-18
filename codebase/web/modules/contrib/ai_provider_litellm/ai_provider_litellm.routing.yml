@@ -1,0 +1,8 @@
+ai_provider_litellm.settings_form:
+  path: '/admin/config/ai/providers/ai_provider_litellm'
+  defaults:
+    _form: '\Drupal\ai_provider_litellm\Form\LiteLlmAiConfigForm'
+    _title: 'Setup LiteLLM Authentication'
+  requirements:
+    _permission: 'administer ai providers'
+

@@ -109,7 +109,12 @@ class CreateAccess extends Event implements AccessEventInterface {
    * {@inheritdoc}
    */
   public function setAccessResult(AccessResultInterface $result): CreateAccess {
-    $this->accessResult = $result;
+    if ($this->accessResult === NULL) {
+      $this->accessResult = $result;
+    }
+    else {
+      $this->accessResult = $this->accessResult->orIf($result);
+    }
     return $this;
   }
 

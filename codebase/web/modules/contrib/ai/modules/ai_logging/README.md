@@ -7,4 +7,4 @@ environment, it stores a large amount of data into the database and so is
 **recommended only to aid local development**.
 
 ## How to configure the AI Logging module
-For more information, please see the [AI Logging module documentation](https://project.pages.drupalcode.org/ai/modules/ai_logging/index.md).
+For more information, please see the [AI Logging module documentation](https://project.pages.drupalcode.org/ai/latest/modules/ai_logging/index.md).

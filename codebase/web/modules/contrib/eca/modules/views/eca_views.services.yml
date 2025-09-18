@@ -2,3 +2,9 @@ services:
   eca_views.hook_handler:
     class: Drupal\eca_views\HookHandler
     arguments: ['@eca.trigger_event']
+  eca_views.access_checker:
+    class: Drupal\eca_views\AccessCheck
+    arguments:
+      - '@eca.trigger_event'
+    tags:
+      - { name: access_check, applies_to: _eca_views_access_check }

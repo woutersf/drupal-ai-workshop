@@ -111,7 +111,7 @@ abstract class AiContentSuggestionsPluginBase extends PluginBase implements AiCo
       '#parents' => [$this->getPluginId(), $this->getPluginId() . '_model'],
       '#states' => [
         'visible' => [
-          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled' . ']"]' => ['checked' => TRUE],
+          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled]"]' => ['checked' => TRUE],
         ],
       ],
     ];
@@ -284,19 +284,7 @@ abstract class AiContentSuggestionsPluginBase extends PluginBase implements AiCo
    * {@inheritdoc}
    */
   public function getSetProvider(string $operation_type, string|null $preferred_model = NULL): array {
-    if ($preferred_model) {
-      $provider = $this->providerPluginManager->loadProviderFromSimpleOption($preferred_model);
-      $model = $this->providerPluginManager->getModelNameFromSimpleOption($preferred_model);
-    }
-    else {
-      $default_provider = $this->providerPluginManager->getDefaultProviderForOperationType($operation_type);
-      $provider = $this->providerPluginManager->createInstance($default_provider['provider_id']);
-      $model = $default_provider['model_id'];
-    }
-    return [
-      'provider_id' => $provider,
-      'model_id' => $model,
-    ];
+    return $this->providerPluginManager->getSetProvider($operation_type, $preferred_model);
   }
 
   /**

@@ -1,9 +1,50 @@
-site_name: Documentation for AI (Artificial Intelligence) module for Drupal
+site_name: AI (Artificial Intelligence) module for Drupal
+repo_url: https://git.drupalcode.org/project/ai
+repo_name: drupal/ai
+edit_uri: -/tree/1.1.x/docs/
 theme:
   name: material
+  font:
+    code: Roboto Mono
+  palette:
+    primary: indigo
+  features:
+    - header.autohide
+  features:
+    - navigation.footer
+    - content.action.edit
+plugins:
+  - glightbox
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.blocks.caption
+extra:
+  social:
+    - icon: fontawesome/brands/gitlab
+      link: https://git.drupalcode.org/project/ai
+    - icon: fontawesome/brands/slack
+      link: https://drupal.slack.com/archives/C0803LX4536
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/drupal-ai
 nav:
   - Home: index.md
-  - Develop & Contribute:
+  - Submodules:
+    - AI API Explorer: modules/ai_api_explorer/index.md
+    - AI Assistant API: modules/ai_assistant_api/index.md
+    - AI Automators:
+      - General: modules/ai_automators/index.md
+      - AI Automator Types: modules/ai_automators/automator_types/index.md
+    - AI Chatbot: modules/ai_assistant_api/#ai-chatbot-module
+    - AI Ckeditor: modules/ai_ckeditor/index.md
+    - AI Content Suggestions: modules/ai_content_suggestions/index.md
+    - AI ECA: modules/ai_eca/index.md
+    - AI External Moderation: modules/ai_external_moderation/index.md
+    - AI Logging: modules/ai_logging/index.md
+    - AI Search: modules/ai_search/index.md
+    - AI Translate: modules/ai_translate/index.md
+    - AI Validations: modules/ai_validations/index.md
+  - Develop:
     - Getting Started: developers/developer_information.md
     - Why base on the AI module?: developers/why_ai.md
     - Making AI Calls:
@@ -18,8 +59,9 @@ nav:
       - Speech-To-Speech Call: developers/call_speech_to_speech.md
       - Image Classification Call: developers/call_image_classification.md
       - Translate Text Call: developers/call_translate_text.md
+    - Plugins:
+      - Function Call Schema: developers/function_call_schema.md
     - Develop a third-party module: developers/develop_third_party_module.md
-    - Contribute to the AI module: developers/contribute.md
     - Events: developers/events.md
     - DDEV: developers/ddev.md
     - Develop for submodules:
@@ -28,22 +70,44 @@ nav:
         - Develop an AI Automators plugin: developers/writing_an_ai_automators_plugin.md
         - AI CKEditor: developers/ck_editor_plugin.md
         - Develop an AI Provider: developers/writing_an_ai_provider.md
-  - Modules:
-    - AI API Explorer: modules/ai_api_explorer/index.md
-    - AI Assistant API: modules/ai_assistant_api/index.md
-    - AI Automators: modules/ai_automators/index.md
-    - AI Chatbot: modules/ai_assistant_api/#ai-chatbot-module
-    - AI Ckeditor: modules/ai_ckeditor/index.md
-    - AI Content Suggestions: modules/ai_content_suggestions/index.md
-    - AI ECA: modules/ai_eca/index.md
-    - AI Logging: modules/ai_logging/index.md
-    - AI Search: modules/ai_search/index.md
-    - AI Translate: modules/ai_translate/index.md
-    - AI Validations: modules/ai_validations/index.md
-    - Providers:
-      - Ollama: modules/providers/provider_ollama/index.md
-    - VDB Providers:
-      - Milvus: modules/vdb_providers/vdb_provider_milvus/index.md
+  - Contribute:
+    - Getting Started: contribute/index.md
+    - Issue Guidelines: contribute/issue_guidelines.md
+    - Contribute Documentation: contribute/documentation.md
+    - Contribute Bug Reports: contribute/bug_finding.md
+    - Contribute Testings: contribute/testing.md
+    - Contribute Features: contribute/features.md
+    - Developer Information: contribute/developer_information.md
   - Providers: providers/matris.md
+  - Agents:
+    - Getting Started: agents/index.md
+    - What is an Agent?: agents/what_is_an_agent.md
+    - Understanding Orchestration: agents/orchestration.md
+    - Building an Agent: agents/build_agent.md
+    - Agent Form Parts: agents/agent_form_parts.md
+    - Security Considerations: agents/security.md
+    - Testing Agents:
+      - Agent Explorer: agents/testing/agent_explorer.md
+      - AI Agent Test:
+        - Getting Started: agents/testing/ai_agent_test/index.md
+        - Set up one Test: agents/testing/ai_agent_test/setting_up_one_test.md
+        - Run one Test: agents/testing/ai_agent_test/running_one_test.md
+        - Set up a Test Group: agents/testing/ai_agent_test/setting_up_test_group.md
+        - Run a Test Group: agents/testing/ai_agent_test/running_test_group.md
+        - View Results, Export, Import Tests: agents/testing/ai_agent_test/result_export_import.md
+        - Drush Commands: agents/testing/ai_agent_test/drush.md
+  - Documentation (How to): documentation/index.md
 docs_dir: docs
 site_dir: site
+plugins:
+  - search:
+      lang: en
+  - mike:
+      alias_type: redirect
+      # This is for SEO reasons, not redirects.
+      canonical_version: 1.1.0
+      version_selector: true
+      deploy_prefix: "mkdocs"
+extra:
+  version:
+    provider: mike

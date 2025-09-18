@@ -12,7 +12,7 @@ dependencies:
   - ai_search:ai_search
   - key:key
 
-# Information added by Drupal.org packaging script on 2025-03-05
-version: '1.0.5'
+# Information added by Drupal.org packaging script on 2025-09-17
+version: '1.1.4'
 project: 'ai'
-datestamp: 1741174945
+datestamp: 1758116446

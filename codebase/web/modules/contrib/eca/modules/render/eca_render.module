@@ -9,7 +9,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\ContentEntityFormInterface;
 use Drupal\Core\Entity\Display\EntityDisplayInterface;
-use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -72,11 +71,9 @@ function template_preprocess_eca_serialized(array &$variables = []): void {
       $variables['attributes'] = new Attribute($variables['attributes']);
     }
     $attributes = $variables['attributes'];
-    if (!isset($attributes['id'])) {
-      $attributes['id'] = Html::getUniqueId('eca-serialized');
-      if ($attributes instanceof Attribute) {
-        $attributes->addClass('eca-serialized');
-      }
+    if (!$attributes->hasAttribute('id')) {
+      $attributes->setAttribute('id', Html::getUniqueId('eca-serialized'));
+      $attributes->addClass('eca-serialized');
     }
   }
 }
@@ -346,9 +343,7 @@ function eca_render_form_alter(array &$form, FormStateInterface $form_state): vo
       return;
     }
     $display = $form_object->getFormDisplay($form_state);
-    if ($display instanceof EntityFormDisplayInterface) {
-      _eca_render_trigger_extra_field($form, $entity, $display, $display->getMode(), 'form');
-    }
+    _eca_render_trigger_extra_field($form, $entity, $display, $display->getMode(), 'form');
   }
 }
 
@@ -378,6 +373,10 @@ function _eca_render_trigger_extra_field(array &$build, EntityInterface $entity,
       $render_build = &$event->getRenderArray();
     }
     $build[$name] = $render_build;
+    if (!empty($build[$name]) && ($display_type === 'form') && !isset($build[$name]['#type'])) {
+      // Wrap as container so that the extra field can be grouped.
+      $build[$name]['#type'] = 'container';
+    }
     if (!isset($build['#weight']) && isset($options['weight'])) {
       $build['#weight'] = $options['weight'];
     }

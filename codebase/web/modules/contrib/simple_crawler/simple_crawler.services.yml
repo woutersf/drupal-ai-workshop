@@ -1,0 +1,7 @@
+services:
+  simple_crawler.crawler:
+    class: Drupal\simple_crawler\Crawler
+    arguments: ['@http_client']
+  simple_crawler.crawler_helper:
+    class: Drupal\simple_crawler\CrawlerHelper
+    arguments: ['@entity_type.manager']

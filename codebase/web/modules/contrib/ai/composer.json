@@ -13,6 +13,7 @@
         "drupal/search_api": "^1.x-dev",
         "drupal/search_api_solr": "^4.0",
         "drupal/token": "^1.14",
+        "drush/drush": "^12|^13",
         "allanpichardo/mysql-vector": "^2.0"
     },
     "suggest": {

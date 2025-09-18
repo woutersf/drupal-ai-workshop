@@ -90,25 +90,26 @@ final class TranslationGenerator extends AiApiExplorerPluginBase {
     $targetLang = $form_state->getValue('target_language');
     $model = $form_state->getValue('tt_ai_model');
     $input = new TranslateTextInput($text, $sourceLanguage, $targetLang);
-
-    try {
-      $translation = $provider->translateText($input, $model, []);
-      $form['right']['response']['#context']['ai_response']['response'] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ response|raw }}',
-        '#context' => [
-          'response' => $translation->getNormalized(),
-        ],
-      ];
-    }
-    catch (\Exception $e) {
-      $form['right']['response']['#context']['ai_response']['response'] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ error|raw }}',
-        '#context' => [
-          'error' => $this->explorerHelper->renderException($e),
-        ],
-      ];
+    if (empty($text) && empty($targetLang)) {
+      try {
+        $translation = $provider->translateText($input, $model, []);
+        $form['right']['response']['#context']['ai_response']['response'] = [
+          '#type' => 'inline_template',
+          '#template' => '{{ response|raw }}',
+          '#context' => [
+            'response' => $translation->getNormalized(),
+          ],
+        ];
+      }
+      catch (\Exception $e) {
+        $form['right']['response']['#context']['ai_response']['response'] = [
+          '#type' => 'inline_template',
+          '#template' => '{{ error|raw }}',
+          '#context' => [
+            'error' => $this->explorerHelper->renderException($e),
+          ],
+        ];
+      }
     }
 
     return $form['right'];

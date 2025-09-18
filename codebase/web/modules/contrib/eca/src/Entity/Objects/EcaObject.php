@@ -187,7 +187,7 @@ abstract class EcaObject {
    *   The item label.
    */
   public function getLabel(): string {
-    return $this->label ?? 'noname';
+    return $this->label;
   }
 
   /**

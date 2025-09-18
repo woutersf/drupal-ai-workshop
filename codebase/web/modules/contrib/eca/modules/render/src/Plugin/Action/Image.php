@@ -4,6 +4,7 @@ namespace Drupal\eca_render\Plugin\Action;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\eca\Plugin\FormFieldMachineName;
 
 /**
  * Build an image HTML element (not responsive).
@@ -69,15 +70,15 @@ class Image extends RenderElementActionBase {
       '#required' => TRUE,
     ];
     $form['style_name'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Style name'),
       '#description' => $this->t('Optionally, specify the configuration ID of the image style to use.'),
       '#weight' => -90,
       '#default_value' => $this->configuration['style_name'],
       '#required' => FALSE,
+      '#eca_token_replacement' => TRUE,
     ];
     $form['alt'] = [
       '#type' => 'textfield',

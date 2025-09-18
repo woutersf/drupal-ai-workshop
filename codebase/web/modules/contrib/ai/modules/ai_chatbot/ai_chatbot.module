@@ -9,6 +9,7 @@
  * Implements hook_theme().
  */
 function ai_chatbot_theme(): array {
+  $module_path = \Drupal::service('module_handler')->getModule('ai_chatbot')->getPath();
   return [
     'ai_chatbot' => [
       'variables' => [
@@ -38,6 +39,11 @@ function ai_chatbot_theme(): array {
         'current_theme' => '',
       ],
     ],
+    'block__ai_deepchat_block' => [
+      'template' => 'block--ai-deepchat-block',
+      'path' => $module_path . '/templates/block',
+      'base hook' => 'block',
+    ],
   ];
 }
 
@@ -45,5 +51,16 @@ function ai_chatbot_theme(): array {
  * Implements preprocess function for ai_chatbot_message theme.
  */
 function template_preprocess_ai_chatbot_message(&$variables) {
+
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the block form.
+ */
+function ai_chatbot_form_block_form_alter(&$form, &$form_state) {
+  $build_info = $form_state->getBuildInfo();
+  if ($build_info['callback_object']->getEntity()->getPluginId() === 'ai_deepchat_block') {
+    $form['#attached']['library'][] = 'ai_chatbot/ai_chatbot';
+  }
 
 }

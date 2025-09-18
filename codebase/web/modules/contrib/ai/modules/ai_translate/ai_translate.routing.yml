@@ -13,3 +13,13 @@ ai_translate.translate_content:
     _title: 'AI powered Translation'
   requirements:
     _permission: 'create ai content translation'
+
+ai_translate.translate_interface:
+  path: '/admin/ai-translate/interface-translate-callback'
+  defaults:
+    _controller: '\Drupal\ai_translate\Controller\AiTranslateInterfaceController::translateInterface'
+    _title: 'AI Translate Interface Callback'
+  requirements:
+    _permission: 'create ai interface translation'
+  options:
+    _admin_route: TRUE

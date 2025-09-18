@@ -9,7 +9,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\TypedData\TypedDataInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Entity\Objects\EcaEvent;
 use Drupal\eca\Plugin\DataType\DataTransferObject;
 use Drupal\eca\Plugin\ECA\Event\EventBase;

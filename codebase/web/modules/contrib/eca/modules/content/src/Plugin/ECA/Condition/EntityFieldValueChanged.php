@@ -36,7 +36,7 @@ class EntityFieldValueChanged extends ConditionBase {
     $field_name = $this->tokenService->replaceClear($this->configuration['field_name']);
     $options = ['access' => FALSE, 'auto_item' => FALSE];
     $original = $this->getOriginal($entity);
-    if (($entity instanceof EntityInterface) && isset($original) && ($original instanceof EntityInterface) && ($property = $this->getTypedProperty($entity->getTypedData(), $field_name, $options)) && ($original_property = $this->getTypedProperty($original->getTypedData(), $field_name, $options))) {
+    if (($entity instanceof EntityInterface) && isset($original) && ($property = $this->getTypedProperty($entity->getTypedData(), $field_name, $options)) && ($original_property = $this->getTypedProperty($original->getTypedData(), $field_name, $options))) {
       $value = $property->getValue();
       $original_value = $original_property->getValue();
       if (is_countable($value) && count($value) !== count($original_value)) {

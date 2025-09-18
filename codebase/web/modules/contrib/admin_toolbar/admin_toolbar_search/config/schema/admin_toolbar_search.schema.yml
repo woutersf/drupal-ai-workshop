@@ -3,5 +3,8 @@ admin_toolbar_search.settings:
   label: 'Admin Toolbar Search settings'
   mapping:
     display_menu_item:
-      type: integer
+      type: boolean
       label: 'How the search input will be displayed'
+    enable_keyboard_shortcut:
+      type: boolean
+      label: 'Enable keyboard shortcut'

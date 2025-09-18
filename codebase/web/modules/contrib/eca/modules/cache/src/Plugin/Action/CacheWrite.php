@@ -2,7 +2,10 @@
 
 namespace Drupal\eca_cache\Plugin\Action;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\eca\Plugin\FormFieldYamlTrait;
 use Drupal\eca\Service\YamlParser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -11,6 +14,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  * Abstract action to write into cache.
  */
 abstract class CacheWrite extends CacheActionBase {
+
+  use FormFieldYamlTrait;
 
   /**
    * The YAML parser.
@@ -26,6 +31,22 @@ abstract class CacheWrite extends CacheActionBase {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->setYamlParser($container->get('eca.service.yaml_parser'));
     return $instance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
+    $result = parent::access($object, $account, TRUE);
+    if ($result->isAllowed() && $this->configuration['use_yaml'] && $this->configuration['validate_yaml']) {
+      try {
+        $this->yamlParser->parse($this->configuration['value']);
+      }
+      catch (ParseException) {
+        $result = AccessResult::forbidden('YAML data is not valid.');
+      }
+    }
+    return $return_as_object ? $result : $result->isAllowed();
   }
 
   /**
@@ -65,6 +86,7 @@ abstract class CacheWrite extends CacheActionBase {
       'expire' => '-1',
       'tags' => '',
       'use_yaml' => FALSE,
+      'validate_yaml' => FALSE,
     ] + parent::defaultConfiguration();
   }
 
@@ -80,13 +102,12 @@ abstract class CacheWrite extends CacheActionBase {
       '#weight' => -40,
       '#eca_token_replacement' => TRUE,
     ];
-    $form['use_yaml'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Interpret above config value as YAML format'),
-      '#description' => $this->t('Nested data can be set using YAML format, for example <em>mykey: myvalue</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>title: "[node:title]"</em>'),
-      '#default_value' => $this->configuration['use_yaml'],
-      '#weight' => -30,
-    ];
+    $this->buildYamlFormFields(
+      $form,
+      $this->t('Interpret above config value as YAML format'),
+      $this->t('Nested data can be set using YAML format, for example <em>mykey: myvalue</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>title: "[node:title]"</em>'),
+      -30,
+    );
     $form['expire'] = [
       '#type' => 'number',
       '#title' => $this->t('Lifetime until expiry'),
@@ -113,6 +134,7 @@ abstract class CacheWrite extends CacheActionBase {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['value'] = $form_state->getValue('value');
     $this->configuration['use_yaml'] = !empty($form_state->getValue('use_yaml'));
+    $this->configuration['validate_yaml'] = !empty($form_state->getValue('validate_yaml'));
     $this->configuration['expire'] = $form_state->getValue('expire');
     $this->configuration['tags'] = $form_state->getValue('tags');
     parent::submitConfigurationForm($form, $form_state);

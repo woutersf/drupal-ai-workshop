@@ -5,10 +5,12 @@
   "author": "",
   "license": "GPL-2.0-only",
   "dependencies": {
+    "deep-chat": "^2.2.1",
     "showdown": "^2.1.0"
   },
   "scripts": {
     "//": "Ugly solution for now, later webpack.",
-    "move-showdown": "cp node_modules/showdown/dist/showdown.min.js js/"
+    "move-showdown": "cp node_modules/showdown/dist/showdown.min.js js/",
+    "move-deepchat": "cp node_modules/deep-chat/dist/deepChat.bundle.js deepchat/deepchat.bundle.js"
   }
 }

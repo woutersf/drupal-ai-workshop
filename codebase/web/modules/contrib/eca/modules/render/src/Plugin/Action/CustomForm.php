@@ -4,6 +4,7 @@ namespace Drupal\eca_render\Plugin\Action;
 
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\eca\Plugin\FormFieldMachineName;
 use Drupal\eca_render\Form\EcaCustomForm;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -49,10 +50,9 @@ class CustomForm extends RenderElementActionBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['custom_form_id'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Custom form ID'),
       '#description' => $this->t('This custom form ID is being used to identify the form on <em>ECA Form</em> events. <em>It is always prefixed with "eca_custom_"</em>. Example: When specified the custom form ID <em>my_custom_form</em>, then it can be identified e.g. on the event <em>Build form</em> using the form ID <em>eca_custom_my_custom_form</em>.'),
       '#default_value' => $this->configuration['custom_form_id'],

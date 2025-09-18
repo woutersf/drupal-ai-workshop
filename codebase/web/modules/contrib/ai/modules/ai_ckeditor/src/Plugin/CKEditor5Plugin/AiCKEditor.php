@@ -7,6 +7,7 @@ namespace Drupal\ai_ckeditor\Plugin\CKEditor5Plugin;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Drupal\ai\AiProviderPluginManager;
 use Drupal\ai_ckeditor\PluginManager\AiCKEditorPluginManager;
@@ -40,20 +41,6 @@ class AiCKEditor extends CKEditor5PluginDefault implements ContainerFactoryPlugi
   ];
 
   /**
-   * The AI CKEditor plugin manager.
-   *
-   * @var \Drupal\ai_ckeditor\PluginManager\AiCKEditorPluginManager
-   */
-  protected $pluginManager;
-
-  /**
-   * The AI Provider service.
-   *
-   * @var \Drupal\ai\AiProviderPluginManager
-   */
-  protected $providerManager;
-
-  /**
    * {@inheritdoc}
    */
   public function defaultConfiguration(): array {
@@ -69,15 +56,22 @@ class AiCKEditor extends CKEditor5PluginDefault implements ContainerFactoryPlugi
    *   The plugin_id for the plugin instance.
    * @param \Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\ai_ckeditor\PluginManager\AiCKEditorPluginManager $plugin_manager
+   * @param \Drupal\ai_ckeditor\PluginManager\AiCKEditorPluginManager $pluginManager
    *   The AI CKEditor plugin manager.
-   * @param \Drupal\ai\AiProviderPluginManager $provider_manager
+   * @param \Drupal\ai\AiProviderPluginManager $providerManager
    *   The AI provider manager.
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
+   *   The current user service.
    */
-  final public function __construct(array $configuration, string $plugin_id, CKEditor5PluginDefinition $plugin_definition, AiCKEditorPluginManager $plugin_manager, AiProviderPluginManager $provider_manager) {
+  final public function __construct(
+    array $configuration,
+    string $plugin_id,
+    CKEditor5PluginDefinition $plugin_definition,
+    protected AiCKEditorPluginManager $pluginManager,
+    protected AiProviderPluginManager $providerManager,
+    protected AccountProxyInterface $currentUser,
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->pluginManager = $plugin_manager;
-    $this->providerManager = $provider_manager;
   }
 
   /**
@@ -89,7 +83,8 @@ class AiCKEditor extends CKEditor5PluginDefault implements ContainerFactoryPlugi
       $plugin_id,
       $plugin_definition,
       $container->get('plugin.manager.ai_ckeditor'),
-      $container->get('ai.provider')
+      $container->get('ai.provider'),
+      $container->get('current_user'),
     );
   }
 
@@ -223,6 +218,8 @@ class AiCKEditor extends CKEditor5PluginDefault implements ContainerFactoryPlugi
 
     $config = $this->getConfiguration();
 
+    $static_plugin_config['ai_ckeditor_ai']['hasAccess'] = $this->currentUser->hasPermission('use ai ckeditor');
+
     if (!empty($config["dialog"])) {
       $static_plugin_config['ai_ckeditor_ai']['dialogSettings']['autoResize'] = (is_string($config["dialog"]["autoresize"]) && !empty($config["dialog"]["autoresize"])) ? $config["dialog"]["autoresize"] : FALSE;
       $static_plugin_config['ai_ckeditor_ai']['dialogSettings']['height'] = is_string($config["dialog"]["height"]) ? $config["dialog"]["height"] : $this->defaultConfiguration()['height'];
@@ -232,7 +229,7 @@ class AiCKEditor extends CKEditor5PluginDefault implements ContainerFactoryPlugi
 
     $all_disabled = TRUE;
     foreach ($config['plugins'] as $plugin_id => $plugin) {
-      $definition = $this->pluginManager->getDefinition($plugin_id);
+      $this->pluginManager->getDefinition($plugin_id);
       if ($all_disabled && $plugin['enabled']) {
         $all_disabled = FALSE;
       }
@@ -253,11 +250,13 @@ class AiCKEditor extends CKEditor5PluginDefault implements ContainerFactoryPlugi
 
     }
 
-    foreach ($static_plugin_config['ai_ckeditor_ai']['plugins'] as $plugin_id => $plugin) {
-      if ($plugin_id == 'ai_ckeditor_help') {
-        unset($static_plugin_config['ai_ckeditor_ai']['plugins'][$plugin_id]);
-        $static_plugin_config['ai_ckeditor_ai']['plugins'][$plugin_id] = $plugin;
-        break;
+    if (isset($static_plugin_config['ai_ckeditor_ai']['plugins'])) {
+      foreach ($static_plugin_config['ai_ckeditor_ai']['plugins'] as $plugin_id => $plugin) {
+        if ($plugin_id == 'ai_ckeditor_help') {
+          unset($static_plugin_config['ai_ckeditor_ai']['plugins'][$plugin_id]);
+          $static_plugin_config['ai_ckeditor_ai']['plugins'][$plugin_id] = $plugin;
+          break;
+        }
       }
     }
 

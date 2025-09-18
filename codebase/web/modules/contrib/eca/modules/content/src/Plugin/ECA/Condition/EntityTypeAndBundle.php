@@ -52,8 +52,10 @@ class EntityTypeAndBundle extends ConditionBase {
       if ($type === '_eca_token') {
         $type = $this->getTokenValue('type', '');
       }
-      $result = $this->entityTypes->bundleFieldApplies($entity, $type);
-      return $this->negationCheck($result);
+      if ($type !== '') {
+        $result = $this->entityTypes->bundleFieldApplies($entity, $type);
+        return $this->negationCheck($result);
+      }
     }
     return FALSE;
   }

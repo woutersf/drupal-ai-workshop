@@ -17,6 +17,7 @@ use Drupal\taxonomy\Entity\Term;
   id: 'ai_ckeditor_translate',
   label: new TranslatableMarkup('Translate'),
   description: new TranslatableMarkup('Translate the selected text into other languages.'),
+  module_dependencies: ['taxonomy'],
 )]
 final class Translate extends AiCKEditorPluginBase {
 
@@ -29,6 +30,7 @@ final class Translate extends AiCKEditorPluginBase {
       'provider' => NULL,
       'translate_vocabulary' => NULL,
       'use_description' => FALSE,
+      'language_source' => 'tax',
     ];
   }
 
@@ -49,6 +51,16 @@ final class Translate extends AiCKEditorPluginBase {
     foreach ($vocabularies as $vocabulary) {
       $vocabulary_options[$vocabulary->id()] = $vocabulary->label();
     }
+
+    $form['language_source'] = [
+      '#type' => 'select',
+      '#options' => [
+        'lang' => $this->t('Language'),
+        'tax' => $this->t('Taxonomy term'),
+      ],
+      '#title' => $this->t('Use languages or taxonomy terms for language selection.'),
+      '#default_value' => $this->configuration['language_source'] ?? FALSE,
+    ];
 
     $form['translate_vocabulary'] = [
       '#type' => 'select',
@@ -88,9 +100,13 @@ final class Translate extends AiCKEditorPluginBase {
     $form['prompt'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Change translation prompt'),
-      '#required' => TRUE,
       '#default_value' => $prompt_translate,
-      '#description' => $this->t('This prompt will be used to translate the text. {{ tone }} is the target tone of voice that is chosen.'),
+      '#description' => $this->t('This prompt will be used to translate the text. {{ lang }} is the target language that is chosen.'),
+      '#states' => [
+        'required' => [
+          ':input[name="editor[settings][plugins][ai_ckeditor_ai][plugins][ai_ckeditor_translate][enabled]"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     return $form;
@@ -101,6 +117,7 @@ final class Translate extends AiCKEditorPluginBase {
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['provider'] = $form_state->getValue('provider');
+    $this->configuration['language_source'] = $form_state->getValue('language_source');
     $this->configuration['autocreate'] = (bool) $form_state->getValue('autocreate');
     $this->configuration['translate_vocabulary'] = $form_state->getValue('translate_vocabulary');
     $this->configuration['use_description'] = (bool) $form_state->getValue('use_description');
@@ -112,16 +129,28 @@ final class Translate extends AiCKEditorPluginBase {
   /**
    * {@inheritdoc}
    */
+  protected function getGenerateButtonLabel() {
+    return $this->t('Translate');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getSelectedTextLabel() {
+    return $this->t('Selected text to translate');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getAiResponseLabel() {
+    return $this->t('Suggested translation');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildCkEditorModalForm(array $form, FormStateInterface $form_state, array $settings = []) {
-    $storage = $form_state->getStorage();
-    $editor_id = $this->requestStack->getParentRequest()->get('editor_id');
-
-    if (empty($storage['selected_text'])) {
-      return [
-        '#markup' => '<p>' . $this->t('You must select some text before you can translate it.') . '</p>',
-      ];
-    }
-
     $form = parent::buildCkEditorModalForm($form, $form_state);
 
     $form['language'] = [
@@ -129,6 +158,7 @@ final class Translate extends AiCKEditorPluginBase {
       '#title' => $this->t('Choose language'),
       '#tags' => FALSE,
       '#required' => TRUE,
+      '#weight' => 3,
       '#description' => $this->t('Selecting one of the options will translate the selected text.'),
     ];
 
@@ -137,36 +167,16 @@ final class Translate extends AiCKEditorPluginBase {
       $form['language']['#selection_settings'] = [
         'target_bundles' => [$this->configuration['translate_vocabulary']],
       ];
+
+      if ($this->account->hasPermission('create terms in ' . $this->configuration['translate_vocabulary'])) {
+        $form['language']['#autocreate'] = [
+          'bundle' => $this->configuration['translate_vocabulary'],
+        ];
+      }
     }
     else {
       $form['language']['#options'] = $this->getTermOptions($this->configuration['translate_vocabulary']);
     }
-
-    if ($this->configuration['autocreate'] && $this->account->hasPermission('create terms in ' . $this->configuration['translate_vocabulary'])) {
-      $form['language']['#autocreate'] = [
-        'bundle' => $this->configuration['translate_vocabulary'],
-      ];
-    }
-
-    $form['selected_text'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Selected text to translate'),
-      '#disabled' => TRUE,
-      '#default_value' => $storage['selected_text'],
-    ];
-
-    $form['response_text'] = [
-      '#type' => 'text_format',
-      '#title' => $this->t('Suggested translation'),
-      '#description' => $this->t('The response from AI will appear in the box above. You can edit and tweak the response before saving it back to the main editor.'),
-      '#prefix' => '<div id="ai-ckeditor-response">',
-      '#suffix' => '</div>',
-      '#default_value' => '',
-      '#allowed_formats' => [$editor_id],
-      '#format' => $editor_id,
-    ];
-
-    $form['actions']['generate']['#value'] = $this->t('Translate');
 
     return $form;
   }
@@ -186,39 +196,49 @@ final class Translate extends AiCKEditorPluginBase {
     $values = $form_state->getValues();
 
     try {
-      if (is_array($values['plugin_config']['language']) && reset($values['plugin_config']['language']) instanceof Term) {
-        $term = reset($values['plugin_config']['language']);
-      }
-      else {
-        $term = $this->entityTypeManager->getStorage('taxonomy_term')
-          ->load($values['plugin_config']['language']);
-      }
-
-      if (empty($term)) {
-        throw new \Exception('Term could not be loaded.');
-      }
-
-      if ($term->isNew() && $this->configuration['autocreate'] && $this->account->hasPermission('create terms in ' . $this->configuration['translate_vocabulary'])) {
-        $term->save();
-      }
       $prompts_config = $this->getConfigFactory()->get('ai_ckeditor.settings');
       $prompt = $prompts_config->get('prompts.translate');
-      $prompt = str_replace('{{ lang }}', $term->label(), $prompt);
-      if ($this->configuration['use_description'] && !empty($term->description->value)) {
-        $prompt .= 'Think about the following when translating it into ' . $term->label() . ': ' . strip_tags($term->description->value);
+
+      if ($this->configuration['language_source'] == 'lang') {
+        $site_languages = $this->languageManager->getLanguages();
+        $langName = $site_languages[$values['plugin_config']['language']]->getName();
+        $prompt = str_replace('{{ lang }}', $langName . ' (' . $values['plugin_config']['language'] . ')', $prompt);
       }
-      $prompt .= "\n\nThe text that we want to translate is the following:\n" . $values["plugin_config"]["selected_text"];
+      else {
+        // Handle taxonomy terms.
+        if (is_array($values['plugin_config']['language']) && reset($values['plugin_config']['language']) instanceof Term) {
+          $term = reset($values['plugin_config']['language']);
+        }
+        else {
+          $term = $this->entityTypeManager->getStorage('taxonomy_term')
+            ->load($values['plugin_config']['language']);
+        }
+
+        if (empty($term)) {
+          throw new \Exception('Language term could not be loaded.');
+        }
+
+        if ($term->isNew() && $this->configuration['autocreate'] && $this->account->hasPermission('create terms in ' . $this->configuration['translate_vocabulary'])) {
+          $term->save();
+        }
+
+        $prompt = str_replace('{{ lang }}', $term->label(), $prompt);
+        if ($this->configuration['use_description'] && !empty($term->getDescription())) {
+          $prompt .= ' Translation context: ' . strip_tags($term->getDescription());
+        }
+      }
+
+      $prompt .= "\n\nThe text that we want to translate is the following:\n" . $values['plugin_config']['selected_text'];
       $response = new AjaxResponse();
-      $values = $form_state->getValues();
       $response->addCommand(new AiRequestCommand($prompt, $values["editor_id"], $this->pluginDefinition['id'], 'ai-ckeditor-response'));
       return $response;
     }
     catch (\Exception $e) {
-      $this->logger->error("There was an error in the Translate AI plugin for CKEditor.");
-      $form['plugin_config']['response_text']['#value'] = "There was an error in the Translate AI plugin for CKEditor.";
+      $this->logger->error("There was an error in the Translate AI plugin for CKEditor: @message", [
+        '@message' => $e->getMessage(),
+      ]);
+      return $form['plugin_config']['response_wrapper']['response_text']['#value'] = 'There was an error in the Translate AI plugin for CKEditor.';
     }
-
-    return $form['plugin_config']['response_text'];
   }
 
   /**
@@ -231,7 +251,9 @@ final class Translate extends AiCKEditorPluginBase {
    *   The options array.
    */
   protected function getTermOptions(string $vid): array {
-    $terms = $this->entityTypeManager->getStorage('taxonomy_term')->loadTree($vid);
+    /** @var \Drupal\taxonomy\TermStorageInterface $voc */
+    $voc = $this->entityTypeManager->getStorage('taxonomy_term');
+    $terms = $voc->loadTree($vid);
     $options = [];
 
     foreach ($terms as $term) {

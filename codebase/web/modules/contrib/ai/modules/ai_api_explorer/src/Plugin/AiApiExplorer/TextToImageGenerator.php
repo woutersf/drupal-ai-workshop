@@ -145,52 +145,55 @@ final class TextToImageGenerator extends AiApiExplorerPluginBase {
    * {@inheritdoc}
    */
   public function getResponse(array &$form, FormStateInterface $form_state): array {
-    $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'text_to_image', 'image_generator');
+    $prompt = $form_state->getValue('prompt');
+    if (!empty($prompt)) {
+      $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'text_to_image', 'image_generator');
 
-    try {
-      $images = $provider->textToImage($form_state->getValue('prompt'), $form_state->getValue('image_generator_ai_model'), ['ai_api_explorer'])->getNormalized();
-      $key = 0;
+      try {
+        $images = $provider->textToImage($form_state->getValue('prompt'), $form_state->getValue('image_generator_ai_model'), ['ai_api_explorer'])->getNormalized();
+        $key = 0;
 
-      /** @var \Drupal\ai\OperationType\GenericType\ImageFile $image */
-      foreach ($images as $image) {
+        /** @var \Drupal\ai\OperationType\GenericType\ImageFile $image */
+        foreach ($images as $image) {
 
-        // Save the binary data to a file to prevent browsers caching multiple
-        // generated images.
-        $destination = 'temporary://ai-explorers/';
-        $this->fileSystem->prepareDirectory($destination, FileSystemInterface::CREATE_DIRECTORY);
-        $random = (string) rand();
-        $file_url = $this->fileSystem->saveData($image->getBinary(), $destination . '/' . md5($random) . '.png');
-        $file_name = basename($file_url);
-        $url = Url::fromRoute('system.temporary', [], ['query' => ['file' => 'ai-explorers/' . $file_name]]);
-        $form['right']['response']['#context']['ai_response']['image_' . $key] = [
-          '#theme' => 'image',
-          '#uri' => $url->toString(),
-        ];
+          // Save the binary data to a file to prevent browsers caching multiple
+          // generated images.
+          $destination = 'temporary://ai-explorers/';
+          $this->fileSystem->prepareDirectory($destination, FileSystemInterface::CREATE_DIRECTORY);
+          $random = (string) rand();
+          $file_url = $this->fileSystem->saveData($image->getBinary(), $destination . '/' . md5($random) . '.png');
+          $file_name = basename($file_url);
+          $url = Url::fromRoute('system.temporary', [], ['query' => ['file' => 'ai-explorers/' . $file_name]]);
+          $form['right']['response']['#context']['ai_response']['image_' . $key] = [
+            '#theme' => 'image',
+            '#uri' => $url->toString(),
+          ];
 
-        $key++;
+          $key++;
 
-        if ($form_state->getValue('save_as_media')) {
-          if ($media = $image->getAsMediaEntity($form_state->getValue('save_as_media'), '', 'image.png')) {
-            $media->save();
+          if ($form_state->getValue('save_as_media')) {
+            if ($media = $image->getAsMediaEntity($form_state->getValue('save_as_media'), '', 'image.png')) {
+              $media->save();
+            }
           }
         }
       }
-    }
-    catch (\Exception $e) {
-      $form['right']['response']['#context']['ai_response']['response'] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ error|raw }}',
-        '#context' => [
-          'error' => $this->explorerHelper->renderException($e),
-        ],
-      ];
+      catch (\Exception $e) {
+        $form['right']['response']['#context']['ai_response']['response'] = [
+          '#type' => 'inline_template',
+          '#template' => '{{ error|raw }}',
+          '#context' => [
+            'error' => $this->explorerHelper->renderException($e),
+          ],
+        ];
 
-      // Early return if we've hit an error.
-      return $form['right'];
-    }
+        // Early return if we've hit an error.
+        return $form['right'];
+      }
 
-    // Generation code.
-    $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $form_state->getValue('prompt'));
+      // Generation code.
+      $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $form_state->getValue('prompt'));
+    }
 
     return $form['right'];
   }

@@ -3,12 +3,13 @@
 namespace Drupal\ai\OperationType\ImageToVideo;
 
 use Drupal\ai\OperationType\GenericType\ImageFile;
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for audio to audio input.
  */
-class ImageToVideoInput implements InputInterface {
+class ImageToVideoInput extends InputBase implements InputInterface {
 
   /**
    * The audio file to convert.

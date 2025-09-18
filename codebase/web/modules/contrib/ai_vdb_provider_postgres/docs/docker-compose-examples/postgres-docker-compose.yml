@@ -1,0 +1,10 @@
+services:
+  vector_db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    restart: always
+    volumes:
+      - ./docker/vector_db/init/:/docker-entrypoint-initdb.d/

@@ -20,6 +20,7 @@ use Drupal\ai\OperationType\Chat\ChatInput;
 use Drupal\ai\OperationType\Chat\ChatInterface;
 use Drupal\ai\OperationType\Chat\ChatMessage;
 use Drupal\ai\OperationType\Chat\ChatOutput;
+use Drupal\ai\OperationType\Chat\Tools\ToolsFunctionOutput;
 use Drupal\ai\OperationType\Embeddings\EmbeddingsInput;
 use Drupal\ai\OperationType\Embeddings\EmbeddingsInterface;
 use Drupal\ai\OperationType\Embeddings\EmbeddingsOutput;
@@ -92,11 +93,19 @@ class OpenAiProvider extends AiProviderClientBase implements
   protected bool|null $moderation = NULL;
 
   /**
+   * The logger.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $parent_instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $parent_instance->openAiHelper = $container->get('ai_provider_openai.helper');
+    $parent_instance->logger = $container->get('logger.factory')->get('ai_provider_openai');
     return $parent_instance;
   }
 
@@ -172,20 +181,54 @@ class OpenAiProvider extends AiProviderClientBase implements
     if (preg_match('/gpt-3.5-turbo/', $model_id)) {
       $generalConfig['max_tokens']['default'] = 2048;
     }
-    if ($model_id == 'dall-e-3') {
+
+    if (($model_id == 'dall-e-3') || strpos($model_id, 'gpt-image') === 0) {
       $generalConfig['quality'] = [
         'label' => 'Quality',
         'description' => 'The quality of the images that will be generated.',
         'type' => 'string',
-        'default' => 'standard',
-        'required' => FALSE,
+        'default' => 'auto',
+        'required' => TRUE,
         'constraints' => [
           'options' => [
-            'hd',
-            'standard',
+            'auto',
+            'low',
+            'medium',
+            'high',
           ],
         ],
       ];
+    }
+
+    // Handle image generation models.
+    if (strpos($model_id, 'gpt-image') === 0) {
+      $generalConfig['size']['default'] = '1024x1024';
+      $generalConfig['size']['constraints']['options'] = [
+        '1024x1024',
+        '1024x1536',
+        '1536x1024',
+        '1024x1792',
+        '1792x1024',
+      ];
+      // GPT Image 1 uses output_format instead of response_format.
+      $generalConfig['output_format'] = [
+        'label' => 'Output Format',
+        'description' => 'The format in which the generated images will be created.',
+        'type' => 'string',
+        'default' => 'png',
+        'required' => FALSE,
+        'constraints' => [
+          'options' => [
+            'png',
+            'jpeg',
+            'webp',
+          ],
+        ],
+      ];
+      // Remove response_format as it's not supported.
+      unset($generalConfig['response_format']);
+    }
+    elseif ($model_id == 'dall-e-3') {
       $generalConfig['size']['default'] = '1024x1024';
       $generalConfig['size']['constraints']['options'] = [
         '1024x1024',
@@ -206,6 +249,7 @@ class OpenAiProvider extends AiProviderClientBase implements
         ],
       ];
     }
+
     if ($model_id == 'text-embedding-3-large') {
       $generalConfig['dimensions']['default'] = 3072;
     }
@@ -320,18 +364,45 @@ class OpenAiProvider extends AiProviderClientBase implements
             ];
           }
         }
-        $chat_input[] = [
+        $new_message = [
           'role' => $message->getRole(),
           'content' => $content,
         ];
+
+        // If its a tools response.
+        if ($message->getToolsId()) {
+          $new_message['tool_call_id'] = $message->getToolsId();
+        }
+
+        // If we want the results from some older tools call.
+        if ($message->getTools()) {
+          $new_message['tool_calls'] = $message->getRenderedTools();
+        }
+
+        $chat_input[] = $new_message;
       }
     }
     // Moderation check - tokens are still there using json.
     $this->moderationEndpoints(json_encode($chat_input));
+
     $payload = [
       'model' => $model_id,
       'messages' => $chat_input,
     ] + $this->configuration;
+    // If we want to add tools to the input.
+    if (is_object($input) && method_exists($input, 'getChatTools') && $input->getChatTools()) {
+      $payload['tools'] = $input->getChatTools()->renderToolsArray();
+      foreach ($payload['tools'] as $key => $tool) {
+        $payload['tools'][$key]['function']['strict'] = FALSE;
+      }
+    }
+    // Check for structured json schemas.
+    if (is_object($input) && method_exists($input, 'getChatStructuredJsonSchema') && $input->getChatStructuredJsonSchema()) {
+      $payload['response_format'] = [
+        'type' => 'json_schema',
+        'json_schema' => $input->getChatStructuredJsonSchema(),
+      ];
+    }
     try {
       if ($this->streamed) {
         $response = $this->client->chat()->createStreamed($payload);
@@ -339,7 +410,18 @@ class OpenAiProvider extends AiProviderClientBase implements
       }
       else {
         $response = $this->client->chat()->create($payload)->toArray();
-        $message = new ChatMessage($response['choices'][0]['message']['role'], $response['choices'][0]['message']['content']);
+        // If tools are generated.
+        $tools = [];
+        if (!empty($response['choices'][0]['message']['tool_calls'])) {
+          foreach ($response['choices'][0]['message']['tool_calls'] as $tool) {
+            $arguments = Json::decode($tool['function']['arguments']);
+            $tools[] = new ToolsFunctionOutput($input->getChatTools()->getFunctionByName($tool['function']['name']), $tool['id'], $arguments);
+          }
+        }
+        $message = new ChatMessage($response['choices'][0]['message']['role'], $response['choices'][0]['message']['content'] ?? "", []);
+        if (!empty($tools)) {
+          $message->setTools($tools);
+        }
       }
     }
     catch (\Exception $e) {
@@ -391,11 +473,12 @@ class OpenAiProvider extends AiProviderClientBase implements
     }
     // Moderation.
     $this->moderationEndpoints($input);
-    // The send.
+    // Handle parameter naming differences between models.
     $payload = [
       'model' => $model_id,
       'prompt' => $input,
     ] + $this->configuration;
+
     try {
       $response = $this->client->images()->create($payload)->toArray();
     }
@@ -420,13 +503,53 @@ class OpenAiProvider extends AiProviderClientBase implements
     if (empty($response['data'][0])) {
       throw new AiResponseErrorException('No image data found in the response.');
     }
+    // Process the image response.
     foreach ($response['data'] as $data) {
-      if (isset($this->configuration['response_format']) && $this->configuration['response_format'] === 'b64_json') {
-        $images[] = new ImageFile(base64_decode($data['b64_json']), 'image/png', 'dalle.png');
+      // Check if this is a gpt-image-1 response.
+      $is_gpt_image = strpos($model_id, 'gpt-image') === 0 || isset($data['revised_prompt']);
+
+      if (isset($data['b64_json'])) {
+        // Determine image type based on output_format if available.
+        $mime_type = 'image/png';
+        $file_ext = 'png';
+        if (isset($payload['output_format'])) {
+          switch ($payload['output_format']) {
+            case 'jpeg':
+              $mime_type = 'image/jpeg';
+              $file_ext = 'jpeg';
+              break;
+
+            case 'webp':
+              $mime_type = 'image/webp';
+              $file_ext = 'webp';
+              break;
+          }
+        }
+        $images[] = new ImageFile(base64_decode($data['b64_json']), $mime_type, ($is_gpt_image ? 'gpt-image' : 'dalle') . '.' . $file_ext);
+      }
+      // Try url if b64_json is not available.
+      elseif (isset($data['url']) && !empty($data['url'])) {
+        try {
+          $image_content = file_get_contents($data['url']);
+          if ($image_content !== FALSE) {
+            $images[] = new ImageFile($image_content, 'image/png', ($is_gpt_image ? 'gpt-image' : 'dalle') . '.png');
+          }
+          else {
+            $this->logger->error('Failed to fetch image from URL: @url', ['@url' => $data['url']]);
+          }
+        }
+        catch (\Exception $e) {
+          $this->logger->error('Error fetching image URL: @error', ['@error' => $e->getMessage()]);
+        }
       }
       else {
-        $images[] = new ImageFile(file_get_contents($data['url']), 'image/png', 'dalle.png');
+        $this->logger->error('No valid image data found in response');
       }
+    }
+
+    // If no images were successfully created, throw an error.
+    if (empty($images)) {
+      throw new AiResponseErrorException('Failed to process any valid images from the API response.');
     }
     return new TextToImageOutput($images, $response, []);
   }
@@ -560,6 +683,8 @@ class OpenAiProvider extends AiProviderClientBase implements
         'chat' => 'gpt-4o',
         'chat_with_image_vision' => 'gpt-4o',
         'chat_with_complex_json' => 'gpt-4o',
+        'chat_with_tools' => 'gpt-4.1',
+        'chat_with_structured_response' => 'gpt-4.1',
         'text_to_image' => 'dall-e-3',
         'embeddings' => 'text-embedding-3-small',
         'moderation' => 'omni-moderation-latest',
@@ -659,23 +784,11 @@ class OpenAiProvider extends AiProviderClientBase implements
         continue;
       }
 
-      if (!preg_match('/^(gpt|text|o1|embed|tts|whisper|dall-e)/i', $model['id'])) {
-        continue;
-      }
-
-      // Skip unused. hidden, or deprecated models.
-      if (preg_match('/(search|similarity|edit|1p|instruct)/i', $model['id'])) {
-        continue;
-      }
-
-      if (in_array($model['id'], ['tts-1-hd-1106', 'tts-1-1106'])) {
-        continue;
-      }
-
-      // Bundle specific logic.
+      // Basic model type filtering based on operation type.
       switch ($operation_type) {
         case 'chat':
-          if (!preg_match('/^(gpt|text|o1)/i', $model['id'])) {
+          // Include all GPT models for chat operations.
+          if (!preg_match('/^(gpt|o1|o3)/i', $model['id'])) {
             continue 2;
           }
           break;
@@ -693,13 +806,14 @@ class OpenAiProvider extends AiProviderClientBase implements
           break;
 
         case 'image_to_text':
-          if (!preg_match('/^(gpt-4o|gpt-4-turbo|vision)/i', $model['id'])) {
+          // Include models that support vision capabilities.
+          if (!preg_match('/^(gpt-4|gpt-4o|gpt-4-turbo|vision)/i', $model['id'])) {
             continue 2;
           }
           break;
 
         case 'text_to_image':
-          if (!preg_match('/^(dall-e|clip)/i', $model['id'])) {
+          if (!preg_match('/^(dall-e|clip|gpt-image)/i', $model['id'])) {
             continue 2;
           }
           break;
@@ -717,12 +831,13 @@ class OpenAiProvider extends AiProviderClientBase implements
           break;
       }
 
-      // Filter models.
-      if (in_array(AiModelCapability::ChatWithImageVision, $capabilities) && !preg_match('/^(gpt-4o|gpt-4-turbo|vision)/i', $model['id'])) {
+      // Filter models based on capabilities.
+      if (in_array(AiModelCapability::ChatWithImageVision, $capabilities) && !preg_match('/^(gpt-4|gpt-4o|gpt-4-turbo|vision)/i', $model['id'])) {
         continue;
       }
-      // Allow gpt-4o and gpt-4-turbo, but not gpt-4o-mini.
-      if (in_array(AiModelCapability::ChatJsonOutput, $capabilities) && (!preg_match('/^(gpt-4o|o1|gpt-4-turbo)/i', $model['id']) || preg_match('/(mini)/i', $model['id']))) {
+
+      // Include all GPT models for JSON output capability.
+      if (in_array(AiModelCapability::ChatJsonOutput, $capabilities) && !preg_match('/^(gpt-4|gpt-4o|o1|o3|gpt-4-turbo)/i', $model['id'])) {
         continue;
       }
       // Don't allow audio or video for now.

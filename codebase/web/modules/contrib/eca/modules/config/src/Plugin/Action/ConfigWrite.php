@@ -2,11 +2,14 @@
 
 namespace Drupal\eca_config\Plugin\Action;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\TypedData\ComplexDataInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\eca\Plugin\DataType\DataTransferObject;
+use Drupal\eca\Plugin\FormFieldYamlTrait;
 use Drupal\eca\Service\YamlParser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -23,6 +26,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  */
 class ConfigWrite extends ConfigActionBase {
 
+  use FormFieldYamlTrait;
+
   /**
    * The YAML parser.
    *
@@ -37,6 +42,22 @@ class ConfigWrite extends ConfigActionBase {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->setYamlParser($container->get('eca.service.yaml_parser'));
     return $instance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
+    $result = parent::access($object, $account, TRUE);
+    if ($result->isAllowed() && $this->configuration['use_yaml'] && $this->configuration['validate_yaml']) {
+      try {
+        $this->yamlParser->parse($this->configuration['config_value']);
+      }
+      catch (ParseException) {
+        $result = AccessResult::forbidden('YAML data is not valid.');
+      }
+    }
+    return $return_as_object ? $result : $result->isAllowed();
   }
 
   /**
@@ -97,6 +118,7 @@ class ConfigWrite extends ConfigActionBase {
     return [
       'config_value' => '',
       'use_yaml' => FALSE,
+      'validate_yaml' => FALSE,
       'save_config' => FALSE,
     ] + parent::defaultConfiguration();
   }
@@ -113,13 +135,12 @@ class ConfigWrite extends ConfigActionBase {
       '#weight' => -70,
       '#eca_token_replacement' => TRUE,
     ];
-    $form['use_yaml'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Interpret above config value as YAML format'),
-      '#description' => $this->t('Nested data can be set using YAML format, for example <em>front: /node</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>front: "[myurl:path]"</em>'),
-      '#default_value' => $this->configuration['use_yaml'],
-      '#weight' => -60,
-    ];
+    $this->buildYamlFormFields(
+      $form,
+      $this->t('Interpret above config value as YAML format'),
+      $this->t('Nested data can be set using YAML format, for example <em>front: /node</em>. When using this format, this option needs to be enabled. When using tokens and YAML altogether, make sure that tokens are wrapped as a string. Example: <em>front: "[myurl:path]"</em>'),
+      -60,
+    );
     $form['save_config'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Save configuration'),
@@ -136,6 +157,7 @@ class ConfigWrite extends ConfigActionBase {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['config_value'] = $form_state->getValue('config_value');
     $this->configuration['use_yaml'] = !empty($form_state->getValue('use_yaml'));
+    $this->configuration['validate_yaml'] = !empty($form_state->getValue('validate_yaml'));
     $this->configuration['save_config'] = !empty($form_state->getValue('save_config'));
     parent::submitConfigurationForm($form, $form_state);
   }

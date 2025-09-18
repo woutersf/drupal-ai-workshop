@@ -1,0 +1,12 @@
+name: 'ECA Menu'
+type: module
+description: 'Additional options for working with menu links.'
+core_version_requirement: ^10.3 || ^11
+package: ECA
+dependencies:
+  - eca:eca
+
+# Information added by Drupal.org packaging script on 2025-08-16
+version: '2.1.13'
+project: 'eca'
+datestamp: 1755341280

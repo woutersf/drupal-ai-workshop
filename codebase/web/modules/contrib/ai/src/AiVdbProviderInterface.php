@@ -5,6 +5,7 @@ namespace Drupal\ai;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\ai\Enum\VdbSimilarityMetrics;
+use Drupal\search_api\Query\QueryInterface;
 
 /**
  * Defines an interface for All VDB (Vector Database) provider services.
@@ -185,6 +186,8 @@ interface AiVdbProviderInterface extends PluginInspectionInterface {
    *   The vector input.
    * @param array $output_fields
    *   The output fields.
+   * @param \Drupal\search_api\Query\QueryInterface $query
+   *   The query.
    * @param mixed $filters
    *   The filters as prepared by the VDB provider in ::prepareFilters().
    * @param int $limit
@@ -201,6 +204,7 @@ interface AiVdbProviderInterface extends PluginInspectionInterface {
     string $collection_name,
     array $vector_input,
     array $output_fields,
+    QueryInterface $query,
     string $filters = '',
     int $limit = 10,
     int $offset = 0,

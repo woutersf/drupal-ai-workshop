@@ -1,0 +1,15 @@
+{
+    "name": "drupal/simple_crawler",
+    "authors": [
+        {
+            "name": "Marcus Johansson",
+            "email": "m.johansson@oskberlin.com"
+        }
+    ],
+    "description": "A simple crawler for Drupal 8",
+    "license": "GPL-2.0-or-later",
+    "type": "drupal-module",
+    "require": {
+        "ivan_boring/readability.php": "^1.0.0"
+    }
+}

@@ -7,6 +7,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -64,9 +65,16 @@ abstract class AiCKEditorPluginBase extends PluginBase implements AiCKEditorPlug
   protected LoggerChannelInterface $logger;
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected LanguageManagerInterface $languageManager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, AiProviderPluginManager $ai_provider_manager, EntityTypeManagerInterface $entity_type_manager, AccountProxyInterface $account, RequestStack $requestStack, LoggerChannelFactoryInterface $logger_factory) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, AiProviderPluginManager $ai_provider_manager, EntityTypeManagerInterface $entity_type_manager, AccountProxyInterface $account, RequestStack $requestStack, LoggerChannelFactoryInterface $logger_factory, LanguageManagerInterface $language_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->setConfiguration($configuration);
     $this->aiProviderManager = $ai_provider_manager;
@@ -74,6 +82,7 @@ abstract class AiCKEditorPluginBase extends PluginBase implements AiCKEditorPlug
     $this->account = $account;
     $this->requestStack = $requestStack;
     $this->logger = $logger_factory->get('ai_ckeditor');
+    $this->languageManager = $language_manager;
   }
 
   /**
@@ -89,6 +98,7 @@ abstract class AiCKEditorPluginBase extends PluginBase implements AiCKEditorPlug
       $container->get('current_user'),
       $container->get('request_stack'),
       $container->get('logger.factory'),
+      $container->get('language_manager'),
     );
   }
 
@@ -148,26 +158,128 @@ abstract class AiCKEditorPluginBase extends PluginBase implements AiCKEditorPlug
   }
 
   /**
+   * Gets label for generate button.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The button label.
+   */
+  protected function getGenerateButtonLabel() {
+    return $this->t('Generate');
+  }
+
+  /**
+   * Gets selected text field label.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The form element label.
+   */
+  protected function getSelectedTextLabel() {
+    return $this->t('Selected text to process');
+  }
+
+  /**
+   * Gets ai response field label.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The form element label.
+   */
+  protected function getAiResponseLabel() {
+    return $this->t('Response from AI');
+  }
+
+  /**
+   * Gets ai response field description.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The form element description.
+   */
+  protected function getAiResponseDescription() {
+    return $this->t('The response from AI will appear here. You can edit and tweak the response before saving it back to the main editor.');
+  }
+
+  /**
+   * Returns whether selected text is needed for this plugin to work.
+   *
+   * @return bool
+   *   The boolean flag.
+   */
+  protected function needsSelectedText() {
+    return TRUE;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildCkEditorModalForm(array $form, FormStateInterface $form_state, array $settings = []) {
+    $editor_id = $this->requestStack->getParentRequest()->get('editor_id');
+    $storage = $form_state->getStorage();
+    if ($this->needsSelectedText()) {
+      if (empty($storage['selected_text'])) {
+        return [
+          '#markup' => '<p>' . $this->t('You must select some text before you can summarize it.') . '</p>',
+        ];
+      }
+    }
+
     $form['description'] = [
       '#markup' => '<p>' . $this->pluginDefinition['description'] . '</p>',
       '#weight' => -9999,
     ];
+    if ($this->needsSelectedText()) {
+      $form['selected_text'] = [
+        '#type' => 'textarea',
+        '#title' => $this->getSelectedTextLabel(),
+        '#disabled' => TRUE,
+        '#default_value' => $storage['selected_text'],
+        // Ensure this comes before the generate button.
+        '#weight' => 5,
+      ];
+    }
 
-    $form['actions'] = [
-      '#type' => 'actions',
-      '#weight' => 9999,
+    // Create a container for the generate button to keep it in the form.
+    $form['generate_actions'] = [
+      '#type' => 'container',
+      // Lower weight to ensure it appears before results.
+      '#weight' => 15,
+      '#attributes' => [
+        'class' => ['ai-ckeditor-generate-actions'],
+      ],
     ];
 
-    $form['actions']['generate'] = [
+    $form['generate_actions']['generate'] = [
       '#type' => 'button',
-      '#value' => $this->t('Generate'),
+      '#value' => $this->getGenerateButtonLabel(),
       '#ajax' => [
         'callback' => [$this, 'ajaxGenerate'],
         'wrapper' => 'ai-ckeditor-response',
       ],
+    ];
+
+    $form['response_wrapper'] = [
+      '#type' => 'container',
+      // Position after generate button.
+      '#weight' => 20,
+      '#attributes' => [
+        'id' => 'ai-ckeditor-response',
+      ],
+    ];
+
+    $form['response_wrapper']['response_text'] = [
+      '#type' => 'text_format',
+      '#title' => $this->getAiResponseLabel(),
+      '#description' => $this->getAiResponseDescription(),
+      '#default_value' => '',
+      '#allowed_formats' => [$editor_id],
+      '#format' => $editor_id,
+      // Automatically enable the CKEditor5 sourceEditing plugin for the
+      // response text textarea, since various plugins require this.
+      '#ai_ckeditor_response' => TRUE,
+    ];
+
+    // Lower actions section for the submit button positioned at the bottom.
+    $form['actions'] = [
+      '#type' => 'actions',
+      '#weight' => 9999,
     ];
 
     $form['actions']['submit'] = [
@@ -199,7 +311,7 @@ abstract class AiCKEditorPluginBase extends PluginBase implements AiCKEditorPlug
     // @todo Let plugins define an option to return HTML/Markdown or not and signal that to AI.
     $response->addCommand(new EditorDialogSave([
       'attributes' => [
-        'value' => $values["plugin_config"]["response_text"]["value"],
+        'value' => $values["plugin_config"]["response_wrapper"]["response_text"]["value"],
         'returnsHtml' => TRUE,
       ],
     ]));

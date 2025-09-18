@@ -1777,6 +1777,7 @@ function _field_tokens($type, $tokens, array $data, array $options, BubbleableMe
           $display_options = [
             'type' => !empty($field_type_definition['default_token_formatter']) ? $field_type_definition['default_token_formatter'] : $field_type_definition['default_formatter'],
             'label' => 'hidden',
+            'weight' => 0,
           ];
         }
 

@@ -63,35 +63,38 @@ final class ModerationGenerator extends AiApiExplorerPluginBase {
    */
   public function getResponse(array &$form, FormStateInterface $form_state): array {
     $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'moderation', 'moderation');
+    $prompt = $form_state->getValue('prompt');
+    if (!empty($prompt)) {
 
-    $response = $provider->moderation($form_state->getValue('prompt'), $form_state->getValue('moderation_ai_model'), ['moderation_generation'])->getNormalized();
+      $response = $provider->moderation($form_state->getValue('prompt'), $form_state->getValue('moderation_ai_model'), ['moderation_generation'])->getNormalized();
 
-    if (get_class($response) == ModerationResponse::class) {
-      $form['right']['response']['#context']['ai_response']['response'] = [
-        'flag' => [
-          '#type' => 'html_tag',
-          '#tag' => 'h4',
-          '#value' => t('Got flagged: :result', [
-            ':result' => $response->isFlagged() ? 'Yes' : 'No',
-          ]),
-        ],
-        'dump' => [
+      if (get_class($response) == ModerationResponse::class) {
+        $form['right']['response']['#context']['ai_response']['response'] = [
+          'flag' => [
+            '#type' => 'html_tag',
+            '#tag' => 'h4',
+            '#value' => $this->t('Got flagged: :result', [
+              ':result' => $response->isFlagged() ? 'Yes' : 'No',
+            ]),
+          ],
+          'dump' => [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => $this->t('Information dump:<pre>:dump</pre>', [
+              ':dump' => print_r($response->getInformation(), TRUE),
+            ]),
+          ],
+        ];
+
+        $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($form_state, $form_state->getValue('prompt'));
+      }
+      else {
+        $form['right']['response']['#context']['ai_response']['error'] = [
           '#type' => 'html_tag',
           '#tag' => 'p',
-          '#value' => $this->t('Information dump:<pre>:dump</pre>', [
-            ':dump' => print_r($response->getInformation(), TRUE),
-          ]),
-        ],
-      ];
-
-      $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($form_state, $form_state->getValue('prompt'));
-    }
-    else {
-      $form['right']['response']['#context']['ai_response']['error'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#value' => $this->t('Error: Invalid response from the provider.'),
-      ];
+          '#value' => $this->t('Error: Invalid response from the provider.'),
+        ];
+      }
     }
 
     return $form['right'];

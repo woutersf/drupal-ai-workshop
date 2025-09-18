@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Contains the install file for the ai_agents_extra_tools module.
+ */
+
+/**
+ * Uninstalls itself since its deprecated.
+ */
+function ai_agents_extra_tools_update_10300() {
+  // Uninstall itself.
+  \Drupal::service('module_installer')->uninstall(['ai_agents_extra_tools']);
+}

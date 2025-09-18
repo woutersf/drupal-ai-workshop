@@ -17,6 +17,7 @@ use Drupal\ai_ckeditor\Command\AiRequestCommand;
   id: 'ai_ckeditor_spellfix',
   label: new TranslatableMarkup('Fix spelling'),
   description: new TranslatableMarkup('Only fix the spelling and interpunction in the selected text'),
+  module_dependencies: [],
 )]
 final class SpellFix extends AiCKEditorPluginBase {
 
@@ -35,11 +36,14 @@ final class SpellFix extends AiCKEditorPluginBase {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $options = $this->aiProviderManager->getSimpleProviderModelOptions('chat');
+    array_shift($options);
+    array_splice($options, 0, 1);
     $form['provider'] = [
       '#type' => 'select',
       '#title' => $this->t('AI provider'),
-      '#options' => $this->aiProviderManager->getSimpleProviderModelOptions('chat'),
-      '#required' => TRUE,
+      '#options' => $options,
+      "#empty_option" => $this->t('-- Default from AI module (chat) --'),
       '#default_value' => $this->configuration['provider'] ?? $this->aiProviderManager->getSimpleDefaultProviderOptions('chat'),
       '#description' => $this->t('Select which provider to use for this plugin. See the <a href=":link">Provider overview</a> for details about each provider.', [':link' => '/admin/config/ai/providers']),
     ];
@@ -48,19 +52,16 @@ final class SpellFix extends AiCKEditorPluginBase {
     $form['prompt'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Spelling fix prompt'),
-      '#required' => TRUE,
       '#default_value' => $prompt_fix_spelling,
       '#description' => $this->t('This prompt will be used to fix the spelling.'),
+      '#states' => [
+        'required' => [
+          ':input[name="editor[settings][plugins][ai_ckeditor_ai][plugins][ai_ckeditor_spellfix][enabled]"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-
   }
 
   /**
@@ -76,39 +77,15 @@ final class SpellFix extends AiCKEditorPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function buildCkEditorModalForm(array $form, FormStateInterface $form_state, array $settings = []) {
-    $storage = $form_state->getStorage();
-    $editor_id = $this->requestStack->getParentRequest()->get('editor_id');
+  protected function getGenerateButtonLabel() {
+    return $this->t('Fix spelling');
+  }
 
-    if (empty($storage['selected_text'])) {
-      return [
-        '#markup' => '<p>' . $this->t('You must select some text before you can summarize it.') . '</p>',
-      ];
-    }
-
-    $form = parent::buildCkEditorModalForm($form, $form_state, $settings);
-
-    $form['selected_text'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Selected text to fix'),
-      '#disabled' => TRUE,
-      '#default_value' => $storage['selected_text'],
-    ];
-
-    $form['response_text'] = [
-      '#type' => 'text_format',
-      '#title' => $this->t('Suggested fixed text'),
-      '#description' => $this->t('The response from AI will appear in the box above. You can edit and tweak the response before saving it back to the main editor.'),
-      '#prefix' => '<div id="ai-ckeditor-response">',
-      '#suffix' => '</div>',
-      '#default_value' => '',
-      '#allowed_formats' => [$editor_id],
-      '#format' => $editor_id,
-    ];
-
-    $form['actions']['generate']['#value'] = $this->t('Fix spelling');
-
-    return $form;
+  /**
+   * {@inheritdoc}
+   */
+  protected function getSelectedTextLabel() {
+    return $this->t('Selected text to fix');
   }
 
   /**
@@ -127,15 +104,15 @@ final class SpellFix extends AiCKEditorPluginBase {
     $prompts_config = $this->getConfigFactory()->get('ai_ckeditor.settings');
     $prompt = $prompts_config->get('prompts.spellfix');
     try {
-      $prompt .= '"' . $values["plugin_config"]["selected_text"] . '"';
+      $prompt .= '"' . $values['plugin_config']['selected_text'] . '"';
       $response = new AjaxResponse();
       $values = $form_state->getValues();
-      $response->addCommand(new AiRequestCommand($prompt, $values["editor_id"], $this->pluginDefinition['id'], 'ai-ckeditor-response'));
+      $response->addCommand(new AiRequestCommand($prompt, $values['editor_id'], $this->pluginDefinition['id'], 'ai-ckeditor-response'));
       return $response;
     }
     catch (\Exception $e) {
       $this->logger->error("There was an error in the Spellfix AI plugin for CKEditor.");
-      return $form['plugin_config']['response_text']['#value'] = "There was an error in the Spellfix AI plugin for CKEditor.";
+      return $form['plugin_config']['response_wrapper']['response_text']['#value'] = 'There was an error in the Spellfix AI plugin for CKEditor.';
     }
   }
 

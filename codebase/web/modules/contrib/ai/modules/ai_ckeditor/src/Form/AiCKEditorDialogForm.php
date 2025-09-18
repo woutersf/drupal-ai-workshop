@@ -5,7 +5,6 @@ namespace Drupal\ai_ckeditor\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformState;
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ai_ckeditor\PluginManager\AiCKEditorPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -22,13 +21,6 @@ class AiCKEditorDialogForm extends FormBase {
   protected $aiCKEditorPluginManager;
 
   /**
-   * The current user.
-   *
-   * @var \Drupal\Core\Session\AccountProxyInterface
-   */
-  protected $currentUser;
-
-  /**
    * The ajax wrapper id to use for re-rendering the form.
    *
    * @var string
@@ -40,12 +32,9 @@ class AiCKEditorDialogForm extends FormBase {
    *
    * @param \Drupal\ai_ckeditor\PluginManager\AiCKEditorPluginManager $ai_ckeditor_plugin_manager
    *   The AI CKEditor plugin manager.
-   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
-   *   The current user.
    */
-  public function __construct(AiCKEditorPluginManager $ai_ckeditor_plugin_manager, AccountProxyInterface $current_user) {
+  public function __construct(AiCKEditorPluginManager $ai_ckeditor_plugin_manager) {
     $this->aiCKEditorPluginManager = $ai_ckeditor_plugin_manager;
-    $this->currentUser = $current_user;
   }
 
   /**
@@ -54,7 +43,6 @@ class AiCKEditorDialogForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('plugin.manager.ai_ckeditor'),
-      $container->get('current_user'),
     );
   }
 

@@ -192,8 +192,12 @@ class TokenFieldUiTest extends TokenTestBase {
     unlink('public://styles/medium/public/example2-test.gif');
     unlink('public://styles/large/public/example2-test.gif');
 
-    $style_mimetype_png = 'image/webp';
-    $style_mimetype_gif = 'image/webp';
+    $style_mimetype_png = 'image/avif';
+    $style_mimetype_gif = 'image/avif';
+    if (version_compare(\Drupal::VERSION, '11.2', '<')) {
+      $style_mimetype_png = 'image/webp';
+      $style_mimetype_gif = 'image/webp';
+    }
     if (version_compare(\Drupal::VERSION, '10.3', '<')) {
       $style_mimetype_png = 'image/png';
       $style_mimetype_gif = 'image/gif';

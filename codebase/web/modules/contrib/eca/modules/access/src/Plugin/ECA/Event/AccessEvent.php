@@ -4,7 +4,7 @@ namespace Drupal\eca_access\Plugin\ECA\Event;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Entity\Objects\EcaEvent;
 use Drupal\eca\Event\AccessEventInterface;
 use Drupal\eca\Event\Tag;
@@ -314,7 +314,6 @@ class AccessEvent extends EventBase {
     }
 
     // Initialize with a neutral result.
-    /** @var \Drupal\eca\Event\AccessEventInterface $event */
     $event->setAccessResult(AccessResult::neutral());
 
     return TRUE;

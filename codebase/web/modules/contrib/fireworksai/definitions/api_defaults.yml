@@ -18,7 +18,7 @@ chat:
       type: 'integer'
       default: 400
       required: false
-    prompt_trunate_len:
+    prompt_truncate_len:
       label: 'Prompt Truncate Length'
       description: 'The maximum number of tokens to use as a prompt for the model.'
       type: 'integer'
@@ -159,3 +159,46 @@ embeddings:
       type: 'integer'
       default: 768
       required: false
+speech_to_text:
+  input:
+    description: 'Binary of audio file to be transcribed.'
+    type: 'string'
+    default: ''
+    required: true
+  authentication:
+    description: 'Fireworks AI API Key.'
+    type: 'string'
+    default: ''
+    required: true
+  configuration:
+    vad_model:
+      label: 'VAD Model'
+      description: 'The voice activity detection model to use for the transcription.'
+      type: 'string'
+      default: 'silero'
+      required: false
+      constraints:
+        options:
+          - silero
+          - whisperx-pyannet
+    temperature:
+      label: 'Temperature'
+      description: 'Sampling temperature 0-1. Higher values mean more random output.'
+      type: 'float'
+      default: 0
+      required: false
+      constraints:
+        min: 0
+        max: 1
+        step: 0.1
+    preprocessing:
+      label: 'Preprocessing'
+      description: 'Audio preprocessing.'
+      type: 'string'
+      default: ''
+      required: false
+      constraints:
+        options:
+          - dynamic
+          - soft_dynamic
+          - bass_dynamic

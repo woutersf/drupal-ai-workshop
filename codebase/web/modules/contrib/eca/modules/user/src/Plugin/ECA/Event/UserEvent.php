@@ -4,7 +4,7 @@ namespace Drupal\eca_user\Plugin\ECA\Event;
 
 use Drupal\Core\Session\AccountEvents;
 use Drupal\Core\Session\AccountSetEvent;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Event\Tag;
 use Drupal\eca\Plugin\ECA\Event\EventBase;
 use Drupal\eca_user\Event\UserBase;

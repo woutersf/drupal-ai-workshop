@@ -1,0 +1,5 @@
+ai_provider_litellm.settings_menu:
+  title: "LiteLLM proxy Authentication"
+  description: "Setup LiteLLM authentication"
+  route_name: ai_provider_litellm.settings_form
+  parent: ai.admin_providers

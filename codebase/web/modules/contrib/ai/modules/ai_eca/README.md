@@ -6,5 +6,5 @@ conditionally send and receive data from an LLM. For more information on the ECA
 concepts, please see [their documentation](https://ecaguide.org/).
 
 ## Using the module
-Check the [AI ECA integration module guide](https://project.pages.drupalcode.org/ai/modules/ai_eca/) for
+Check the [AI ECA integration module guide](https://project.pages.drupalcode.org/ai/latest/modules/ai_eca/) for
 information on using the module.

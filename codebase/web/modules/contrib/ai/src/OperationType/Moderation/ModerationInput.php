@@ -2,12 +2,13 @@
 
 namespace Drupal\ai\OperationType\Moderation;
 
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for moderation input.
  */
-class ModerationInput implements InputInterface {
+class ModerationInput extends InputBase implements InputInterface {
 
   /**
    * The prompts to convert to verify.

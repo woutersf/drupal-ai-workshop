@@ -129,8 +129,7 @@ class AiAutomatorFieldConfig {
     if (empty($chosenRule) && !is_null($aiConfig)) {
       $chosenRule = $aiConfig->get('rule');
     }
-    $chosenRule = $chosenRule ? $chosenRule : key($rulesOptions);
-    $rule = $rules[$chosenRule] ?? $rules[key($rulesOptions)];
+    $chosenRule = $chosenRule ? $chosenRule : NULL;
 
     $form['automator_rule'] = [
       '#type' => 'select',
@@ -139,6 +138,7 @@ class AiAutomatorFieldConfig {
       '#weight' => 16,
       '#options' => $rulesOptions,
       '#default_value' => $chosenRule,
+      '#empty_option' => $this->t('Choose AI Automator Type'),
       '#states' => [
         'visible' => [
           'input[name="automator_enabled"]' => [
@@ -153,26 +153,6 @@ class AiAutomatorFieldConfig {
         'wrapper' => 'automator-container',
       ],
     ];
-
-    // Show help text.
-    if ($rule->helpText()) {
-      $form['automator_help_text'] = [
-        '#type' => 'details',
-        '#title' => $this->t('About this rule'),
-        '#weight' => 17,
-        '#states' => [
-          'visible' => [
-            'input[name="automator_enabled"]' => [
-              'checked' => TRUE,
-            ],
-          ],
-        ],
-      ];
-
-      $form['automator_help_text']['help_text'] = [
-        '#markup' => $rule->helpText(),
-      ];
-    }
 
     $form['automator_container'] = [
       '#type' => 'details',
@@ -193,179 +173,202 @@ class AiAutomatorFieldConfig {
       ],
     ];
 
-    $defaultValues = !is_null($aiConfig) ? $aiConfig->get('plugin_config') : [];
-    $subForm = $rule->extraFormFields($entity, $fieldInfo, $formState, $defaultValues);
-    $form['automator_container'] = array_merge($form['automator_container'], $subForm);
-
-    $modeOptions['base'] = $this->t('Base Mode');
-    // Not every rule allows advanced mode.
-    if ($rule->advancedMode()) {
-      $modeOptions['token'] = $this->t('Advanced Mode (Token)');
-    }
-
-    $description = $rule->advancedMode() ? $this->t('The Advanced Mode (Token) is available for this Automator Type to use multiple fields as input, you may also choose Base Mode to choose one base field.') :
-      $this->t('For this Automator Type, only the Base Mode is available. It uses the base field to generate the content.');
-    $form['automator_container']['automator_mode'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Automator Input Mode'),
-      '#description' => $description,
-      '#options' => $modeOptions,
-      '#default_value' => !is_null($aiConfig) ? $aiConfig->get('input_mode') : 'base',
-      '#weight' => 5,
-      '#attributes' => [
-        'name' => 'automator_mode',
-      ],
-    ];
-
-    // Prompt with token.
-    $form['automator_container']['normal_prompt'] = [
-      '#type' => 'fieldset',
-      '#open' => TRUE,
-      '#weight' => 11,
-      '#states' => [
-        'visible' => [
-          ':input[name="automator_mode"]' => [
-            'value' => 'base',
+    if ($chosenRule) {
+      $rule = $rules[$chosenRule] ?? $rules[key($rulesOptions)];
+      // Show help text.
+      if ($rule->helpText()) {
+        $form['automator_help_text'] = [
+          '#type' => 'details',
+          '#title' => $this->t('About this rule'),
+          '#weight' => 17,
+          '#states' => [
+            'visible' => [
+              'input[name="automator_enabled"]' => [
+                'checked' => TRUE,
+              ],
+            ],
           ],
-        ],
-      ],
-    ];
-    // Create Options for base field.
-    $baseFieldOptions = [];
-    foreach ($fields as $fieldId => $fieldData) {
-      if (in_array($fieldData->getType(), $rule->allowedInputs()) && $fieldId != $fieldName) {
-        $baseFieldOptions[$fieldId] = $fieldData->getLabel();
+        ];
+
+        $form['automator_help_text']['help_text'] = [
+          '#markup' => $rule->helpText(),
+        ];
       }
-    }
 
-    $form['automator_container']['normal_prompt']['automator_base_field'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Automator Base Field'),
-      '#description' => $this->t('This is the field that will be used as context field for generating data into this field.'),
-      '#options' => $baseFieldOptions,
-      '#default_value' => !is_null($aiConfig) ? $aiConfig->get('base_field') : NULL,
-      '#weight' => 5,
-    ];
+      $defaultValues = !is_null($aiConfig) ? $aiConfig->get('plugin_config') : [];
+      $subForm = $rule->extraFormFields($entity, $fieldInfo, $formState, $defaultValues);
+      $form['automator_container'] = array_merge($form['automator_container'], $subForm);
 
-    // Prompt if needed.
-    if ($rule->needsPrompt()) {
-      $form['automator_container']['normal_prompt']['automator_prompt'] = [
-        '#type' => 'textarea',
-        '#title' => $this->t('Automator Prompt'),
-        '#description' => $this->t('The prompt to use to fill this field.'),
+      $modeOptions['base'] = $this->t('Base Mode');
+      // Not every rule allows advanced mode.
+      if ($rule->advancedMode()) {
+        $modeOptions['token'] = $this->t('Advanced Mode (Token)');
+      }
+
+      $description = $rule->advancedMode() ? $this->t('The Advanced Mode (Token) is available for this Automator Type to use multiple fields as input, you may also choose Base Mode to choose one base field.') :
+        $this->t('For this Automator Type, only the Base Mode is available. It uses the base field to generate the content.');
+      $form['automator_container']['automator_mode'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Automator Input Mode'),
+        '#description' => $description,
+        '#options' => $modeOptions,
+        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('input_mode') : 'base',
+        '#weight' => 5,
         '#attributes' => [
-          'placeholder' => $rule->placeholderText(),
+          'name' => 'automator_mode',
         ],
-        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('prompt') : NULL,
-        '#weight' => 10,
       ];
 
-      // Placeholders available.
-      $form['automator_container']['normal_prompt']['automator_prompt_placeholders'] = [
-        '#type' => 'details',
-        '#title' => $this->t('Placeholders available'),
-        '#weight' => 15,
-      ];
-
-      $placeholderText = "";
-      foreach ($rule->tokens($entity) as $key => $text) {
-        $placeholderText .= "<strong>{{ $key }}</strong> - " . $text . "<br>";
-      }
-      $form['automator_container']['normal_prompt']['automator_prompt_placeholders']['placeholders'] = [
-        '#markup' => $placeholderText,
-      ];
-    }
-    else {
-      $form['automator_prompt'] = [
-        '#value' => '',
-      ];
-    }
-    if ($rule->advancedMode()) {
-      $form['automator_container']['token_prompt'] = [
+      // Prompt with token.
+      $form['automator_container']['normal_prompt'] = [
         '#type' => 'fieldset',
         '#open' => TRUE,
         '#weight' => 11,
         '#states' => [
           'visible' => [
             ':input[name="automator_mode"]' => [
-              'value' => 'token',
+              'value' => 'base',
             ],
           ],
         ],
       ];
-
-      $form['automator_container']['token_prompt']['automator_token'] = [
-        '#type' => 'textarea',
-        '#title' => $this->t('Automator Prompt (Token)'),
-        '#description' => $this->t('The prompt to use to fill this field.'),
-        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('token') : NULL,
-      ];
-
-      $form['automator_container']['token_prompt']['token_help'] = [
-        '#theme' => 'token_tree_link',
-        '#token_types' => [
-          $this->getEntityTokenType($entity->getEntityTypeId()),
-        ],
-      ];
-    }
-
-    $form['automator_container']['automator_edit_mode'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Edit when changed'),
-      '#description' => $this->t('By default the initial value or manual set value will not be overriden. If you check this, it will override if the base text field changes its value.'),
-      '#default_value' => !is_null($aiConfig) ? $aiConfig->get('edit_mode') : FALSE,
-      '#weight' => 20,
-    ];
-
-    $form['automator_container']['automator_advanced'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Advanced Settings'),
-      '#weight' => 25,
-    ];
-
-    $form['automator_container']['automator_advanced']['label_detail'] = [
-      '#type' => 'details',
-      '#open' => FALSE,
-      '#title' => $this->t('Automator Label'),
-    ];
-
-    $form['automator_container']['automator_advanced']['label_detail']['automator_label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Automator Label'),
-      '#description' => $this->t('The label of the automator for referencing.'),
-      '#default_value' => !is_null($aiConfig) ? $aiConfig->get('label') : $fieldInfo->getLabel() . ' Default',
-    ];
-
-    $form['automator_container']['automator_advanced']['automator_weight'] = [
-      '#type' => 'number',
-      '#min' => 0,
-      '#max' => 1000,
-      '#title' => $this->t('Automator Weight'),
-      '#description' => $this->t('If you have fields dependent on each other, you can sequentially order the processing using weights. The higher the value, the later it is run.'),
-      '#default_value' => !is_null($aiConfig) ? $aiConfig->get('weight') : 100,
-    ];
-
-    // Get possible processes.
-    $workerOptions = [];
-    foreach ($this->processes->getDefinitions() as $definition) {
-      // Check so the processor is allowed.
-      $instance = $this->processes->createInstance($definition['id']);
-      if ($instance->processorIsAllowed($entity, $fieldInfo)) {
-        $workerOptions[$definition['id']] = $definition['title'] . ' - ' . $definition['description'];
+      // Create Options for base field.
+      $baseFieldOptions = [];
+      foreach ($fields as $fieldId => $fieldData) {
+        if (in_array($fieldData->getType(), $rule->allowedInputs()) && $fieldId != $fieldName) {
+          $baseFieldOptions[$fieldId] = $fieldData->getLabel();
+        }
       }
+
+      $form['automator_container']['normal_prompt']['automator_base_field'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Automator Base Field'),
+        '#description' => $this->t('This is the field that will be used as context field for generating data into this field.'),
+        '#options' => $baseFieldOptions,
+        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('base_field') : NULL,
+        '#weight' => 5,
+      ];
+
+      // Prompt if needed.
+      if ($rule->needsPrompt()) {
+        $form['automator_container']['normal_prompt']['automator_prompt'] = [
+          '#type' => 'textarea',
+          '#title' => $this->t('Automator Prompt'),
+          '#description' => $this->t('The prompt to use to fill this field.'),
+          '#attributes' => [
+            'placeholder' => $rule->placeholderText(),
+          ],
+          '#default_value' => !is_null($aiConfig) ? $aiConfig->get('prompt') : NULL,
+          '#weight' => 10,
+        ];
+
+        // Placeholders available.
+        $form['automator_container']['normal_prompt']['automator_prompt_placeholders'] = [
+          '#type' => 'details',
+          '#title' => $this->t('Placeholders available'),
+          '#weight' => 15,
+        ];
+
+        $placeholderText = "";
+        foreach ($rule->tokens($entity) as $key => $text) {
+          $placeholderText .= "<strong>{{ $key }}</strong> - " . $text . "<br>";
+        }
+        $form['automator_container']['normal_prompt']['automator_prompt_placeholders']['placeholders'] = [
+          '#markup' => $placeholderText,
+        ];
+      }
+      else {
+        $form['automator_prompt'] = [
+          '#value' => '',
+        ];
+      }
+      if ($rule->advancedMode()) {
+        $form['automator_container']['token_prompt'] = [
+          '#type' => 'fieldset',
+          '#open' => TRUE,
+          '#weight' => 11,
+          '#states' => [
+            'visible' => [
+              ':input[name="automator_mode"]' => [
+                'value' => 'token',
+              ],
+            ],
+          ],
+        ];
+
+        $form['automator_container']['token_prompt']['automator_token'] = [
+          '#type' => 'textarea',
+          '#title' => $this->t('Automator Prompt (Token)'),
+          '#description' => $this->t('The prompt to use to fill this field.'),
+          '#default_value' => !is_null($aiConfig) ? $aiConfig->get('token') : NULL,
+        ];
+
+        $form['automator_container']['token_prompt']['token_help'] = [
+          '#theme' => 'token_tree_link',
+          '#token_types' => [
+            $this->getEntityTokenType($entity->getEntityTypeId()),
+          ],
+        ];
+      }
+
+      $form['automator_container']['automator_edit_mode'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Edit when changed'),
+        '#description' => $this->t('By default the initial value or manual set value will not be overriden. If you check this, it will override if the base text field changes its value.'),
+        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('edit_mode') : FALSE,
+        '#weight' => 20,
+      ];
+
+      $form['automator_container']['automator_advanced'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Advanced Settings'),
+        '#weight' => 25,
+      ];
+
+      $form['automator_container']['automator_advanced']['label_detail'] = [
+        '#type' => 'details',
+        '#open' => FALSE,
+        '#title' => $this->t('Automator Label'),
+      ];
+
+      $form['automator_container']['automator_advanced']['label_detail']['automator_label'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Automator Label'),
+        '#description' => $this->t('The label of the automator for referencing.'),
+        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('label') : $fieldInfo->getLabel() . ' Default',
+      ];
+
+      $form['automator_container']['automator_advanced']['automator_weight'] = [
+        '#type' => 'number',
+        '#min' => 0,
+        '#max' => 1000,
+        '#title' => $this->t('Automator Weight'),
+        '#description' => $this->t('If you have fields dependent on each other, you can sequentially order the processing using weights. The higher the value, the later it is run.'),
+        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('weight') : 100,
+      ];
+
+      // Get possible processes.
+      $workerOptions = [];
+      foreach ($this->processes->getDefinitions() as $definition) {
+        // Check so the processor is allowed.
+        $instance = $this->processes->createInstance($definition['id']);
+        if ($instance->processorIsAllowed($entity, $fieldInfo)) {
+          $workerOptions[$definition['id']] = $definition['title'] . ' - ' . $definition['description'];
+        }
+      }
+
+      $form['automator_container']['automator_advanced']['automator_worker_type'] = [
+        '#type' => 'radios',
+        '#title' => $this->t('Automator Worker'),
+        '#options' => $workerOptions,
+        '#description' => $this->t('This defines how the saving of an interpolation happens. Direct saving is the easiest, but since it can take time you need to have longer timeouts.'),
+        '#default_value' => !is_null($aiConfig) ? $aiConfig->get('worker_type') : 'direct',
+      ];
+
+      $subForm = $rule->extraAdvancedFormFields($entity, $fieldInfo, $formState, $defaultValues);
+      $form['automator_container']['automator_advanced'] = array_merge($form['automator_container']['automator_advanced'], $subForm);
+      $form['#validate'][] = [$this, 'validateConfigValues'];
     }
-
-    $form['automator_container']['automator_advanced']['automator_worker_type'] = [
-      '#type' => 'radios',
-      '#title' => $this->t('Automator Worker'),
-      '#options' => $workerOptions,
-      '#description' => $this->t('This defines how the saving of an interpolation happens. Direct saving is the easiest, but since it can take time you need to have longer timeouts.'),
-      '#default_value' => !is_null($aiConfig) ? $aiConfig->get('worker_type') : 'direct',
-    ];
-
-    $subForm = $rule->extraAdvancedFormFields($entity, $fieldInfo, $formState, $defaultValues);
-    $form['automator_container']['automator_advanced'] = array_merge($form['automator_container']['automator_advanced'], $subForm);
-    $form['#validate'][] = [$this, 'validateConfigValues'];
     $form['#entity_builders'][] = [$this, 'addConfigValues'];
   }
 
@@ -456,10 +459,10 @@ class AiAutomatorFieldConfig {
       $aiConfig->set('label', $formState->getValue('automator_label') ?? $fieldConfig->getLabel() . ' Default');
       $aiConfig->set('rule', $formState->getValue('automator_rule'));
       $aiConfig->set('input_mode', $formState->getValue('automator_mode') ?? 'base');
-      $aiConfig->set('weight', $formState->getValue('automator_weight'));
-      $aiConfig->set('worker_type', $formState->getValue('automator_worker_type'));
-      $aiConfig->set('edit_mode', $formState->getValue('automator_edit_mode'));
-      $aiConfig->set('base_field', $formState->getValue('automator_base_field'));
+      $aiConfig->set('weight', $formState->getValue('automator_weight') ?? 100);
+      $aiConfig->set('worker_type', $formState->getValue('automator_worker_type') ?? 'direct');
+      $aiConfig->set('edit_mode', $formState->getValue('automator_edit_mode') ?? FALSE);
+      $aiConfig->set('base_field', $formState->getValue('automator_base_field') ?? '');
       $aiConfig->set('prompt', $formState->getValue('automator_prompt') ?? '');
       $aiConfig->set('token', $formState->getValue('automator_token') ?? '');
 

@@ -3,12 +3,13 @@
 namespace Drupal\ai\OperationType\ImageClassification;
 
 use Drupal\ai\OperationType\GenericType\ImageFile;
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for image classification.
  */
-class ImageClassificationInput implements InputInterface {
+class ImageClassificationInput extends InputBase implements InputInterface {
 
   /**
    * The image file to classify.

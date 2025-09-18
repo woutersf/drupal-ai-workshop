@@ -3,7 +3,6 @@
 namespace Drupal\ai_assistant_api;
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -64,13 +63,6 @@ class AiAssistantApiRunner {
   protected array $history = [];
 
   /**
-   * Boolean to keep track if the context was used.
-   *
-   * @var bool
-   */
-  protected bool $contextUsed = FALSE;
-
-  /**
    * Set token replacements.
    *
    * @var array
@@ -97,6 +89,13 @@ class AiAssistantApiRunner {
    * @var bool
    */
   protected bool $throwException = FALSE;
+
+  /**
+   * If the verbose mode is enabled.
+   *
+   * @var bool
+   */
+  protected bool $verboseMode = FALSE;
 
   /**
    * Constructor.
@@ -205,7 +204,7 @@ class AiAssistantApiRunner {
     $this->tokens['question'] = $userMessage->getMessage();
 
     // If session is set, we store the user message.
-    if ($this->shouldStoreSession()) {
+    if ($this->shouldStoreSession() && $this->userMessage->getMessage() !== 'dummy_loading') {
       $this->addMessageToSession('user', $this->userMessage->getMessage());
     }
   }
@@ -309,6 +308,20 @@ class AiAssistantApiRunner {
     $this->resetStructuredResults();
     $this->resetOutputContexts();
     $instance = NULL;
+
+    // If we are using an agent as assistant.
+    if ($this->assistant->get('ai_agent') && $this->moduleHandler->moduleExists('ai_agents')) {
+      // Use the agent to run the task, kid of anti pattern in requirement.
+      // @phpstan-ignore-next-line
+      return \Drupal::service('ai_assistant_api.agent_runner')->runAsAgent( // phpcs:ignore
+        $this->assistant->get('ai_agent'),
+        $this->getMessageHistory(),
+        $this->getProviderAndModel(),
+        $this->getThreadsKey(),
+        $this->getVerboseMode(),
+      );
+    }
+
     try {
       $system_prompt = $this->assistant->get('system_prompt');
       // If the site isn't configured to use custom prompts, override with the
@@ -430,7 +443,7 @@ class AiAssistantApiRunner {
   protected function assistantMessage($pre_prompt = FALSE) {
     $connect = $this->getProviderAndModel();
     $provider = $this->aiProvider->createInstance($connect['provider_id']);
-    $assistant_message = $this->assistantMessageBuilder->buildMessage($this->assistant, $this->threadId, $pre_prompt);
+    $assistant_message = $this->assistantMessageBuilder->buildMessage($this->assistant, $this->threadId, $pre_prompt, $this->context);
     // Let other modules change the system role.
     $event = new AiAssistantSystemRoleEvent($assistant_message);
     $this->eventDispatcher->dispatch($event, AiAssistantSystemRoleEvent::EVENT_NAME);
@@ -471,6 +484,11 @@ class AiAssistantApiRunner {
       $messages[] = new ChatMessage($message['role'], $message['message']);
     }
     $input = new ChatInput($messages);
+    // If its preprompt and function calling, we set the function calling.
+    if ($pre_prompt && $this->assistant->get('use_function_calling')) {
+      $tools = $this->assistantMessageBuilder->getFunctionCalls();
+      $input->setChatTools($tools);
+    }
 
     $tags = [
       'ai_assistant_api',
@@ -486,6 +504,15 @@ class AiAssistantApiRunner {
     $response = $provider->chat($input, $connect['model_id'], $tags);
     $values = $response->getNormalized();
 
+    // If it's using function calling, and the provider has tools, use them.
+    if (method_exists($values, 'getTools')) {
+      // Output the tools if they exist.
+      $tools = $values->getTools();
+      if ($tools) {
+        print_r($tools);
+        exit;
+      }
+    }
     $response = $this->promptJsonDecoder->decode($values, 20);
 
     if (is_array($response)) {
@@ -680,36 +707,6 @@ class AiAssistantApiRunner {
   }
 
   /**
-   * Check for context matches.
-   *
-   * @param \Drupal\search_api\Entity\Index $index
-   *   The index to check.
-   *
-   * @return string
-   *   If the context matches.
-   */
-  protected function checkContentContextMatches($index) {
-    // Check for context.
-    $keys = array_keys($this->context);
-    // Check if any of the keys are content entities.
-    foreach ($keys as $key) {
-      $possible_entity = $this->context[$key];
-      if (is_object($possible_entity) && $possible_entity instanceof ContentEntityInterface) {
-        // Check if the entity type is in the index.
-        if ($index->isValidDatasource('entity:' . $possible_entity->getEntityTypeId())) {
-          // Get the bundles for the index.
-          $bundles = $index->getDatasource('entity:' . $possible_entity->getEntityTypeId())->getBundles();
-          // Check if the bundle is in the index.
-          if (in_array($possible_entity->bundle(), array_keys($bundles))) {
-            return 'entity:' . $possible_entity->getEntityTypeId() . '/' . $possible_entity->id() . ':' . $possible_entity->language()->getId();
-          }
-        }
-      }
-    }
-    return "";
-  }
-
-  /**
    * Generate a unique hash.
    *
    * @return string
@@ -741,6 +738,26 @@ class AiAssistantApiRunner {
       'provider_id' => $provider_id,
       'model_id' => $model_id,
     ];
+  }
+
+  /**
+   * Get the verbose mode.
+   *
+   * @return bool
+   *   If the verbose mode is enabled.
+   */
+  public function getVerboseMode() {
+    return $this->verboseMode;
+  }
+
+  /**
+   * Set the verbose mode.
+   *
+   * @param bool $verbose
+   *   If the verbose mode should be enabled.
+   */
+  public function setVerboseMode(bool $verbose) {
+    $this->verboseMode = $verbose;
   }
 
 }

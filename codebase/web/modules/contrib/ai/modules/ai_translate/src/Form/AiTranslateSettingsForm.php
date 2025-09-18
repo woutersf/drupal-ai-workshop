@@ -10,6 +10,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Routing\RouteBuilderInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Template\TwigEnvironment;
 use Drupal\ai\AiProviderPluginManager;
@@ -65,6 +66,13 @@ class AiTranslateSettingsForm extends ConfigFormBase {
   protected AiProviderPluginManager $providerManager;
 
   /**
+   * Route builder.
+   *
+   * @var \Drupal\Core\Routing\RouteBuilderInterface
+   */
+  protected RouteBuilderInterface $routeBuilder;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -74,6 +82,7 @@ class AiTranslateSettingsForm extends ConfigFormBase {
     $instance->moduleHandler = $container->get('module_handler');
     $instance->languageManager = $container->get('language_manager');
     $instance->providerManager = $container->get('ai.provider');
+    $instance->routeBuilder = $container->get('router.builder');
     return $instance;
   }
 
@@ -104,6 +113,15 @@ class AiTranslateSettingsForm extends ConfigFormBase {
     array_shift($chat_models);
     array_splice($chat_models, 0, 1);
     $form['#tree'] = TRUE;
+
+    // Allow site builders to opt-out of using this module to override the
+    // default translation tab.
+    $form['use_ai_translate'] = [
+      '#title' => $this->t('Use AI Translate as the default to translate content'),
+      '#type' => 'checkbox',
+      '#default_value' => $config->get('use_ai_translate') ?? TRUE,
+      '#description' => $this->t('When using this module on its own, keep this box checked. This allows AI Translate to take over the "Translate" tab when editing any entity. When this module is use as a translation framework for other translation mechanisms such as AI TMGMT; however, the default Drupal translation may be desired for the "Translate" tab.'),
+    ];
 
     $example_prompt = $config->get('prompt');
 
@@ -195,7 +213,7 @@ class AiTranslateSettingsForm extends ConfigFormBase {
         2 => '2',
         5 => '5',
         10 => '10',
-        0 => 'Unlimited',
+        0 => $this->t('Unlimited'),
       ],
       '#default_value' => $config->get('entity_reference_depth'),
       '#title' => $this->t('Maximum Reference Depth'),
@@ -247,6 +265,15 @@ class AiTranslateSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config(static::CONFIG_NAME);
+
+    // If changing use of AI translate, route subscriber needs a refresh.
+    // We want the editable version here as we want what is actually taking
+    // place in the cache including overrides, not just what is stored in
+    // configuration.
+    $original_use_ai_translate = $config->get('use_ai_translate');
+
+    // Save configuration settings.
+    $config->set('use_ai_translate', $form_state->getValue('use_ai_translate'));
     $config->set('prompt', $form_state->getValue('prompt'));
     $config->set('entity_reference_depth', $form_state->getValue('entity_reference_depth'));
     $config->set('reference_defaults', array_keys(array_filter($form_state->getValue('reference_defaults'))));
@@ -256,6 +283,13 @@ class AiTranslateSettingsForm extends ConfigFormBase {
       $config->set($langcode . '_prompt', $form_state->getValue([$langcode, 'prompt']));
     }
     $config->save();
+
+    // Now rebuild the routes after config save since the route subscriber
+    // checks the configuration.
+    if ($original_use_ai_translate !== $form_state->getValue('use_ai_translate')) {
+      $this->routeBuilder->rebuild();
+    }
+
     parent::submitForm($form, $form_state);
   }
 

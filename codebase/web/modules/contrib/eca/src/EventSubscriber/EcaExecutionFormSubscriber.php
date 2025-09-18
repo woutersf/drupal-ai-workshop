@@ -3,7 +3,7 @@
 namespace Drupal\eca\EventSubscriber;
 
 use Drupal\Core\Entity\EntityFormInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\EcaEvents;
 use Drupal\eca\Event\AfterInitialExecutionEvent;
 use Drupal\eca\Event\BeforeInitialExecutionEvent;

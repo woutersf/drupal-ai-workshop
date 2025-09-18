@@ -6,5 +6,5 @@ of content related to any given terms, phrases, or even other content as a
 whole.
 
 ## Using the module
-Check the [AI Search module guide](https://project.pages.drupalcode.org/ai/modules/ai_search/) for
+Check the [AI Search module guide](https://project.pages.drupalcode.org/ai/latest/modules/ai_search/) for
 information on using the module.

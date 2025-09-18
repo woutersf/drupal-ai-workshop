@@ -149,42 +149,45 @@ final class TextToSpeechGenerator extends AiApiExplorerPluginBase {
    * {@inheritdoc}
    */
   public function getResponse(array &$form, FormStateInterface $form_state): array {
-    $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'text_to_speech', 'tts_');
+    $prompt = $form_state->getValue('prompt');
+    if (!empty($prompt)) {
+      $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'text_to_speech', 'tts_');
 
-    try {
-      $audio = $provider->textToSpeech($form_state->getValue('prompt'), $form_state->getValue('tts_ai_model'), ['ai_api_explorer'])->getNormalized();
-      if ($form_state->getValue('save_as_media')) {
-        if ($media = $audio[0]->getAsMediaEntity($form_state->getValue('save_as_media'), '', 'text-to-speech.mp3')) {
-          $media->save();
+      try {
+        $audio = $provider->textToSpeech($form_state->getValue('prompt'), $form_state->getValue('tts_ai_model'), ['ai_api_explorer'])->getNormalized();
+        if ($form_state->getValue('save_as_media')) {
+          if ($media = $audio[0]->getAsMediaEntity($form_state->getValue('save_as_media'), '', 'text-to-speech.mp3')) {
+            $media->save();
+          }
         }
+        $audio_normalized = $audio[0]->getAsBinary();
+
+        // Save the binary data to a file.
+        $destination = 'temporary://ai-explorers/';
+        $this->fileSystem->prepareDirectory($destination, FileSystemInterface::CREATE_DIRECTORY);
+        $random = (string) rand();
+        $file_url = $this->fileSystem->saveData($audio_normalized, $destination . '/' . md5($random) . '.mp3');
+        $file_name = basename($file_url);
+        $url = Url::fromRoute('system.temporary', [], ['query' => ['file' => 'ai-explorers/' . $file_name]]);
+        $form['right']['response']['#context']['ai_response']['response'] = [
+          '#type' => 'inline_template',
+          '#template' => '{{ player|raw }}',
+          '#context' => [
+            'player' => '<audio controls><source src="' . $url->toString() . '" type="audio/mpeg"></audio>',
+          ],
+        ];
+
+        $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $form_state->getValue('prompt'));
       }
-      $audio_normalized = $audio[0]->getAsBinary();
-
-      // Save the binary data to a file.
-      $destination = 'temporary://ai-explorers/';
-      $this->fileSystem->prepareDirectory($destination, FileSystemInterface::CREATE_DIRECTORY);
-      $random = (string) rand();
-      $file_url = $this->fileSystem->saveData($audio_normalized, $destination . '/' . md5($random) . '.mp3');
-      $file_name = basename($file_url);
-      $url = Url::fromRoute('system.temporary', [], ['query' => ['file' => 'ai-explorers/' . $file_name]]);
-      $form['right']['response']['#context']['ai_response']['response'] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ player|raw }}',
-        '#context' => [
-          'player' => '<audio controls><source src="' . $url->toString() . '" type="audio/mpeg"></audio>',
-        ],
-      ];
-
-      $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $form_state->getValue('prompt'));
-    }
-    catch (\Exception $e) {
-      $form['right']['response']['#context']['ai_response']['response'] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ error|raw }}',
-        '#context' => [
-          'error' => $this->explorerHelper->renderException($e),
-        ],
-      ];
+      catch (\Exception $e) {
+        $form['right']['response']['#context']['ai_response']['response'] = [
+          '#type' => 'inline_template',
+          '#template' => '{{ error|raw }}',
+          '#context' => [
+            'error' => $this->explorerHelper->renderException($e),
+          ],
+        ];
+      }
     }
 
     return $form['right'];

@@ -3,12 +3,13 @@
 namespace Drupal\ai\OperationType\SpeechToSpeech;
 
 use Drupal\ai\OperationType\GenericType\AudioFile;
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for speech to speech input.
  */
-class SpeechToSpeechInput implements InputInterface {
+class SpeechToSpeechInput extends InputBase implements InputInterface {
 
   /**
    * The audio file to convert.

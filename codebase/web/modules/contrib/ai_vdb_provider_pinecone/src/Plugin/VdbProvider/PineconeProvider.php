@@ -489,6 +489,11 @@ class PineconeProvider extends AiVdbProviderClientBase implements ContainerFacto
       }
       else {
         $fieldData = $index->getField($condition->getField());
+
+        // Only apply filters to fields that exist on the index.
+        if ($fieldData === NULL) {
+          continue;
+        }
         $isMultiple = $fieldData ? $this->isMultiple($fieldData) : FALSE;
         $values = is_array($condition->getValue()) ? $condition->getValue() : [$condition->getValue()];
         $filter = [];
@@ -582,6 +587,7 @@ class PineconeProvider extends AiVdbProviderClientBase implements ContainerFacto
     string $collection_name,
     array $vector_input,
     array $output_fields,
+    QueryInterface $query,
     mixed $filters = [],
     int $limit = 10,
     int $offset = 0,
@@ -603,7 +609,7 @@ class PineconeProvider extends AiVdbProviderClientBase implements ContainerFacto
     // Normalize the results to match what other VDB Providers return.
     $results = [];
     foreach ($matches as $match) {
-      $results[] = $match['metadata'] + ['distance' => $match['score']];
+      $results[] = $match['metadata'] + ['distance' => $match['score'], 'id' => $match['id']];
     }
     return $results;
   }

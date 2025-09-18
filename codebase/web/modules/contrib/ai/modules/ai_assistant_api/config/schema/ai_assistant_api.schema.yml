@@ -78,3 +78,12 @@ ai_assistant_api.ai_assistant.*:
       required: false
       sequence:
         type: ignore
+    use_function_calling:
+      label: 'Use function calling'
+      type: boolean
+      description: 'Whether to use function calling in the AI operations. This is a new feature that allows the AI to call functions directly, rather than just returning text.'
+    ai_agent:
+      label: 'AI Agent'
+      type: string
+      description: 'The AI agent that will be used for the AI operations. This is the agent that will be used to perform the AI operations. It can be overridden by the operation provider.'
+      required: false

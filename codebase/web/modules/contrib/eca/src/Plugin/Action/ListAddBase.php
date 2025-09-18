@@ -62,11 +62,22 @@ abstract class ListAddBase extends ListOperationBase {
         if (!$index || !($list instanceof ComplexDataInterface) || ctype_digit($index)) {
           $index = (int) $index;
         }
+        $currentRekeyStateDisabled = FALSE;
+        if ($list instanceof DataTransferObject) {
+          // Disable rekeying after adding an item.
+          // @see https://www.drupal.org/project/eca/issues/3521175
+          $currentRekeyStateDisabled = $list->rekeyDisabledStatus();
+          $list->disableRekey();
+        }
         if ($list instanceof ComplexDataInterface) {
           $list->set($index, $item);
         }
         elseif ($list instanceof ListInterface) {
           $list->set($index, $item);
+        }
+        if (!$currentRekeyStateDisabled && $list instanceof DataTransferObject) {
+          // Reset the DTO to enable rekeying after the item has been added.
+          $list->enableRekey();
         }
         break;
 

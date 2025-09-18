@@ -27,7 +27,7 @@ final class AutomatorAdvancedAccessChecker implements AccessInterface {
    * Access callback.
    */
   public function access(Route $route, AccountInterface $account): AccessResult {
-    if ($this->moduleHandler->moduleExists('ai_ckeditor') || Settings::get('ai_automator_advanced_mode_enabled', FALSE)) {
+    if ($this->moduleHandler->moduleExists('ai_ckeditor') || $this->moduleHandler->moduleExists('ai_agents') || Settings::get('ai_automator_advanced_mode_enabled', FALSE)) {
       return AccessResult::allowed();
     }
 

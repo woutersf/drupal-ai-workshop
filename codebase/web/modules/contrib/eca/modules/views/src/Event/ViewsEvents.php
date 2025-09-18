@@ -8,6 +8,15 @@ namespace Drupal\eca_views\Event;
 final class ViewsEvents {
 
   /**
+   * Identifies \Drupal\eca_views\Event\Access event.
+   *
+   * @Event
+   *
+   * @var string
+   */
+  public const ACCESS = 'eca_views.access';
+
+  /**
    * Identifies \Drupal\eca_views\Event\QuerySubstitutions event.
    *
    * @Event

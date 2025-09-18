@@ -60,7 +60,7 @@ class KeyRepository implements KeyRepositoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function getKeys(array $key_ids = NULL) {
+  public function getKeys(?array $key_ids = NULL) {
     return $this->entityTypeManager->getStorage('key')->loadMultiple($key_ids);
   }
 

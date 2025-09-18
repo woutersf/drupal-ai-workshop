@@ -106,7 +106,7 @@ interface EventInterface extends PluginFormInterface, ConfigurableInterface, Plu
   /**
    * Gets the list of tokens.
    *
-   * @return \Drupal\eca\Attributes\Token[]
+   * @return \Drupal\eca\Attribute\Token[]
    *   The list of tokens.
    */
   public function getTokens(): array;

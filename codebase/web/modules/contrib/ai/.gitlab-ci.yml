@@ -1,3 +1,4 @@
+# Use the Drupal GitLab CI template.
 include:
   - project: $_GITLAB_TEMPLATES_REPO
     ref: $_GITLAB_TEMPLATES_REF
@@ -7,24 +8,148 @@ include:
       - '/includes/include.drupalci.workflows.yml'
 
 variables:
-  _TARGET_DRUPAL: 11.0
-  _TARGET_PHP: 8.3
+  # Give more verbose PHPUnit output.
   _PHPUNIT_EXTRA: --verbose
+  # Opt into the relevant versions.
   OPT_IN_TEST_PREVIOUS_MAJOR: 1
-  OPT_IN_TEST_PREVIOUS_MINOR: 0
+  OPT_IN_TEST_PREVIOUS_MINOR: 1
   OPT_IN_TEST_NEXT_MINOR: 1
-  #OPT_IN_TEST_NEXT_MAJOR: 1
+  OPT_IN_TEST_NEXT_MAJOR: 1
   OPT_IN_TEST_MAX_PHP: 1
+  # Use runtests.sh which gives better output.
   _PHPUNIT_CONCURRENT: 1
+  # Configured skipped tests.
   SKIP_ESLINT: 1
-  # Until fixed in gitlab templates.
-  SKIP_STYLELINT: 1
+  SKIP_STYLELINT: 1   # Until fixed in gitlab templates.
   # showdown.js is full of emoji words.
-  _CSPELL_IGNORE_PATHS: "'modules/ai_chatbot/js', 'modules/ai_chatbot/deepchat', 'modules/ai_chatbot/css', '.cspell-project-words.txt'"
+  _CSPELL_IGNORE_PATHS: "'assets/js/chat_history_element.js', 'modules/*/tests/resources/ai_test/requests/*/*.yml', 'modules/ai_api_explorer/css', 'modules/ai_api_explorer/js', 'modules/ai_chatbot/js', 'modules/ai_chatbot/deepchat', 'modules/ai_chatbot/css', 'modules/ai_automators/tests/config', '.cspell-project-words.txt', 'grumphp.yml"
   COMPOSER_IGNORE_PLATFORM_REQS: 'ext-ffi'
+
+phpunit (previous major):
+  before_script:
+    # We need to build 8.1 with the FFI extension enabled.
+    # Install dependencies.
+    - apt-get update
+    - apt-get install -y --no-install-recommends $PHPIZE_DEPS libffi-dev
+    # Download and extract PHP source.
+    - curl -LS -o /usr/src/php.tar.xz "https://php.net/distributions/php-$(php -r 'echo PHP_VERSION;').tar.xz"
+    - docker-php-source extract
+    # Compile the FFI module.
+    - |-
+      (
+        cd /usr/src/php/ext/ffi
+        phpize
+        ./configure
+        make
+        make install
+      )
+    # Enable the FFI module.
+    - echo "extension=ffi.so" > /usr/local/etc/php/conf.d/docker-php-ext-ffi.ini
+    - echo "ffi.enable=true" >> /usr/local/etc/php/conf.d/docker-php-ext-ffi.ini
+    # Show the configuration for debugging purposes.
+    - php -i | grep ffi
+
+# Build JS artifacts as this can sometimes be forgotten.
+js_build:
+  stage: build
+  image: node:20.14.0-alpine
+  variables:
+    GIT_STRATEGY: fetch
+    GIT_CHECKOUT: "true"
+  cache:
+    key:
+      files:
+        - modules/ai_ckeditor/package.json
+    paths:
+      - modules/ai_ckeditor/node_modules
+  # Provide artifacts for subsequent jobs.
+  artifacts:
+    paths:
+      - modules/ai_ckeditor/js/build
+    expire_in: 1h
+  # Build artifacts and push them if we are in the main repository.
+  script:
+    - |
+      apk add --no-cache bash git openssh
+      cd modules/ai_ckeditor
+
+      # Set author info from last commit
+      GIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
+
+      # Configure git
+      git config --global user.name "CI Bot AI"
+      git config --global user.email "ci-bot-ai@drupal.org"
+
+      # Build JS artifacts
+      npm install
+      npm run build
+
+      # Stage built files
+      git add js/build || true
+
+      # Only commit and push if there are changes
+      if ! git diff --cached --quiet; then
+        git commit -m "[CI Bot AI] Rebuild JS artifacts (initiated by $GIT_AUTHOR_NAME)"
+        if [[ "$CI_PROJECT_PATH" == "project/ai" ]]; then
+          git remote set-url origin https://oauth2:${ACCESS_TOKEN}@git.drupalcode.org/project/ai.git
+          # When running in a merge request push to the target branch, otherwise to current branch
+          TARGET_BRANCH="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-$CI_COMMIT_REF_NAME}"
+          # Push with CI skip to avoid loop
+          git push -o ci.skip origin HEAD:$TARGET_BRANCH
+        else
+          echo "'$CI_PROJECT_PATH' is not 'project/ai', skipping push"
+        fi
+      else
+        echo "No changes to commit"
+      fi
 
 pages:
   stage: .post
+  rules:
+    - if: '$CI_COMMIT_TAG'   # skip tags
+      when: never
+    - if: '$CI_COMMIT_REF_NAME !~ /^[0-9]+\.[0-9]+\.x$/'
+      when: never
+    - changes:
+        - docs/**/*
+        - docs/*
+      when: on_success
+    - when: never
+  script:
+    - echo "Project name is $CI_PROJECT_NAME"
+    - echo "Get the version - only for branches matching the pattern [0-9]+.[0-9]+.x"
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" =~ ^([0-9]+)\.([0-9]+)\.x$ ]]; then
+        VERSION="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.x"
+        echo "Version to write documentation for: $VERSION"
+      else
+        echo "Branch $CI_COMMIT_REF_NAME does not match version pattern."
+        exit 1
+      fi
+    - cd $CI_PROJECT_DIR && pwd
+    - pip install mkdocs-material mike mkdocs-glightbox
+    - echo "Pulling latest changes from origin to get mike versions"
+    - git fetch origin gh-pages --depth=1
+    - pwd && ls -l logo* && ls -l docs/logo* || true
+    - |
+      if [[ -f logo.png ]]; then
+        # Do not copy the logo if the destination file already exists.
+        test -f docs/logo.png && echo "logo.png not copied to /docs because that file already exists." || cp -v logo.png docs/logo.png
+      fi
+    - echo "Setup Mike for deployment"
+    - git config --global user.name "CI Bot AI"
+    - git config --global user.email "ci-bot-ai@drupal.org"
+    - git config pull.rebase false
+    - echo "Allowing Mike to deploy to the gh-pages branch"
+    - git remote set-url origin https://oauth2:${DOCS_TOKEN}@git.drupalcode.org/project/ai.git
+    - echo "Deploying documentation to gh-pages branch to have latest built version"
+    - mike deploy $VERSION --push
+    - echo "Remove any changes"
+    - git reset --hard
+    - git clean -fd
+    - echo "Switching to updated gh-pages branch to copy the built documentation"
+    - git checkout gh-pages
+    - mv mkdocs public
 
 cspell:
   allow_failure: false
@@ -32,47 +157,12 @@ phpcs:
   allow_failure: false
 phpstan:
   allow_failure: false
-  before_script:
-    - composer require --dev drush/drush
 
-# Add in the FFI extension for the AI Search end-to-end test.
-# See /docs/modules/ai_search/index.md for more details.
-phpunit:
-  extends: .phpunit-base
+.phpunit-base:
   before_script:
-    # Update and install build tools.
-    - apt-get update && apt-get install -y --no-install-recommends $PHPIZE_DEPS libffi-dev wget
-    # Download and extract PHP source code.
-    - wget -qO /usr/src/php.tar.xz https://www.php.net/distributions/php-8.3.0.tar.xz
-    - mkdir -p /usr/src/php
-    - tar -xf /usr/src/php.tar.xz -C /usr/src/php --strip-components=1
-    # Build and enable FFI extension.
-    - docker-php-ext-configure ffi
-    - docker-php-ext-install ffi
+    # Enable the FFI module.
+    - echo "extension=ffi" > /usr/local/etc/php/conf.d/docker-php-ext-ffi.ini
     - echo "ffi.enable=true" >> /usr/local/etc/php/conf.d/docker-php-ext-ffi.ini
-    # Output whether FFI is successfully enabled into the pipeline log.
-    - php -i | grep ffi
+    # Show the configuration for debugging purposes.
+    - php --ri ffi
 
-# Do the same with FFI for PHP 8.4.
-phpunit (max PHP version):
-  extends: .phpunit-base
-  before_script:
-    # Update and install build tools.
-    - apt-get update && apt-get install -y --no-install-recommends $PHPIZE_DEPS libffi-dev wget
-    # Download and extract PHP source code.
-    - wget -qO /usr/src/php.tar.xz https://www.php.net/distributions/php-8.4.0.tar.xz
-    - mkdir -p /usr/src/php
-    - tar -xf /usr/src/php.tar.xz -C /usr/src/php --strip-components=1
-    # Build and enable FFI extension.
-    - docker-php-ext-configure ffi
-    - docker-php-ext-install ffi
-    - echo "ffi.enable=true" >> /usr/local/etc/php/conf.d/docker-php-ext-ffi.ini
-    # Output whether FFI is successfully enabled into the pipeline log.
-    - php -i | grep ffi
-    # Update to dev version of Key module until a new release contains
-    # https://www.drupal.org/project/key/issues/3489100.
-    - composer require drupal/key:dev-1.x
-
-# Revert to Drupal Gitlab CI default template.
-phpunit (previous major):
-  extends: .phpunit-base

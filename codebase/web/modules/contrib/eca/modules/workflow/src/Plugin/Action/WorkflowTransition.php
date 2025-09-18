@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\eca\Plugin\Action\ConfigurableActionBase;
+use Drupal\eca\Plugin\DataType\DataTransferObject;
 use Drupal\eca\Plugin\ECA\PluginFormTrait;
 use Drupal\workflows\Entity\Workflow;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -61,8 +62,15 @@ class WorkflowTransition extends ConfigurableActionBase {
     $entity->set('moderation_state', $new_state);
     if ($entity instanceof RevisionLogInterface) {
       $entity->setRevisionCreationTime($this->time->getRequestTime());
-      $entity->setRevisionLogMessage($this->configuration['revision_log']);
       $entity->setRevisionUserId($this->currentUser->id());
+
+      $log = $this->tokenService->replace($this->configuration['revision_log']);
+      if ($log instanceof DataTransferObject) {
+        $log = $log->getString();
+      }
+      if ($log) {
+        $entity->setRevisionLogMessage($log);
+      }
     }
     $entity->save();
   }
@@ -119,6 +127,7 @@ class WorkflowTransition extends ConfigurableActionBase {
       '#title' => $this->t('Revision Log'),
       '#default_value' => $this->configuration['revision_log'],
       '#weight' => -10,
+      '#eca_token_replacement' => TRUE,
     ];
     return parent::buildConfigurationForm($form, $form_state);
   }

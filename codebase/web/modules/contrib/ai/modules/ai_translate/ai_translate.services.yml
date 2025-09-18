@@ -1,6 +1,7 @@
 services:
   ai_translate.subscriber:
     class: Drupal\ai_translate\Routing\AiTranslateRouteSubscriber
+    arguments: ['@config.factory']
     tags:
       - { name: event_subscriber }
   ai_translate.text_extractor:

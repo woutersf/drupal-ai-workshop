@@ -81,6 +81,7 @@ function admin_toolbar_links_access_filter_filter_non_accessible_links(array &$i
       elseif (!empty($item['url'])) {
         /** @var \Drupal\Core\Url $url */
         $url = $item['url'];
+        // @phpstan-ignore variable.undefined
         if ($url->isExternal() || !$original_link->getUrlObject()->isRouted()) {
           // Do not filter external URL at all.
           continue;

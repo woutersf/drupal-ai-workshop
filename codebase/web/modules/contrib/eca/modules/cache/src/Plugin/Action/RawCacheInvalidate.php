@@ -35,7 +35,7 @@ class RawCacheInvalidate extends CacheInvalidate {
 
     if (empty($tags)) {
       foreach (Cache::getBins() as $bin) {
-        $bin->invalidateAll();
+        $bin->deleteAll();
       }
     }
     else {

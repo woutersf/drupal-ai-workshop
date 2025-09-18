@@ -1,0 +1,3 @@
+services:
+  ai_vdb_provider_postgres.client:
+    class: Drupal\ai_vdb_provider_postgres\PostgresPgvectorClient

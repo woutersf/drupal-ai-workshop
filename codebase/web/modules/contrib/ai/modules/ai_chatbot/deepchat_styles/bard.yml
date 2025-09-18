@@ -17,6 +17,12 @@ parameters:
       text: "Enter a prompt here"
       style:
         color: "#bcbcbc"
+  auxiliaryStyle:
+    "@keyframes pulse-color {
+      0%   { color: #555; }
+      50%  { color: #ccc; }
+      100% { color: #555; }
+    }"
   messageStyles:
     default:
       shared:

@@ -65,14 +65,14 @@ final class Title extends AiContentSuggestionsPluginBase {
     parent::buildSettingsForm($form);
     $prompt = $this->promptConfig->get($this->getPluginId());
     $form[$this->getPluginId()][$this->getPluginId() . '_prompt'] = [
-      '#title' => $this->t('suggest Title prompt', []),
+      '#title' => $this->t('Suggest Title prompt', []),
       '#type' => 'textarea',
       '#required' => TRUE,
       '#default_value' => $prompt ?? $this->defaultPrompt . PHP_EOL,
-      '#parents' => [$this->getPluginId(), $this->getPluginId() . '_prompt'],
+      '#parents' => ['plugins', $this->getPluginId(), $this->getPluginId() . '_prompt'],
       '#states' => [
         'visible' => [
-          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled' . ']"]' => ['checked' => TRUE],
+          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled]"]' => ['checked' => TRUE],
         ],
       ],
     ];
@@ -82,7 +82,7 @@ final class Title extends AiContentSuggestionsPluginBase {
    * {@inheritdoc}
    */
   public function saveSettingsForm(array &$form, FormStateInterface $form_state): void {
-    $value = $form_state->getValue($this->getPluginId());
+    $value = $form_state->getValue(['plugins', $this->getPluginId()]);
     $prompt = $value[$this->getPluginId() . '_prompt'];
     $this->promptConfig->set($this->getPluginId(), $prompt)->save();
   }

@@ -171,7 +171,10 @@ class NewEntity extends ConfigurableActionBase {
         $access_result = AccessResult::forbidden(sprintf('Cannot determine access when "%s" is not a valid entity type ID.', $entity_type_id));
       }
       elseif (!$this->entityTypeManager->hasHandler($entity_type_id, 'access')) {
-        $access_result = AccessResult::forbidden('Cannot determine access without an access handler.');
+        $admin_permission = $this->entityTypeManager->getStorage($entity_type_id)->getEntityType()->getAdminPermission();
+        $access_result = $admin_permission ?
+          AccessResult::allowedIfHasPermission($account, $admin_permission) :
+          AccessResult::forbidden('Cannot determine access without an access handler.');
       }
       else {
         /**

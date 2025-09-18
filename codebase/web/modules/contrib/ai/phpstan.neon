@@ -22,6 +22,11 @@ parameters:
   ignoreErrors:
     # new static() is a best practice in Drupal, so we cannot fix that.
     - "#^Unsafe usage of new static#"
+    # As per https://drupal.slack.com/archives/C1BMUQ9U6/p1749477598489399
+    - "#Attribute class Drupal\\\\Core\\\\Hook\\\\Attribute\\\\Hook does not exist.#"
+    - "#Attribute class Drupal\\\\Core\\\\Hook\\\\Attribute\\\\LegacyHook does not exist.#"
+  reportUnmatchedIgnoredErrors: false
 
   excludePaths:
     - modules/ai_search/tests/modules/test_ai_vdb_provider_mysql/src/TestVectorTable.php
+    - modules/ai_assistant_api/src/Service/AgentRunner.php

@@ -8,14 +8,12 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\ai\OperationType\GenericType\AbstractFileBase;
 use Drupal\file\Entity\File;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests for the GenerateFileEntityTrait class.
  *
  * @group ai
  */
-#[Group('ai')]
 final class GenerateFileEntityTraitTest extends KernelTestBase {
 
   /**

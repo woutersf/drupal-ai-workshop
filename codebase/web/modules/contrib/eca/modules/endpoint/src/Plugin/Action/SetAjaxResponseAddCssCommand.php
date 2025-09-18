@@ -24,7 +24,7 @@ class SetAjaxResponseAddCssCommand extends ResponseAjaxCommandBase {
    */
   public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
     $href = (string) $this->tokenService->replaceClear($this->configuration['href']);
-    if (!is_string($href) || $href === '') {
+    if ($href === '') {
       $result = AccessResult::forbidden();
     }
     else {

@@ -12,6 +12,10 @@ use Drupal\ai\OperationType\Chat\ChatInput;
 use Drupal\ai\OperationType\Chat\ChatInterface;
 use Drupal\ai\OperationType\Chat\ChatMessage;
 use Drupal\ai\OperationType\Chat\ChatOutput;
+use Drupal\ai\OperationType\Chat\Tools\ToolsFunctionOutput;
+use Drupal\ai\OperationType\Chat\Tools\ToolsOutput;
+use Drupal\ai\OperationType\Chat\Tools\ToolsPropertyInput;
+use Drupal\ai\OperationType\Chat\Tools\ToolsPropertyResult;
 use Drupal\ai\OperationType\Embeddings\EmbeddingsInput;
 use Drupal\ai\OperationType\Embeddings\EmbeddingsInterface;
 use Drupal\ai\OperationType\Embeddings\EmbeddingsOutput;
@@ -34,6 +38,9 @@ use Drupal\ai\OperationType\TextToImage\TextToImageOutput;
 use Drupal\ai\OperationType\TextToSpeech\TextToSpeechInput;
 use Drupal\ai\OperationType\TextToSpeech\TextToSpeechInterface;
 use Drupal\ai\OperationType\TextToSpeech\TextToSpeechOutput;
+use Drupal\ai_test\OperationType\Echo\EchoInput;
+use Drupal\ai_test\OperationType\Echo\EchoInterface;
+use Drupal\ai_test\OperationType\Echo\EchoOutput;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -50,7 +57,8 @@ class EchoProvider extends AiProviderClientBase implements
   SpeechToTextInterface,
   TextToSpeechInterface,
   ImageClassificationInterface,
-  TextToImageInterface {
+  TextToImageInterface,
+  EchoInterface {
 
   /**
    * {@inheritdoc}
@@ -102,6 +110,7 @@ class EchoProvider extends AiProviderClientBase implements
       'text_to_speech',
       'moderation',
       'image_classification',
+      'echo',
     ];
   }
 
@@ -116,16 +125,64 @@ class EchoProvider extends AiProviderClientBase implements
    */
   public function chat(array|string|ChatInput $input, string $model_id, array $tags = []): ChatOutput {
     $response = [];
+    $normalized_input = '';
     if ($input instanceof ChatInput) {
-      $input = $input->getMessages()[0]->getText();
+      $normalized_input = $input->getMessages()[0]->getText();
     }
     if ($this->streamed) {
-      $output[] = sprintf('Hello world! Input: %s. Config: %s.', (string) $input, json_encode($this->configuration));
+      $output[] = sprintf('Hello world! Input: %s. Config: %s.', $normalized_input ?? $input, json_encode($this->configuration));
       $iterator = new MockIterator($output);
       $message = new MockStreamedChatIterator($iterator);
     }
     else {
-      $message = new ChatMessage('user', sprintf('Hello world! Input: %s. Config: %s.', (string) $input, json_encode($this->configuration)));
+      $message = new ChatMessage('user', sprintf('Hello world! Input: %s. Config: %s.', $normalized_input ?? $input, json_encode($this->configuration)));
+    }
+
+    if ($input instanceof ChatInput) {
+      if ($input->getChatTools()) {
+        $input_tools = $input->getChatTools();
+        // Just give back the first function.
+        $functions = $input_tools->getFunctions();
+        $function = $functions[key($functions)];
+        $output_function = new ToolsFunctionOutput($function, 'test');
+        foreach ($function->getProperties() as $property) {
+          // Give back different values depending on the property type.
+          switch ($property->getType()) {
+            case 'string':
+              $value = 'test';
+              break;
+
+            case 'number':
+              $value = 1;
+              break;
+
+            case 'boolean':
+              $value = TRUE;
+              break;
+
+            case 'array':
+              $value = ['test'];
+              break;
+
+            case 'object':
+              $value = ['test' => 'test'];
+              break;
+
+            default:
+              $value = 'test';
+              break;
+          }
+          if ($property instanceof ToolsPropertyInput) {
+            $output_function->addArgument(new ToolsPropertyResult($property, $value));
+          }
+        }
+
+        $output_tools = new ToolsOutput($input_tools);
+        $output_tools->setFunction($output_function);
+        if ($message instanceof ChatMessage) {
+          $message->setTools([$output_tools]);
+        }
+      }
     }
 
     return new ChatOutput($message, $response, []);
@@ -228,6 +285,16 @@ class EchoProvider extends AiProviderClientBase implements
     }
 
     return new ImageClassificationOutput($output, $response, []);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function echo(string|EchoInput $input, string $model_id, array $options = []): EchoOutput {
+    if (!$input instanceof EchoInput) {
+      $input = new EchoInput($input);
+    }
+    return new EchoOutput((string) $input, ['echo' => (string) $input], []);
   }
 
 }

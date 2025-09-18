@@ -1,0 +1,4 @@
+services:
+  Drupal\ai_test\Hook\OperationTypeHook:
+    class: Drupal\ai_test\Hook\OperationTypeHook
+    autowire: true

@@ -3,12 +3,14 @@ description: Use an endpoint in Fireworks AI.
 package: AI Interpolator
 type: module
 core_version_requirement: ^9.2 || ^10
+lifecycle: deprecated
+lifecycle_link: https://www.drupal.org/project/fireworksai/issues/3489362
 
 dependencies:
   - ai_interpolator:ai_interpolator (>=1.0.0-rc4)
   - fireworksai:fireworksai
 
-# Information added by Drupal.org packaging script on 2024-10-29
-version: '1.0.0-rc5'
+# Information added by Drupal.org packaging script on 2025-06-12
+version: '1.1.0-rc1'
 project: 'fireworksai'
-datestamp: 1730208768
+datestamp: 1749732390

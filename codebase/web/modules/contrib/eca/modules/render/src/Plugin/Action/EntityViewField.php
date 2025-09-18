@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\eca\Plugin\FormFieldMachineName;
 use Drupal\eca\Service\YamlParser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -63,26 +64,26 @@ class EntityViewField extends RenderElementActionBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['field_name'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Field name'),
       '#default_value' => $this->configuration['field_name'],
       '#description' => $this->t('The machine name of the field. Example: <em>field_tags</em>'),
       '#required' => TRUE,
       '#weight' => -40,
+      '#eca_token_replacement' => TRUE,
     ];
     $form['view_mode'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('View mode'),
       '#default_value' => $this->configuration['view_mode'],
       '#description' => $this->t('Example: <em>default, teaser</em>'),
       '#required' => FALSE,
       '#weight' => -30,
+      '#eca_token_replacement' => TRUE,
     ];
     $form['display_options'] = [
       '#type' => 'textarea',

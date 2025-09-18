@@ -80,3 +80,16 @@ function ai_translate_update_10002(&$sandbox) {
     'model_id' => $config->get('default_providers.chat.model_id') ?? 'default',
   ])->save();
 }
+
+/**
+ * Set default to use AI translate for the "Translate" tab on all entities.
+ *
+ * This maintains the status quo for existing installations.
+ */
+function ai_translate_update_10003(&$sandbox) {
+  /** @var \Drupal\Core\Config\ConfigFactory $configFactory */
+  $configFactory = \Drupal::service('config.factory');
+  $configFactory->getEditable('ai_translate.settings')
+    ->set('use_ai_translate', TRUE)
+    ->save();
+}

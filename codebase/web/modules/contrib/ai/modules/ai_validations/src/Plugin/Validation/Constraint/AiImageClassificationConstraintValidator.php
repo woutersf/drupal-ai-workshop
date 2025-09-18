@@ -72,7 +72,6 @@ final class AiImageClassificationConstraintValidator extends ConstraintValidator
       return;
     }
     $provider = $this->aiPluginManager->loadProviderFromSimpleOption($constraint->model);
-
     // Format the requested Image classification for textual validation.
     $image = new ImageFile();
     $image->setFileFromFile($file);
@@ -90,7 +89,8 @@ final class AiImageClassificationConstraintValidator extends ConstraintValidator
     }
     foreach ($classifications as $classification) {
       if (($constraint->finder == 'exact' && $classification->getLabel() == $constraint->tag ||
-          $constraint->finder == 'contains' && str_contains($classification->getLabel(), $constraint->tag)) &&
+          $constraint->finder == 'contains' && str_contains($classification->getLabel(), $constraint->tag) ||
+          $constraint->finder == 'substring' && stripos($classification->getLabel(), $constraint->tag) !== FALSE) &&
           $classification->getConfidenceScore() >= $constraint->minimum) {
         $this->context->addViolation($constraint->message, []);
       }

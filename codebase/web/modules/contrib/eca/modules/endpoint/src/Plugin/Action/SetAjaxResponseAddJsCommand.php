@@ -24,7 +24,7 @@ class SetAjaxResponseAddJsCommand extends ResponseAjaxCommandBase {
    */
   public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
     $url = (string) $this->tokenService->replaceClear($this->configuration['url']);
-    if (!is_string($url) || $url === '') {
+    if ($url === '') {
       $result = AccessResult::forbidden();
     }
     else {

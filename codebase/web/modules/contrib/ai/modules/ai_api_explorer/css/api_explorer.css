@@ -52,3 +52,7 @@ code.ai-code {
 .gin--dark-mode .ai-code-wrapper {
   background: #000;
 }
+
+.ms-parent {
+  width: 100%;
+}

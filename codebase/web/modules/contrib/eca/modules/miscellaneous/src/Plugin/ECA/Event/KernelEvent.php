@@ -4,7 +4,7 @@ namespace Drupal\eca_misc\Plugin\ECA\Event;
 
 use Drupal\Core\DrupalKernelInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Plugin\DataType\DataTransferObject;
 use Drupal\eca\Plugin\ECA\Event\EventBase;
 use Drupal\eca_misc\Event\EcaExceptionEvent;

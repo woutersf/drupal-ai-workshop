@@ -7,12 +7,6 @@
     "issues": "https://drupal.org/project/issues/eca",
     "source": "https://drupal.org/project/eca"
   },
-  "repositories": {
-    "webform": {
-      "type": "vcs",
-      "url": "https://git.drupalcode.org/issue/webform-3465838.git"
-    }
-  },
   "require": {
     "php": ">=8.1",
     "ext-dom": "*",
@@ -22,11 +16,13 @@
     "mtownsend/xml-to-array": "^2.0"
   },
   "require-dev": {
+    "drupal/ai": "^1.2",
+    "drupal/ai_agents": "^1.2",
     "drupal/entity_reference_revisions": "^1.12",
     "drupal/inline_entity_form": "^3.0",
     "drupal/paragraphs": "^1.18",
     "drupal/project_browser": "^2.0",
     "drupal/token": "^1.15",
-    "drupal/webform": "dev-3465838-drupal-11-compatibility"
+    "drupal/webform": "^6.3"
   }
 }

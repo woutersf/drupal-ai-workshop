@@ -43,9 +43,6 @@ trait UserTrait {
       }
     }
     if (is_numeric($account)) {
-      /**
-       * @var \Drupal\user\UserInterface $account
-       */
       try {
         $account = $this->entityTypeManager->getStorage('user')->load($account);
       }

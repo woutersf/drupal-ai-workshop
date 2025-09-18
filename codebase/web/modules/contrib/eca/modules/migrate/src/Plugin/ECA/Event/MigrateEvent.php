@@ -2,7 +2,7 @@
 
 namespace Drupal\eca_migrate\Plugin\ECA\Event;
 
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Plugin\ECA\Event\EventBase;
 use Drupal\migrate\Event\MigrateEvents;
 use Drupal\migrate\Event\MigrateIdMapMessageEvent;
@@ -103,6 +103,17 @@ class MigrateEvent extends EventBase {
     ]
   )]
   #[Token(
+    name: 'migration_id',
+    description: 'The migration plugin id being run.',
+    classes: [
+      MigrateImportEvent::class,
+      MigratePreRowSaveEvent::class,
+      MigrateRollbackEvent::class,
+      MigrateRowDeleteEvent::class,
+      MigrateIdMapMessageEvent::class,
+    ]
+  )]
+  #[Token(
     name: 'map',
     description: 'The map plugin that caused the event to fire.',
     classes: [
@@ -173,6 +184,18 @@ class MigrateEvent extends EventBase {
           || $event instanceof MigrateIdMapMessageEvent
         ) {
           return $event->getMigration();
+        }
+        break;
+
+      case 'migration_id':
+        if ($event instanceof MigrateImportEvent
+          || $event instanceof MigratePreRowSaveEvent
+          || $event instanceof MigrateRollbackEvent
+          || $event instanceof MigrateRowDeleteEvent
+          || $event instanceof MigrateIdMapMessageEvent
+        ) {
+          $migration = $event->getMigration();
+          return $migration->id();
         }
         break;
 

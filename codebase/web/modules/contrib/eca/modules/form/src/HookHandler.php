@@ -259,12 +259,35 @@ class HookHandler extends BaseHookHandler {
       return;
     }
 
+    $delta = $context['delta'] ?? NULL;
+    if (isset($element['#ief_id']) && ($triggering_element = &$form_state->getTriggeringElement())) {
+      if (isset($triggering_element['#ief_row_delta'])) {
+        $delta = $triggering_element['#ief_row_delta'];
+      }
+      else {
+        $entities = $form_state->get([
+          'inline_entity_form',
+          $element['#ief_id'],
+          'entities',
+        ]);
+        if (!empty($entities)) {
+          $delta = count($entities);
+        }
+        elseif (isset($triggering_element['#ief_form']) && $triggering_element['#ief_form'] === 'add') {
+          $delta = $context['items']->count();
+        }
+      }
+    }
+    if (!isset($delta)) {
+      return;
+    }
+
     // Pass along information for ::alterInlineEntityForm().
     if (isset($element['inline_entity_form'])) {
       $entity_form = &$element['inline_entity_form'];
     }
-    elseif (isset($element['entities'][$context['delta']]['form']['inline_entity_form'])) {
-      $entity_form = &$element['entities'][$context['delta']]['form']['inline_entity_form'];
+    elseif (isset($element['entities'][$delta]['form']['inline_entity_form'])) {
+      $entity_form = &$element['entities'][$delta]['form']['inline_entity_form'];
     }
     elseif (isset($element['form']['inline_entity_form'])) {
       $entity_form = &$element['form']['inline_entity_form'];
@@ -275,7 +298,7 @@ class HookHandler extends BaseHookHandler {
     $info = [
       'parent' => $context['items']->getEntity(),
       'field_name' => $context['items']->getFieldDefinition()->getName(),
-      'delta' => $context['delta'],
+      'delta' => $delta,
       'widget_plugin_id' => $context['widget']->getPluginId(),
     ];
     $entity_form['#eca_ief_info'] = &$info;

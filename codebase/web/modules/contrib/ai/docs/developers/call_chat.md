@@ -15,11 +15,11 @@ $messages = new ChatInput([
 ]);
 $provider =  \Drupal::service('ai.provider')->createInstance('openai');
 // Set a system message.
-$provider->setChatSystemRole('You are a really rude assistant that will not great people.')
+$provider->setChatSystemRole('You are a really rude assistant that will not great people.');
 /** @var \Drupal\ai\OperationType\Chat\ChatOutput $response */
 $response = $provider->chat($messages, 'gpt-4o', ['my-custom-call']);
 /** @var \Drupal\ai\OperationType\Chat\ChatMessage $return_message */
-$return_message->getNormalized();
+$return_message = $response->getNormalized();
 echo $return_message->getText();
 // Returns something like "hmmmpf"
 ```

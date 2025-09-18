@@ -1,0 +1,31 @@
+include:
+  - project: $_GITLAB_TEMPLATES_REPO
+    ref: $_GITLAB_TEMPLATES_REF
+    file:
+      - '/includes/include.drupalci.main.yml'
+      - '/includes/include.drupalci.variables.yml'
+      - '/includes/include.drupalci.workflows.yml'
+
+variables:
+  _TARGET_PHP: 8.3
+  _PHPUNIT_EXTRA: --verbose
+  CORE_STABLE: '11.x-dev'
+  OPT_IN_TEST_PREVIOUS_MAJOR: 0
+  OPT_IN_TEST_CURRENT: 1
+  OPT_IN_TEST_NEXT_MINOR: 0
+  OPT_IN_TEST_NEXT_MAJOR: 0
+  _PHPUNIT_CONCURRENT: 1
+  _CSPELL_IGNORE_PATHS: "'.cspell-project-words.txt', 'tests/assets'"
+pages:
+  stage: .post
+
+cspell:
+  allow_failure: false
+stylelint:
+  allow_failure: false
+phpcs:
+  allow_failure: false
+phpstan:
+  allow_failure: false
+  before_script:
+    - composer require --dev drush/drush

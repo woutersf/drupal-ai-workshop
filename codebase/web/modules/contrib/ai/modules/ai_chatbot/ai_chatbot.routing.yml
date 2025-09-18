@@ -18,7 +18,14 @@ ai_chatbot.api:
   defaults:
     _controller: '\Drupal\ai_chatbot\Controller\DeepChatApi::api'
     _format: json
-  methods:  [POST]
   requirements:
     _permission: 'access deepchat api'
     _csrf_token: 'TRUE'
+    _method: POST
+ai_chatbot.session:
+  path: '/api/deepchat/session'
+  defaults:
+    _controller: '\Drupal\ai_chatbot\Controller\DeepChatApi::setSession'
+  requirements:
+    _permission: 'access deepchat api'
+    _method: 'POST'

@@ -37,4 +37,24 @@ function ai_provider_openai_install() {
     $installer = \Drupal::service('module_installer');
     $installer->uninstall(['provider_openai']);
   }
+
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Set default model for chat_with_tools and chat_with_structured_response
+ * if not set.
+ */
+function ai_provider_openai_update_10001() {
+  $ai_provider = \Drupal::service('ai.provider');
+  // By default, it has not changed anything.
+  $return_message = t('No changes made to OpenAI provider default models.');
+  foreach (['chat_with_tools', 'chat_with_structured_response'] as $type) {
+    // If TRUE, it meant that it was needed to be set.
+    if ($ai_provider->defaultIfNone($type, 'openai', 'gpt-4.1')) {
+      $return_message = t('OpenAI provider default model set for relevant chat operation types.');
+    }
+  }
+  return $return_message;
 }

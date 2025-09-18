@@ -10,3 +10,6 @@ services:
     arguments: ['@plugin.manager.ai_content_suggestions']
     tags:
       - { name: cache.context}
+  Drupal\ai_content_suggestions\Hook\AiContentSuggestions:
+    class: Drupal\ai_content_suggestions\Hook\AiContentSuggestions
+    autowire: true

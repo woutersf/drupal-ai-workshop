@@ -10,7 +10,7 @@ use Drupal\Core\Config\ConfigImporterEvent;
 use Drupal\Core\Config\ConfigRenameEvent;
 use Drupal\Core\Config\Importer\MissingContentEvent;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Entity\Objects\EcaEvent;
 use Drupal\eca\Event\Tag;
 use Drupal\eca\Plugin\DataType\DataTransferObject;

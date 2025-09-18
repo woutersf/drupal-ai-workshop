@@ -26,9 +26,14 @@ class UrlValidator extends ConstraintValidator
             (((?:[\_\.\pL\pN-]|%%[0-9A-Fa-f]{2})+:)?((?:[\_\.\pL\pN-]|%%[0-9A-Fa-f]{2})+)@)?  # basic auth
             (
                 (?:
-                    (?:xn--[a-z0-9-]++\.)*+xn--[a-z0-9-]++            # a domain name using punycode
-                        |
-                    (?:[\pL\pN\pS\pM\-\_]++\.)+[\pL\pN\pM]++          # a multi-level domain name
+                    (?:
+                        (?:[\pL\pN\pS\pM\-\_]++\.)+
+                        (?:
+                            (?:xn--[a-z0-9-]++)                       # punycode in tld
+                            |
+                            (?:[\pL\pN\pM]++)                         # no punycode in tld
+                        )
+                    )                                                 # a multi-level domain name
                         |
                     [a-z0-9\-\_]++                                    # a single-level domain name
                 )\.?
@@ -72,7 +77,7 @@ class UrlValidator extends ConstraintValidator
         }
 
         $pattern = $constraint->relativeProtocol ? str_replace('(%s):', '(?:(%s):)?', static::PATTERN) : static::PATTERN;
-        $pattern = sprintf($pattern, implode('|', $constraint->protocols));
+        $pattern = \sprintf($pattern, implode('|', $constraint->protocols));
 
         if (!preg_match($pattern, $value)) {
             $this->context->buildViolation($constraint->message)

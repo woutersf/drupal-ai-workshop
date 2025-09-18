@@ -4,6 +4,7 @@ namespace Drupal\eca_render\Plugin\Action;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\eca\Event\RenderEventInterface;
+use Drupal\eca\Plugin\FormFieldMachineName;
 
 /**
  * Set the weight of an existing render array element.
@@ -32,15 +33,15 @@ class SetWeight extends RenderActionBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['name'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Machine name'),
       '#description' => $this->t('Specify the machine name / key of the render element.'),
       '#default_value' => $this->configuration['name'],
       '#weight' => -30,
       '#required' => TRUE,
+      '#eca_token_replacement' => TRUE,
     ];
     $form['weight'] = [
       '#type' => 'textfield',

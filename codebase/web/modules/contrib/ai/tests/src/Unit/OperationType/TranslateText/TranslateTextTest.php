@@ -7,14 +7,12 @@ namespace Drupal\Tests\ai\Unit\OperationType\TranslateText;
 use Drupal\Tests\UnitTestCase;
 use Drupal\ai\OperationType\TranslateText\TranslateTextInput;
 use Drupal\ai\OperationType\TranslateText\TranslateTextOutput;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the TranslateTextInput and TranslateTextOutput classes.
  *
  * @group ai
  */
-#[Group('ai')]
 final class TranslateTextTest extends UnitTestCase {
 
   /**

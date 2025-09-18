@@ -289,6 +289,7 @@ trait EcaTrait {
     // Need to manually load the action plugin manager, since it is an instance
     // provided by the decorator of that service, not by the service container.
     // @see https://www.drupal.org/project/eca/issues/3507815
+    // @phpstan-ignore-next-line
     if (property_exists($this, '_serviceIds') && isset($this->_serviceIds['actionPluginManager'])) {
       unset($this->_serviceIds['actionPluginManager']);
       $this->actionPluginManager();

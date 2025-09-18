@@ -27,7 +27,7 @@ case is.
 ## How to use the AI Automators module
 The AI Automators module is extremely flexible, and will interact with the
 modules installed on your site to allow use in a number of different ways. We
-recommend that you use the [AI Automators module guide](https://project.pages.drupalcode.org/ai/modules/ai_automators/index) to assist with
+recommend that you use the [AI Automators module guide](https://project.pages.drupalcode.org/ai/latest/modules/ai_automators/index) to assist with
 using the module.
 
 ## Develop for it

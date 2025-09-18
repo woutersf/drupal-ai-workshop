@@ -3,12 +3,13 @@
 namespace Drupal\ai\OperationType\Embeddings;
 
 use Drupal\ai\OperationType\GenericType\ImageFile;
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for embeddings input.
  */
-class EmbeddingsInput implements InputInterface {
+class EmbeddingsInput extends InputBase implements InputInterface {
 
   /**
    * The prompts to convert to vectors.

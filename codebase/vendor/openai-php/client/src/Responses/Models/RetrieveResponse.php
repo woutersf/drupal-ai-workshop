@@ -12,12 +12,12 @@ use OpenAI\Responses\Meta\MetaInformation;
 use OpenAI\Testing\Responses\Concerns\Fakeable;
 
 /**
- * @implements ResponseContract<array{id: string, object: string, created: int, owned_by: string}>
+ * @implements ResponseContract<array{id: string, object: string, created: ?int, created_at?: ?int, owned_by: ?string}>
  */
 final class RetrieveResponse implements ResponseContract, ResponseHasMetaInformationContract
 {
     /**
-     * @use ArrayAccessible<array{id: string, object: string, created: int, owned_by: string}>
+     * @use ArrayAccessible<array{id: string, object: string, created: ?int, owned_by: ?string}>
      */
     use ArrayAccessible;
 
@@ -27,24 +27,22 @@ final class RetrieveResponse implements ResponseContract, ResponseHasMetaInforma
     private function __construct(
         public readonly string $id,
         public readonly string $object,
-        public readonly int $created,
-        public readonly string $ownedBy,
+        public readonly ?int $created,
+        public readonly ?string $ownedBy,
         private readonly MetaInformation $meta,
     ) {}
 
     /**
-     * Acts as static factory, and returns a new Response instance.
-     *
-     * @param  array{id: string, object: string, created: int, owned_by: string}  $attributes
+     * @param  array{id: string, object: string, created: ?int, created_at?: ?int, owned_by: ?string}  $attributes
      */
     public static function from(array $attributes, MetaInformation $meta): self
     {
         return new self(
-            $attributes['id'],
-            $attributes['object'],
-            $attributes['created'],
-            $attributes['owned_by'],
-            $meta,
+            id: $attributes['id'],
+            object: $attributes['object'],
+            created: $attributes['created'] ?? $attributes['created_at'] ?? null,
+            ownedBy: $attributes['owned_by'] ?? null,
+            meta: $meta,
         );
     }
 

@@ -233,9 +233,8 @@ abstract class ConditionBase extends PluginBase implements ConditionInterface, C
   /**
    * {@inheritdoc}
    */
-  public function setConfiguration(array $configuration): ConditionBase {
+  public function setConfiguration(array $configuration): void {
     $this->configuration = $configuration + $this->defaultConfiguration();
-    return $this;
   }
 
   /**

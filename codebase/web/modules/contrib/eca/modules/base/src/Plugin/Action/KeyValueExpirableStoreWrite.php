@@ -53,6 +53,7 @@ class KeyValueExpirableStoreWrite extends KeyValueExpirableStoreRead {
       '#description' => $this->t('The time to live for this item, in seconds.'),
       '#weight' => -50,
       '#min' => 1,
+      '#required' => TRUE,
     ];
     return parent::buildConfigurationForm($form, $form_state);
   }

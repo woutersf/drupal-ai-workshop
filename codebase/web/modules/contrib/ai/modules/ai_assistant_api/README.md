@@ -9,7 +9,7 @@ report on. In conjunction with the AI Chatbot module, this can allow site users
 to talk to a chosen LLM and ask it to perform tasks on the site.
 
 ## How to configure the AI Assistant API module
-For more information, please see the [AI Assistant API module documentation](https://project.pages.drupalcode.org/ai/modules/ai_assistant_api/).
+For more information, please see the [AI Assistant API module documentation](https://project.pages.drupalcode.org/ai/latest/modules/ai_assistant_api/).
 
 ## AI Chatbot module
 ### What is the AI Chatbot module?
@@ -21,7 +21,7 @@ pushes user messages to the AI Assistant API, and renders LLM responses as
 user-readable text.
 
 ### How to configure the AI Chatbot module
-For more information, please see the [AI Assistant API module documentation](https://project.pages.drupalcode.org/ai/modules/ai_assistant_api/).
+For more information, please see the [AI Assistant API module documentation](https://project.pages.drupalcode.org/ai/latest/modules/ai_assistant_api/).
 
 ## Developing for the AI Assistants API module.
 For more information on providing your own plugins, please see [the Develop an API Assistant Action section](https://project.pages.drupalcode.org/ai/developers/develop_api_assistant_action.md).

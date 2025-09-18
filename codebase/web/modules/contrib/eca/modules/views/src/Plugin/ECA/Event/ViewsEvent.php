@@ -3,8 +3,10 @@
 namespace Drupal\eca_views\Plugin\ECA\Event;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Entity\Objects\EcaEvent;
 use Drupal\eca\Plugin\ECA\Event\EventBase;
+use Drupal\eca_views\Event\Access;
 use Drupal\eca_views\Event\PostBuild;
 use Drupal\eca_views\Event\PostExecute;
 use Drupal\eca_views\Event\PostRender;
@@ -35,6 +37,11 @@ class ViewsEvent extends EventBase {
    */
   public static function definitions(): array {
     return [
+      'access' => [
+        'label' => 'Views: Access',
+        'event_name' => ViewsEvents::ACCESS,
+        'event_class' => Access::class,
+      ],
       'query_substitutions' => [
         'label' => 'Views: Query Substitutions',
         'event_name' => ViewsEvents::QUERYSUBSTITUTIONS,
@@ -152,6 +159,30 @@ class ViewsEvent extends EventBase {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['view_id'] = $form_state->getValue('view_id');
     $this->configuration['display_id'] = $form_state->getValue('display_id');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  #[Token(
+    name: 'event',
+    description: 'The event.',
+    properties: [
+      new Token(name: 'args:?', description: 'The list of arguments given to the view.'),
+      new Token(name: 'display_id', description: 'The display_id of the view.'),
+    ],
+  )]
+  protected function buildEventData(): array {
+    $event = $this->event;
+    $data = [];
+    if ($event instanceof ViewsBase) {
+      $data += [
+        'args' => $event->getView()->args,
+        'display_id' => $event->getView()->current_display,
+      ];
+    }
+    $data += parent::buildEventData();
+    return $data;
   }
 
 }

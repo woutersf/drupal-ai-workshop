@@ -127,7 +127,7 @@ class Automate {
     // Check so the type exists.
     try {
       /** @var \Drupal\ai_automators\Entity\AiAutomatorChainType */
-      $automator_type = $this->entityTypeManager->getStorage('automator_chain_type')->load($type);
+      $this->entityTypeManager->getStorage('automator_chain_type')->load($type);
     }
     catch (\Exception $e) {
       throw new AiAutomatorTypeNotFoundException('Automator chain type does not exist.');
@@ -136,7 +136,7 @@ class Automate {
     // Check so there is output fields.
     $output_fields = $this->getAutomatedFields($type);
     // Load field types.
-    $field_names = $this->fieldManager->getFieldDefinitions('automator_chain', $type);
+    $this->fieldManager->getFieldDefinitions('automator_chain', $type);
 
     /** @var \Drupal\ai_automators\Entity\AutomatorChain */
     $automator = $this->entityTypeManager->getStorage('automator_chain')->create([

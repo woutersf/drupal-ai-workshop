@@ -1,5 +1,0 @@
-<?php
-
-namespace Drupal\Core\Cache;
-
-interface CacheBackendInterface {}

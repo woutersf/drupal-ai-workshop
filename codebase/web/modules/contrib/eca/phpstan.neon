@@ -1,19 +1,26 @@
 parameters:
   level: 6
+  reportUnmatchedIgnoredErrors: false
   scanDirectories:
     - ../../../../vendor/drush/drush/src-symfony-compatibility
   ignoreErrors:
     - identifier: missingType.iterableValue
     - identifier: missingType.generics
+    - '#^Call to method Drupal\\Core\\Entity\\Query\\QueryInterface::accessCheck\(\) with false will always evaluate to true.#'
+    - '#^Parameter &\$build by-ref type of method Drupal\\eca_render\\Plugin\\Action\\Views::doBuild\(\) expects array, array\|null given.#'
+    - '#^Parameter &\$form by-ref type of method Drupal\\eca_render\\Plugin\\views\\field\\EcaRender::buildOptionsForm\(\) expects array<string>, array<array<string, mixed>\|string> given.#'
+    - '#^Instanceof between Drupal\\eca\\Entity\\Objects\\EcaObject&Drupal\\eca\\Plugin\\ObjectWithPluginInterface and Drupal\\eca\\Entity\\Objects\\EcaObject will always evaluate to true.#'
+    - '#^Dead catch - Exception is never thrown in the try block.#'
+    - '#^Dead catch - AssertionError is never thrown in the try block.#'
+    - '#^Dead catch - Drupal\\Component\\Plugin\\Exception\\PluginException is never thrown in the try block.#'
+    - '#^Class Drupal\\eca_render\\Element\\EcaLazy extends @internal class Drupal\\Core\\Render\\Element\\RenderElementBase.#'
   excludePaths:
     - '*/tests/*.php'
   stubFiles:
     - './tests/phpstan/stubs/CacheableDependencyInterface.stub'
-    - './tests/phpstan/stubs/CacheBackendInterface.stub'
     - './tests/phpstan/stubs/CachedDiscoveryInterface.stub'
     - './tests/phpstan/stubs/DefaultPluginManager.stub'
     - './tests/phpstan/stubs/FormStateInterface.stub'
     - './tests/phpstan/stubs/LoggerInterface.stub'
-    - './tests/phpstan/stubs/Map.stub'
     - './tests/phpstan/stubs/TokenInterface.stub'
     - './tests/phpstan/stubs/ViewsPluginInterface.stub'

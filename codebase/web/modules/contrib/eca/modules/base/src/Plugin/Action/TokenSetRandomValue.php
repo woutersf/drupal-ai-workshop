@@ -7,7 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Password\DefaultPasswordGenerator;
 use Drupal\eca\Plugin\Action\ConfigurableActionBase;
 use Drupal\eca\Plugin\ECA\PluginFormTrait;
-use Random\RandomException;
 
 /**
  * Action to set a random token value.
@@ -39,58 +38,58 @@ class TokenSetRandomValue extends ConfigurableActionBase {
     }
     [$mode, $subMode] = explode(' ', $mode . ' placeholder');
 
-    $length = $this->configuration['length'];
+    $length = $this->tokenService->replace($this->configuration['length']);
 
     switch ($mode) {
       case 'string':
         $random = new Random();
-        $value = $random->string($length, $subMode === 'unique');
+        $value = $random->string((int) $length, $subMode === 'unique');
         break;
 
       case 'name':
         $random = new Random();
-        $value = $random->name($length, $subMode === 'unique');
+        $value = $random->name((int) $length, $subMode === 'unique');
         break;
 
       case 'machine_name':
         $random = new Random();
-        $value = $random->machineName($length, $subMode === 'unique');
+        $value = $random->machineName((int) $length, $subMode === 'unique');
         break;
 
       case 'word':
         $random = new Random();
-        $value = $random->word($length);
+        $value = $random->word((int) $length);
         break;
 
       case 'sentences':
         $random = new Random();
-        $value = $random->sentences($length, $subMode === 'capitalize');
+        $value = $random->sentences((int) $length, $subMode === 'capitalize');
         break;
 
       case 'paragraphs':
         $random = new Random();
-        $value = $random->paragraphs($length);
+        $value = $random->paragraphs((int) $length);
         break;
 
       case 'bytes':
         try {
-          $value = random_bytes($length);
+          $value = random_bytes((int) $length);
         }
-        catch (RandomException) {
+        catch (\Exception) {
           $value = '';
         }
         break;
 
       case 'password':
         $pwGen = new DefaultPasswordGenerator();
-        $value = $pwGen->generate(32);
+        $value = $pwGen->generate((int) $length);
         break;
 
       case 'integer':
         $parts = explode(',', $length);
         $min = PHP_INT_MIN;
         $max = PHP_INT_MAX;
-        if (isset($parts[0]) && intval($parts[0])) {
+        if (intval($parts[0])) {
           $min = (int) $parts[0];
         }
         if (isset($parts[1]) && intval($parts[1])) {
@@ -99,7 +98,7 @@ class TokenSetRandomValue extends ConfigurableActionBase {
         try {
           $value = random_int($min, $max);
         }
-        catch (RandomException) {
+        catch (\Exception) {
           $value = '';
         }
         break;
@@ -195,7 +194,7 @@ class TokenSetRandomValue extends ConfigurableActionBase {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['token_name'] = $form_state->getValue('token_name');
     $this->configuration['mode'] = $form_state->getValue('mode');
-    $this->configuration['length'] = !empty($form_state->getValue('length'));
+    $this->configuration['length'] = $form_state->getValue('length');
     parent::submitConfigurationForm($form, $form_state);
   }
 

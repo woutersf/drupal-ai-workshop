@@ -3,6 +3,7 @@
 namespace Drupal\eca_base\Plugin\Action;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\eca\Plugin\Action\ListOperationBase;
 
 /**
@@ -17,43 +18,82 @@ use Drupal\eca\Plugin\Action\ListOperationBase;
 class ListCompare extends ListOperationBase {
 
   /**
+   * Prepares the list elements to make sure they are comparable.
+   *
+   * @param iterable $list
+   *   The list of elements.
+   *
+   * @return array
+   *   The list with prepared elements.
+   */
+  protected function prepareList(iterable $list): array {
+    $result = [];
+    foreach ($list as $value) {
+      if ($value instanceof TypedDataInterface) {
+        $result[] = $value->getValue();
+      }
+      else {
+        $result[] = $value;
+      }
+    }
+    return $result;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function execute(): void {
     $result = [];
     $method = $this->configuration['method'];
-    switch ($method) {
-      case 'array_diff':
-        $result = $this->getDiff($this->configuration['list_token'], $this->configuration['secondary_list_token']);
-        break;
+    $name1 = $this->configuration['list_token'];
+    $name2 = $this->configuration['secondary_list_token'];
+    if ($this->tokenService->hasTokenData($name1) && $this->tokenService->hasTokenData($name2)) {
+      $list1 = $this->tokenService->getTokenData($name1);
+      if (is_iterable($list1)) {
+        $list2 = $this->tokenService->getTokenData($name2);
+        if (is_iterable($list2)) {
+          $list1 = $this->prepareList($list1);
+          $list2 = $this->prepareList($list2);
+          switch ($method) {
+            case 'array_diff':
+              $result = $this->getDiff($list1, $list2);
+              break;
 
-      case 'array_intersect':
-        $result = $this->getIntersect($this->configuration['list_token'], $this->configuration['secondary_list_token']);
-        break;
+            case 'array_intersect':
+              $result = $this->getIntersect($list1, $list2);
+              break;
 
+          }
+        }
+      }
     }
-    if (!empty($result)) {
-      $this->tokenService->addTokenData($this->configuration['result_token_name'], $result);
-    }
+    $this->tokenService->addTokenData($this->configuration['result_token_name'], $result);
   }
 
   /**
    * Receives a token and counts the contained items.
    *
-   * @param string $name
-   *   Name of token object which contains the primary list to compare.
-   * @param string $name2
-   *   Name of token object which contains the secondary list to compare.
+   * @param iterable $list1
+   *   First list to compare.
+   * @param iterable $list2
+   *   Secondary list to compare.
    *
    * @return array
    *   Result of the array_diff
    */
-  protected function getDiff(string $name, string $name2): array {
+  protected function getDiff(iterable $list1, iterable $list2): array {
     $result = [];
-    if ($this->tokenService->hasTokenData($name) && $this->tokenService->hasTokenData($name2)) {
-      $array1 = $this->tokenService->getTokenData($name)->toArray();
-      $array2 = $this->tokenService->getTokenData($name2)->toArray();
-      $result = array_diff($array1, $array2);
+    foreach ($list1 as $value1) {
+      $found = FALSE;
+      foreach ($list2 as $value2) {
+        if ($value1 === $value2) {
+          $found = TRUE;
+          break;
+        }
+      }
+      if (!$found) {
+        $result[] = $value1;
+      }
     }
     return $result;
   }
@@ -61,20 +101,23 @@ class ListCompare extends ListOperationBase {
   /**
    * Receives a token and counts the contained items.
    *
-   * @param string $name
-   *   Name of token object which contains the primary list to compare.
-   * @param string $name2
-   *   Name of token object which contains the secondary list to compare.
+   * @param iterable $list1
+   *   First list to compare.
+   * @param iterable $list2
+   *   Secondary list to compare.
    *
    * @return array
    *   Result of the array_intersect
    */
-  protected function getIntersect(string $name, string $name2): array {
+  protected function getIntersect(iterable $list1, iterable $list2): array {
     $result = [];
-    if ($this->tokenService->hasTokenData($name) && $this->tokenService->hasTokenData($name2)) {
-      $array1 = $this->tokenService->getTokenData($name)->toArray();
-      $array2 = $this->tokenService->getTokenData($name2)->toArray();
-      $result = array_intersect($array1, $array2);
+    foreach ($list1 as $value1) {
+      foreach ($list2 as $value2) {
+        if ($value1 === $value2) {
+          $result[] = $value1;
+          break;
+        }
+      }
     }
     return $result;
   }

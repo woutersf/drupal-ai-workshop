@@ -652,7 +652,7 @@ abstract class ModellerBpmnBase extends ModellerBase {
       ],
     ];
     $extraDescriptions = [];
-    foreach ($this->prepareConfigFields($form, $extraDescriptions) as $field) {
+    foreach ($this->prepareConfigFields($plugin, $form, $extraDescriptions) as $field) {
       if (!isset($field['value'])) {
         $value = '';
       }
@@ -730,7 +730,7 @@ abstract class ModellerBpmnBase extends ModellerBase {
     }
     $provider = $plugin->getPluginDefinition()['provider'];
     $basePath = (mb_strpos($provider, 'eca_') === 0) ?
-      str_replace('_', '/', $provider) :
+      str_replace('eca_', 'eca/', $provider) :
       $provider;
     return sprintf('%s/plugins/%s/%ss/%s/', $domain, $basePath, $plugin_type, str_replace([':'], '_', $plugin->getPluginId()));
   }
@@ -752,7 +752,7 @@ abstract class ModellerBpmnBase extends ModellerBase {
         [$element['camunda:properties']['camunda:property']] :
         $element['camunda:properties']['camunda:property'];
       foreach ($elements as $child) {
-        if ($child['@attributes']['name'] === $property_name) {
+        if (isset($child['@attributes']['name']) && $child['@attributes']['name'] === $property_name) {
           return $child['@attributes']['value'];
         }
       }
@@ -798,6 +798,9 @@ abstract class ModellerBpmnBase extends ModellerBase {
   /**
    * Helper function preparing config fields for events, conditions and actions.
    *
+   * @param \Drupal\Component\Plugin\PluginInspectionInterface $plugin
+   *   The event, condition or action plugin for which the template should
+   *   be build.
    * @param array $form
    *   The array to which the fields should be added.
    * @param array $extraDescriptions
@@ -807,7 +810,7 @@ abstract class ModellerBpmnBase extends ModellerBase {
    * @return array
    *   The prepared config fields.
    */
-  protected function prepareConfigFields(array $form, array &$extraDescriptions): array {
+  protected function prepareConfigFields(PluginInspectionInterface $plugin, array $form, array &$extraDescriptions): array {
     // @todo Add support for nested form fields like e.g. in container/fieldset.
     $fields = [];
     foreach ($form as $key => $definition) {
@@ -842,14 +845,23 @@ abstract class ModellerBpmnBase extends ModellerBase {
           break;
 
         case 'checkbox':
-          $fields[] = $this->checkbox($key, $label, $weight, $description, $value);
+          if (!is_bool($value)) {
+            $this->logger->error('Found config field %field in %plugin with non-supported value.', [
+              '%field' => $key,
+              '%plugin' => $plugin->getPluginId(),
+            ]);
+          }
+          else {
+            $fields[] = $this->checkbox($key, $label, $weight, $description, $value);
+          }
           continue 2;
 
         case 'checkboxes':
         case 'radios':
         case 'select':
           if (!is_array($value)) {
-            $fields[] = $this->optionsField($key, $label, $weight, $description, $definition['#options'], (string) $value, $required);
+            $options = $this->normalizeOptions(form_select_options($definition));
+            $fields[] = $this->optionsField($key, $label, $weight, $description, $options, (string) $value, $required);
             continue 2;
           }
           break;
@@ -890,6 +902,36 @@ abstract class ModellerBpmnBase extends ModellerBase {
     });
 
     return $fields;
+  }
+
+  /**
+   * Normalizes an option list into a flat list of keys and labels.
+   *
+   * This can be called recursively, e.g. for nested option groups.
+   *
+   * @param array $formApiOptions
+   *   The list of options.
+   * @param string $prefix
+   *   An optional prefix which will be prepended to the label.
+   *
+   * @return array
+   *   The flat option list.
+   */
+  protected function normalizeOptions(array $formApiOptions, string $prefix = ''): array {
+    $options = [];
+    foreach ($formApiOptions as $formApiOption) {
+      switch ($formApiOption['type']) {
+        case 'option':
+          $options[$formApiOption['value']] = $prefix . $formApiOption['label'];
+          break;
+
+        case 'optgroup':
+          $options += $this->normalizeOptions($formApiOption['options'], $formApiOption['label'] . ': ');
+          break;
+
+      }
+    }
+    return $options;
   }
 
   /**

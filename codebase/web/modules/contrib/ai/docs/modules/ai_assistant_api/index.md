@@ -12,7 +12,7 @@ to talk to a chosen LLM and ask it to perform tasks on the site.
 2. At least one Provider module must be enabled and configured.
 
 The default configuration for this module assumes that one or more modules
-providing AI Assistant Actions have also been enabled, such as the [AI search](../ai_search/)
+providing AI Assistant Actions have also been enabled, such as the [AI search](../ai_search/index.md)
 sub-module or the [AI Agents](https://www.drupal.org/project/ai_agents) module.
 Without any available actions, the AI Assistant will be limited to what the
 chosen LLM can do, and will have no information about the site the module is
@@ -69,14 +69,14 @@ user-readable text.
 
 ### Dependencies
 The AI Chatbot module requires that the AI Assistant API module has been
-installed and configured (see [How to configure the AI Assistant API module](#how_to_configure_the_ai_assistant_api_module)).
+installed and configured (see [How to configure the AI Assistant API module](#how-to-configure-the-ai-assistant-api-module)).
 
 The AI Deepchat Chatbot requires the [league/commonmark](https://github.com/thephpleague/commonmark)
 library. This must be downloaded and made available to the codebase: it is
 recommended to use composer to achieve this.
 
 ### How to configure the AI Chatbot module
-1. Enable and configure the AI Assistant API module (see [How to configure the AI Assistant API module](#how_to_configure_the_ai_assistant_api_module)).
+1. Enable and configure the AI Assistant API module (see [How to configure the AI Assistant API module](#how-to-configure-the-ai-assistant-api-module)).
 2. Enable the AI Deepchat Chatbot module.
 3. Visit /admin/structure/block
 4. Choose a region of your theme template and click the "place" button.
@@ -113,4 +113,4 @@ it has been installed on. These are provided by modules as part of their code,
 and the provider modules should provide details of what actions they allow an
 assistant to perform.
 
-For more information on providing your own plugins, please see [the Develop an API Assistant Action section](developers/develop_api_assistant_action.md).
+For more information on providing your own plugins, please see [the Develop an API Assistant Action section](../../developers/develop_api_assistant_action.md).

@@ -243,7 +243,7 @@ class Eca extends ConfigEntityBase implements EntityWithPluginCollectionInterfac
    *   return TRUE, FALSE otherwise.
    */
   public function isEditable(): bool {
-    if ($modeller = $this->getModeller()) {
+    if ($modeller = $this->getModeller(FALSE)) {
       return $modeller->isEditable();
     }
     return FALSE;
@@ -252,15 +252,22 @@ class Eca extends ConfigEntityBase implements EntityWithPluginCollectionInterfac
   /**
    * Provides the modeller plugin associated with this ECA config entity.
    *
+   * @param bool $fallback
+   *   By default, this method falls back to the dummy modeller if no data for
+   *   the original modeller is available. That behavior can be overridden.
+   *
    * @return \Drupal\eca\Plugin\ECA\Modeller\ModellerInterface|null
    *   Returns the modeller plugin if possible, NULL otherwise.
    */
-  public function getModeller(): ?ModellerInterface {
+  public function getModeller(bool $fallback = TRUE): ?ModellerInterface {
     try {
       /**
        * @var \Drupal\eca\Plugin\ECA\Modeller\ModellerInterface $plugin
        */
       $plugin = $this->modellerPluginManager()->createInstance($this->get('modeller'));
+      if ($fallback && $plugin->getPluginId() !== 'fallback' && !$this->getModel()->getModeldata()) {
+        $plugin = $this->modellerPluginManager()->createInstance('fallback');
+      }
     }
     catch (PluginException $e) {
       $this->logger()->error($e->getMessage());

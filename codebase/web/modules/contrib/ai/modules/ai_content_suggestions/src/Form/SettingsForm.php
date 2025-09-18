@@ -63,7 +63,14 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $form['introduction'] = [
+    $content_suggestions_config = $this->config('ai_content_suggestions.settings');
+    $form['plugins'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Settings for plugins'),
+      '#tree' => TRUE,
+      '#open' => TRUE,
+    ];
+    $form['plugins']['introduction'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#value' => $this->t('Below is a list of the available plugins you can use to analyze your content.'),
@@ -73,10 +80,22 @@ final class SettingsForm extends ConfigFormBase {
       /** @var \Drupal\ai_content_suggestions\AiContentSuggestionsInterface $plugin */
       if ($plugin = $this->pluginManager->createInstance($id, $config)) {
         if ($plugin->isAvailable()) {
-          $plugin->buildSettingsForm($form);
+          $plugin->buildSettingsForm($form['plugins']);
         }
       }
     }
+
+    $form['field_settings'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Settings for per field suggestions'),
+      '#tree' => TRUE,
+    ];
+    $form['field_settings']['field_widget_prompt'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('System Prompt For Content Suggestions from Field Widget'),
+      '#default_value' => $content_suggestions_config->get('field_widget_prompt') ?? '',
+      '#description' => $this->t('This prompt will be used for all string/text field types if the AI Content Suggestions are enabled for the field in the widget settings of form display. Make sure that the parts with ```html  ``` are always in the prompt as some functionality depends on the response structure.'),
+    ];
 
     // If new suggestion plugins are added, or new providers make existing
     // plugins available, we want to rebuild the form.
@@ -93,13 +112,14 @@ final class SettingsForm extends ConfigFormBase {
     $values = [];
 
     foreach ($this->pluginManager->getDefinitions() as $id => $definition) {
-      $value = $form_state->getValue($id);
-      if ($value[$id . '_enabled']) {
-        $values[$id] = $value[$id . '_model'];
-      }
       /** @var \Drupal\ai_content_suggestions\AiContentSuggestionsInterface $plugin */
       if ($plugin = $this->pluginManager->createInstance($id, $definition)) {
         if ($plugin->isAvailable()) {
+          $value = $form_state->getValue($id);
+          // Ensure $value is an array before accessing keys.
+          if (is_array($value) && !empty($value[$id . '_enabled'])) {
+            $values[$id] = $value[$id . '_model'];
+          }
           if (method_exists($plugin, 'saveSettingsForm')) {
             $plugin->saveSettingsForm($form, $form_state);
           }
@@ -108,6 +128,7 @@ final class SettingsForm extends ConfigFormBase {
     }
 
     $this->config('ai_content_suggestions.settings')
+      ->set('field_widget_prompt', $form_state->getValue(['field_settings', 'field_widget_prompt']))
       ->set('plugins', $values)
       ->save();
 

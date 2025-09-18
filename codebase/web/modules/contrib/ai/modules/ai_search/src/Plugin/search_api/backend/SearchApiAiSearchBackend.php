@@ -326,8 +326,8 @@ class SearchApiAiSearchBackend extends AiSearchBackendPluginBase implements Plug
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->setConfiguration($form_state->getValues());
-    $vdb_client = $this->vdbProviderManager->createInstance($this->configuration['database']);
-    $vdb_client->submitSettingsForm($form, $form_state);
+    /*$vdb_client = $this->vdbProviderManager->createInstance($this->configuration['database']);
+    $vdb_client->submitSettingsForm($form, $form_state);*/
   }
 
   /**
@@ -509,6 +509,7 @@ class SearchApiAiSearchBackend extends AiSearchBackendPluginBase implements Plug
         $input = new EmbeddingsInput($search_words);
         $params['vector_input'] = $embedding_llm->embeddings($input, $model_id)->getNormalized();
       }
+      $params['query'] = $query;
       $response = $this->getClient()->vectorSearch(...$params);
     }
     else {

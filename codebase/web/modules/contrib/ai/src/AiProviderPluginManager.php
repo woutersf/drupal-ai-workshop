@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ai;
 
+use Drupal\ai\Plugin\Discovery\OperationTypeDiscovery;
+use Drupal\Core\Plugin\Discovery\AttributeClassDiscovery;
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -13,9 +15,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ai\Attribute\AiProvider;
 use Drupal\ai\Attribute\OperationType;
 use Drupal\ai\Event\ProviderDisabledEvent;
-use Drupal\ai\OperationType\OperationTypeInterface;
 use Drupal\ai\Plugin\ProviderProxy;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Large Language Model plugin manager.
@@ -275,25 +277,34 @@ final class AiProviderPluginManager extends DefaultPluginManager {
     if (!empty($data->data)) {
       return $data->data;
     }
-    // Look in the OperationType/** directories.
+
+    // Create the attribute discovery.
+    $attribute_discovery = new AttributeClassDiscovery(
+      'OperationType',
+      $this->namespaces,
+      OperationType::class
+    );
+
+    // Create our custom discovery.
+    $discovery = new OperationTypeDiscovery(
+      $attribute_discovery,
+      $this->moduleHandler
+    );
+
+    // Get the definitions and format them.
+    $definitions = $discovery->getDefinitions();
     $operation_types = [];
-    $base_path = $this->moduleHandler->getModule('ai')->getPath() . '/src/OperationType';
-    $directories = new \RecursiveDirectoryIterator($base_path);
-    $iterator = new \RecursiveIteratorIterator($directories);
-    $regex = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
-    foreach ($regex as $file) {
-      $interface = $this->getInterfaceFromFile($file[0]);
-      if ($interface && $this->doesInterfaceExtend($interface, OperationTypeInterface::class)) {
-        $reflection = new \ReflectionClass($interface);
-        $attributes = $reflection->getAttributes(OperationType::class);
-        foreach ($attributes as $attribute) {
-          $operation_types[] = [
-            'id' => $attribute->newInstance()->id,
-            'label' => $attribute->newInstance()->label->render(),
-          ];
-        }
-      }
+    foreach ($definitions as $id => $definition) {
+      $operation_types[$id] = [
+        'id' => $id,
+        'label' => $definition['label'] instanceof TranslatableMarkup ? $definition['label']->render() : (string) $definition['label'],
+        'actual_type' => $definition['actual_type'] ?? $id,
+        'filter' => $definition['filter'] ?? [],
+      ];
     }
+
+    // Allow modules to alter the final operation types.
+    $this->moduleHandler->alter('ai_operation_types', $operation_types);
 
     // Save to cache.
     $this->cacheBackend->set('ai_operation_types', $operation_types);
@@ -370,58 +381,6 @@ final class AiProviderPluginManager extends DefaultPluginManager {
   }
 
   /**
-   * Extracts the fully qualified interface name from a file.
-   *
-   * @param string $file
-   *   The file path.
-   *
-   * @return string|null
-   *   The fully qualified interface name, or NULL if not found.
-   */
-  protected function getInterfaceFromFile($file) {
-    $contents = file_get_contents($file);
-
-    // Match namespace and interface declarations.
-    if (preg_match('/namespace\s+([^;]+);/i', $contents, $matches)) {
-      $namespace = $matches[1];
-    }
-
-    // Match on starts with interface and has extends in it.
-    if (preg_match('/interface\s+([^ ]+)\s+extends\s+([^ ]+)/i', $contents, $matches) && isset($namespace)) {
-      $interface = $matches[1];
-      return $namespace . '\\' . $interface;
-    }
-
-    return NULL;
-  }
-
-  /**
-   * Checks if an interface extends another interface.
-   *
-   * @param string $interface
-   *   The interface name.
-   * @param string $baseInterface
-   *   The base interface name.
-   *
-   * @return bool
-   *   TRUE if the interface extends the base interface, FALSE otherwise.
-   */
-  protected function doesInterfaceExtend($interface, $baseInterface) {
-    try {
-      $reflection = new \ReflectionClass($interface);
-
-      if ($reflection->isInterface() && in_array($baseInterface, $reflection->getInterfaceNames())) {
-        return TRUE;
-      }
-    }
-    catch (\ReflectionException $e) {
-      // Ignore.
-    }
-
-    return FALSE;
-  }
-
-  /**
    * Gives notice that a provider is disabled.
    *
    * @param string $provider_id
@@ -445,6 +404,35 @@ final class AiProviderPluginManager extends DefaultPluginManager {
     }
     // Notify other modules that a provider was disabled.
     $this->eventDispatcher->dispatch(new ProviderDisabledEvent($provider_id), ProviderDisabledEvent::EVENT_NAME);
+  }
+
+  /**
+   * Get the preferred provider if configured, else take the default one.
+   *
+   * @param string $operation_type
+   *   The operation type.
+   * @param string|null $preferred_model
+   *   The preferred model.
+   *
+   * @return array
+   *   The provider and model.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   */
+  public function getSetProvider(string $operation_type, string|null $preferred_model = NULL): array {
+    if ($preferred_model) {
+      $provider = $this->loadProviderFromSimpleOption($preferred_model);
+      $model = $this->getModelNameFromSimpleOption($preferred_model);
+    }
+    else {
+      $default_provider = $this->getDefaultProviderForOperationType($operation_type);
+      $provider = $this->createInstance($default_provider['provider_id']);
+      $model = $default_provider['model_id'];
+    }
+    return [
+      'provider_id' => $provider,
+      'model_id' => $model,
+    ];
   }
 
 }

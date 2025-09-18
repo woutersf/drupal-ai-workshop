@@ -2,26 +2,70 @@ ai_content_suggestions.settings:
   type: config_object
   label: 'AI Content Suggestions settings'
   mapping:
+    field_widget_prompt:
+      type: text
+      label: 'System prompt for field widget based suggestions'
     plugins:
       type: sequence
       label: Plugins
       orderby: key
-      model:
+      sequence:
         type: string
-        label: Model
+        label: 'Plugin ID'
+
+ai_content_suggestions.prompts:
+  type: config_object
+  label: 'AI Content Suggestions prompts'
+  mapping:
+    readability:
+      type: string
+      label: 'Readability prompt'
+    title_suggest:
+      type: string
+      label: 'Title suggestion prompt'
     tone:
-      type: map
-      label: Tone
-      description: 'Dynamic tone analysis settings.'
+      type: string
+      label: 'Tone modification prompt'
+    summarise:
+      type: string
+      label: 'Summarization prompt'
+    taxonomy_suggest_open:
+      type: string
+      label: 'Open taxonomy suggestion prompt'
+    taxonomy_suggest_from_voc:
+      type: string
+      label: 'Vocabulary-based taxonomy suggestion prompt'
+
+ai_content_suggestions.tone:
+  type: config_object
+  label: 'AI Content Suggestions tone settings'
+  mapping:
+    tone_taxonomy:
+      type: string
+      label: 'Tone taxonomy vocabulary'
+    tone_taxonomy_enabled:
+      type: boolean
+      label: 'Enable custom tone taxonomy'
+
+field.widget.third_party.ai_content_suggestions:
+  type: ai_content_suggestions.third_party_settings
+
+ai_content_suggestions.third_party_settings:
+  type: mapping
+  label: 'AI Content Suggestions third party settings'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enabled'
+    settings:
+      type: mapping
       mapping:
-        '*':
+        model:
           type: string
-          label: 'Tone Vocabulary ID'
-    prompts:
-      type: map
-      label: Prompts
-      description: 'Dynamic prompts settings.'
-      mapping:
-        '*':
-          type: string
+          label: 'AI Model to use'
+        prompt:
+          type: text
           label: 'Prompt'
+        button:
+          type: label
+          label: 'Button label'

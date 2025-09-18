@@ -110,6 +110,15 @@ final class SpeechToSpeechGenerator extends AiApiExplorerPluginBase {
     $this->aiProviderHelper->generateAiProvidersForm($form['left'], $form_state, 'speech_to_speech', 'sts', AiProviderFormHelper::FORM_CONFIGURATION_FULL);
     $form['left']['sts_ai_provider']['#ajax']['callback'] = $this::class . '::loadModelsAjaxCallback';
 
+    // Add submit button.
+    $form['left']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Generate an Audio Response'),
+      '#ajax' => [
+        'callback' => $this->getAjaxResponseId(),
+        'wrapper' => 'ai-audio-response',
+      ],
+    ];
     return $form;
   }
 
@@ -143,7 +152,8 @@ final class SpeechToSpeechGenerator extends AiApiExplorerPluginBase {
       $destination = 'temporary://ai-explorers/';
       $this->fileSystem->prepareDirectory($destination, FileSystemInterface::CREATE_DIRECTORY);
       $random = (string) rand();
-      $file_url = $this->fileSystem->saveData($audio_normalized, $destination . '/' . md5($random) . '.mp3');
+      $binary_data = $audio_normalized[0]->getBinary();
+      $file_url = $this->fileSystem->saveData($binary_data, $destination . '/' . md5($random) . '.mp3');
       $file_name = basename($file_url);
       $url = Url::fromRoute('system.temporary', [], ['query' => ['file' => 'ai-explorers/' . $file_name]]);
       $form['right']['response']['#context']['ai_response']['response'] = [

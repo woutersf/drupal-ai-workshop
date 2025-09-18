@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations for the ai_agents module.
+ */
+
+use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Implements hook_ai_function_call_info_alter().
+ */
+function ai_agents_ai_function_call_info_alter(array &$definitions) {
+  // Get all the agents.
+  $agent_plugin_manager = \Drupal::service('plugin.manager.ai_agents');
+  $agents = $agent_plugin_manager->getDefinitions();
+  foreach ($agents as $agent) {
+    $instance = $agent_plugin_manager->createInstance($agent['id']);
+    $id = 'ai_agents::ai_agent::' . $agent['id'];
+    $definitions[$id] = [
+      'class' => 'Drupal\ai_agents\Plugin\AiFunctionCall\AiAgentWrapper',
+      'provider' => 'ai_agents',
+      'id' => $id,
+      'function_name' => $agent['id'],
+      'name' => (string) $agent['label'],
+      'description' => $instance->agentsCapabilities()[$agent['id']]['description'] ?? (string) $agent['label'],
+      'group' => 'agent_tools',
+      'context_definitions' => [
+        'prompt' => new ContextDefinition(
+          data_type: 'string',
+          label: new TranslatableMarkup("Prompt"),
+          description: new TranslatableMarkup("The prompt in natural language on how to invoke this agent."),
+          required: TRUE,
+        ),
+        'files' => new ContextDefinition(
+          data_type: 'list',
+          label: new TranslatableMarkup("Files"),
+          description: new TranslatableMarkup("The files using file id."),
+          required: FALSE,
+        ),
+      ],
+    ];
+  }
+
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function ai_agents_token_info() {
+  return [
+    'types' => [
+      'ai_agent' => [
+        'name' => new TranslatableMarkup('AI Agent'),
+        'needs-data' => 'ai_agent',
+      ],
+    ],
+    'tokens' => [
+      'ai_agent' => [
+        'agent_instructions' => [
+          'name' => new TranslatableMarkup('Agent instructions'),
+          'description' => new TranslatableMarkup('Specific instructions that define how the AI agent should behave and respond to tasks for a particular interaction.'),
+        ],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function ai_agents_tokens($type, $tokens, array $data = [], array $options = []) {
+  $replacements = [];
+
+  // Handle ai_agent type tokens.
+  if ($type === 'ai_agent' && isset($data['ai_agent'])) {
+    $ai_agent = $data['ai_agent'];
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'agent_instructions':
+          $replacements[$original] = $ai_agent->get('system_prompt');
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}

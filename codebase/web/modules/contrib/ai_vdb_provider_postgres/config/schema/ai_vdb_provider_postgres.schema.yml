@@ -1,0 +1,24 @@
+ai_vdb_provider_postgres.settings:
+  type: mapping
+  label: 'Postgres Settings'
+  mapping:
+    host:
+      type: string
+      label: 'Host'
+      required: true
+    port:
+      type: integer
+      label: 'Port'
+      required: false
+    username:
+      type: string
+      label: 'Username'
+      required: true
+    password:
+      type: string
+      label: 'Password'
+      required: true
+    default_database:
+      type: string
+      label: 'Default database'
+      required: true

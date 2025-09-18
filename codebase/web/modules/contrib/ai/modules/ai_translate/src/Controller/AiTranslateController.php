@@ -11,7 +11,6 @@ use Drupal\Core\Language\LanguageInterface;
 use Drupal\ai_translate\TextExtractorInterface;
 use Drupal\ai_translate\TextTranslatorInterface;
 use Drupal\ai_translate\TranslationException;
-use Drupal\filter\Entity\FilterFormat;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -97,7 +96,7 @@ class AiTranslateController extends ControllerBase {
       ->setErrorMessage($this->t('Batch has encountered an error'));
 
     foreach ($textMetadata as $singleMeta) {
-      $batchBuilder->addOperation([$this, 'translateSingleText'], [
+      $batchBuilder->addOperation([$this, 'translateSingleField'], [
         $singleMeta,
         $langNames[$lang_from],
         $langNames[$lang_to],
@@ -119,10 +118,10 @@ class AiTranslateController extends ControllerBase {
   }
 
   /**
-   * Batch callback - translate a single text.
+   * Batch callback - translate a single (text) field.
    *
-   * @param array $singleText
-   *   Chunk of text metadata to translate.
+   * @param array $singleField
+   *   Chunk of (text) field metadata to translate.
    * @param \Drupal\Core\Language\LanguageInterface $langFrom
    *   The source language.
    * @param \Drupal\Core\Language\LanguageInterface $langTo
@@ -130,32 +129,36 @@ class AiTranslateController extends ControllerBase {
    * @param array $context
    *   The batch context.
    */
-  public function translateSingleText(
-    array $singleText,
+  public function translateSingleField(
+    array $singleField,
     LanguageInterface $langFrom,
     LanguageInterface $langTo,
     array &$context,
   ) {
-    // Translate the content.
-    try {
-      $translated_text = $this->aiTranslator->translateContent(
-        $singleText['value'], $langTo, $langFrom);
-    }
-    catch (TranslationException) {
-      $context['results']['failures'][] = $singleText['value'];
-      return;
-    }
-
-    // Checks if the field allows HTML and decodes the HTML entities.
-    if (isset($singleText['format'])) {
-      $format = $singleText['format'];
-      if (FilterFormat::load($format)) {
-        $translated_text = html_entity_decode($translated_text);
+    // Get translations for each extracted field property.
+    $translated_text = [];
+    foreach ($singleField['_columns'] as $column) {
+      try {
+        $translated_text[$column] = '';
+        if (!empty($singleField[$column])) {
+          $translated_text[$column] = $this->aiTranslator->translateContent(
+            $singleField[$column], $langTo, $langFrom);
+        }
+      }
+      catch (TranslationException) {
+        $context['results']['failures'][] = $singleField[$column];
+        return;
       }
     }
 
-    $singleText['translated'] = $translated_text;
-    $context['results']['processedTranslations'][] = $singleText;
+    // Decodes HTML entities in translation.
+    // Because of sanitation in StringFormatter/Markup, this should be safe.
+    foreach ($translated_text as &$translated_text_item) {
+      $translated_text_item = html_entity_decode($translated_text_item);
+    }
+
+    $singleField['translated'] = $translated_text;
+    $context['results']['processedTranslations'][] = $singleField;
   }
 
   /**
@@ -173,14 +176,14 @@ class AiTranslateController extends ControllerBase {
     string $lang_to,
     array &$context,
   ) {
-    $translation = $entity->addTranslation($lang_to);
+    $translation = $entity->addTranslation($lang_to, $entity->toArray());
     // Keep published status when translating.
     if ($entity instanceof EntityPublishedInterface) {
       $entity->isPublished() ? $translation->setPublished()
         : $translation->setUnpublished();
     }
     $this->textExtractor->insertTextMetadata($translation,
-      $context['results']['processedTranslations']);
+      $context['results']['processedTranslations'] ?? []);
     try {
       $translation->save();
       $this->messenger()->addStatus($this->t('Content translated successfully.'));

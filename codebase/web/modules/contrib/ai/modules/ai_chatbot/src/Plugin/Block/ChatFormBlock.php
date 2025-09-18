@@ -9,7 +9,10 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\ai_chatbot\Form\ChatForm;
+use Drupal\ai_assistant_api\Entity\AiAssistant as AiAssistant;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -122,6 +125,7 @@ class ChatFormBlock extends BlockBase implements ContainerFactoryPluginInterface
       ]),
       '#options' => $assistants,
       '#default_value' => $this->configuration['ai_assistant'],
+      '#required' => TRUE,
     ];
 
     $form['bot_name'] = [
@@ -234,14 +238,54 @@ class ChatFormBlock extends BlockBase implements ContainerFactoryPluginInterface
   /**
    * {@inheritdoc}
    */
-  public function build() {
-    /** @var \Drupal\ai_assistant_api\Entity\AiAssistant */
+  protected function blockAccess(AccountInterface $account) {
+    // Load the AI assistant entity based on the block configuration.
     $assistant = $this->entityTypeManager->getStorage('ai_assistant')->load($this->configuration['ai_assistant']);
-    $this->aiAssistantRunner->setAssistant($assistant);
-    // Check if the assistant is setup and that the user has access to it.
-    if (!$this->aiAssistantRunner->isSetup() || !$this->aiAssistantRunner->userHasAccess()) {
-      return [];
+
+    // Check if the assistant exists and is enabled.
+    if (!$assistant || !$assistant->status()) {
+      return AccessResult::forbidden();
     }
+
+    // Set the assistant in the runner and check setup and access.
+    $this->aiAssistantRunner->setAssistant($assistant);
+    if (!$this->aiAssistantRunner->isSetup()) {
+      return AccessResult::forbidden();
+    }
+    if (!$this->aiAssistantRunner->userHasAccess()) {
+      return AccessResult::forbidden();
+    }
+
+    // If all checks pass, allow access.
+    return AccessResult::allowed();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function build() {
+    // Load the AI Assistant entity.
+    $assistant_id = $this->configuration['ai_assistant'] ?? NULL;
+
+    // If no assistant ID is provided or it's invalid, handle it gracefully.
+    if (!is_string($assistant_id) || $assistant_id === "") {
+      return [
+        '#markup' => $this->t('No valid AI Assistant configured for this block.'),
+      ];
+    }
+
+    /** @var \Drupal\ai_assistant_api\Entity\AiAssistant|null */
+    $assistant = $this->entityTypeManager->getStorage('ai_assistant')->load($assistant_id);
+
+    // If the assistant still couldn't be loaded, handle the failure.
+    if (!$assistant instanceof AiAssistant) {
+      return [
+        '#markup' => $this->t('The specified AI Assistant could not be loaded.'),
+      ];
+    }
+
+    // Proceed with setting the assistant and building the block.
+    $this->aiAssistantRunner->setAssistant($assistant);
     $this->aiAssistantRunner->streamedOutput($this->configuration['stream']);
     $block = [];
     $form_state = new FormState();

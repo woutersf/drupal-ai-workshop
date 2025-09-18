@@ -51,8 +51,18 @@ final class SetupAiProvider implements ConfigActionPluginInterface, ContainerFac
     assert(is_array($value));
     // Provider has to be set.
     assert(isset($value['provider']));
+
+    // If the value is empty, we can still try to get it from environment vars.
+    if ((empty($value['key_value']) || str_starts_with($value['key_value'], "\${")) && isset($value['env_var'])) {
+      $value['key_value'] = getenv($value['env_var']);
+    }
+
+    // Stop if we don't have a key for this provider.
+    if (empty($value['key_value'])) {
+      return;
+    }
+
     // Load the provider.
-    $provider = [];
     try {
       $provider = $this->aiProviderPluginManager->createInstance($value['provider']);
     }
@@ -63,18 +73,19 @@ final class SetupAiProvider implements ConfigActionPluginInterface, ContainerFac
     if ($provider->getSetupData()) {
       $setupData = $provider->getSetupData();
     }
-    // If the value is empty, we can still try to get it from environment vars.
-    if ((empty($value['key_value']) || str_starts_with($value['key_value'], "\${")) && isset($value['env_var'])) {
-      $value['key_value'] = getenv($value['env_var']);
-    }
-    if (isset($value['provider']) && !empty($value['key_value']) && !empty($setupData['key_config_name'])) {
-      // Create a key.
+    if (!empty($setupData['key_config_name'])) {
+      // Create a key and set against the provider config.
       $key = $this->createKeyFromApiKey($value['key_name'], $value['key_label'], $value['key_value']);
 
       $this->simpleConfigUpdate->apply($configName, [
         $setupData['key_config_name'] => $key->id(),
       ]);
-      if (isset($setupData['default_models'])) {
+      if (!empty($value['default_models'])) {
+        foreach ($value['default_models'] as $operation => $model) {
+          $this->aiProviderPluginManager->defaultIfNone($operation, $value['provider'], $model);
+        }
+      }
+      elseif (isset($setupData['default_models'])) {
         foreach ($setupData['default_models'] as $operation => $model) {
           $this->aiProviderPluginManager->defaultIfNone($operation, $value['provider'], $model);
         }

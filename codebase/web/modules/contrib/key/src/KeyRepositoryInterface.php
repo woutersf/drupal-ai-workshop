@@ -17,7 +17,7 @@ interface KeyRepositoryInterface {
    *   An array of key entities, indexed by ID. Returns an empty array if no
    *   matching entities are found.
    */
-  public function getKeys(array $key_ids = NULL);
+  public function getKeys(?array $key_ids = NULL);
 
   /**
    * Get keys that use the specified key provider.

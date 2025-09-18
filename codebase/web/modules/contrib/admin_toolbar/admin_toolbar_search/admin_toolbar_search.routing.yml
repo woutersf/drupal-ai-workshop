@@ -6,9 +6,9 @@ admin_toolbar.search:
     _permission: 'use admin toolbar search'
 
 admin_toolbar_search.settings:
-  path: '/admin/config/user-interface/admin-toolbar-search-settings'
+  path: '/admin/config/user-interface/admin-toolbar-search'
   defaults:
-    _title: 'Admin toolbar search settings'
+    _title: 'Admin Toolbar Search settings'
     _form: 'Drupal\admin_toolbar_search\Form\AdminToolbarSearchSettingsForm'
   requirements:
     _permission: 'administer site configuration'

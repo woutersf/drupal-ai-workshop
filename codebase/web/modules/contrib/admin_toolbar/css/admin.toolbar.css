@@ -69,7 +69,7 @@
   z-index: 1;
   display: block;
   width: 200px;
-  box-shadow: 2px 2px 3px hsla(0, 0%, 0%, 0.4);
+  box-shadow: 2px 2px 3px hsl(0, 0%, 0%, 0.4);
 }
 
 .toolbar-tray-horizontal ul li.menu-item--expanded .menu-item > ul {
@@ -80,6 +80,15 @@
   background-image: url(../misc/icons/0074bd/chevron-right.svg);
   background-repeat: no-repeat;
   background-position: center right;
+}
+
+.toolbar-tray-horizontal
+  ul
+  li.menu-item--expanded
+  ul
+  li.menu-item--expanded
+  a.is-active {
+  background: unset;
 }
 
 .toolbar-tray-horizontal ul li.menu-item--expanded .menu-item.hover-intent ul {

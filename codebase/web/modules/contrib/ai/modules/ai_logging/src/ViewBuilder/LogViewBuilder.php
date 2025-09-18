@@ -2,6 +2,7 @@
 
 namespace Drupal\ai_logging\ViewBuilder;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
 
@@ -34,7 +35,7 @@ class LogViewBuilder extends EntityViewBuilder {
             $formatted_string = '';
             if (is_array($decoded_value)) {
               foreach ($decoded_value as $key => $value) {
-                $formatted_string .= $key . ":\n" . $value . "\n\n";
+                $formatted_string .= $key . ":\n" . Json::encode($value) . "\n\n";
               }
             }
             else {

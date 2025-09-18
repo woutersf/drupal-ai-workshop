@@ -16,6 +16,7 @@ use Drupal\ai\Exception\AiRateLimitException;
 use Drupal\ai\Exception\AiRequestErrorException;
 use Drupal\ai\Exception\AiResponseErrorException;
 use Drupal\ai\Exception\AiUnsafePromptException;
+use Drupal\ai\OperationType\InputInterface;
 use Drupal\ai\OperationType\OperationTypeInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -164,6 +165,13 @@ class ProviderProxy {
     $this->plugin->setTag($operation_type);
     foreach ($arguments[2] as $tag) {
       $this->plugin->setTag($tag);
+    }
+
+    // Set input debug data on the plugin.
+    if (isset($arguments[0]) && $arguments[0] instanceof InputInterface) {
+      foreach ($arguments[0]->getDebugData() as $key => $value) {
+        $this->plugin->setDebugData($key, $value);
+      }
     }
 
     // Create a unique event id.

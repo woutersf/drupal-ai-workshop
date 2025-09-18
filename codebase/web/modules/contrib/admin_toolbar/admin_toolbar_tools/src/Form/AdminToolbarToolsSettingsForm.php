@@ -29,6 +29,9 @@ class AdminToolbarToolsSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @return static
+   *   Returns an instance of this plugin.
    */
   public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
@@ -39,6 +42,9 @@ class AdminToolbarToolsSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string>
+   *   An array of configuration names that this form is responsible for.
    */
   protected function getEditableConfigNames() {
     return [
@@ -55,6 +61,14 @@ class AdminToolbarToolsSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<string, mixed> $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array<string, mixed>
+   *   The form array with the form elements.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('admin_toolbar_tools.settings');
@@ -63,13 +77,8 @@ class AdminToolbarToolsSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Maximum number of bundle sub-menus to display'),
       '#description' => $this->t('Loading a large number of items can cause performance issues.'),
       '#default_value' => $config->get('max_bundle_number'),
-    ];
-
-    $form['hoverintent_functionality'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Enable/Disable the hoverintent functionality'),
-      '#description' => $this->t('Check it if you want to enable the hoverintent feature.'),
-      '#default_value' => $config->get('hoverintent_functionality'),
+      '#min' => 1,
+      '#max' => 500,
     ];
 
     $form['show_local_tasks'] = [
@@ -84,15 +93,22 @@ class AdminToolbarToolsSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param array<mixed> $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return void
+   *   Nothing to return.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('admin_toolbar_tools.settings')
       ->set('max_bundle_number', $form_state->getValue('max_bundle_number'))
-      ->set('hoverintent_functionality', $form_state->getValue('hoverintent_functionality'))
       ->set('show_local_tasks', $form_state->getValue('show_local_tasks'))
       ->save();
     parent::submitForm($form, $form_state);
-    $this->cacheMenu->invalidateAll();
+    $this->cacheMenu->deleteAll();
     $this->menuLinkManager->rebuild();
   }
 

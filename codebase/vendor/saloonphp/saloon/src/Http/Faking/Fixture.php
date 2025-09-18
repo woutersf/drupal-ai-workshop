@@ -9,9 +9,11 @@ use Saloon\Helpers\Storage;
 use Saloon\Helpers\ArrayHelpers;
 use Saloon\Data\RecordedResponse;
 use Saloon\Helpers\FixtureHelper;
+use Saloon\Repositories\ArrayStore;
 use Saloon\Exceptions\FixtureException;
 use Saloon\Exceptions\FixtureMissingException;
 use Saloon\Repositories\Body\StringBodyRepository;
+use Saloon\Contracts\ArrayStore as ArrayStoreContract;
 
 class Fixture
 {
@@ -31,7 +33,14 @@ class Fixture
     protected Storage $storage;
 
     /**
+     * The context of the fixture
+     */
+    protected ArrayStoreContract $context;
+
+    /**
      * Data to merge in the mocked response.
+     *
+     * @var array<array-key, mixed>|null
      */
     protected ?array $merge = null;
 
@@ -43,14 +52,17 @@ class Fixture
     /**
      * Constructor
      */
-    public function __construct(string $name = '', ?Storage $storage = null)
+    public function __construct(string $name = '', ?Storage $storage = null, ?ArrayStoreContract $context = null)
     {
         $this->name = $name;
         $this->storage = $storage ?? new Storage(MockConfig::getFixturePath(), true);
+        $this->context = $context ?? new ArrayStore();
     }
 
     /**
      * Specify data to merge with the mock response data.
+     *
+     * @param array<array-key, mixed> $merge
      */
     public function merge(array $merge = []): static
     {
@@ -97,7 +109,7 @@ class Fixture
                     ArrayHelpers::set($body, $key, $value);
                 }
             }
-            
+
             // If specified, we pass the body through a function that
             // may modify the mock response data.
             if (! is_null($this->through)) {
@@ -133,6 +145,7 @@ class Fixture
         $recordedResponse = $this->swapSensitiveJson($recordedResponse);
         $recordedResponse = $this->swapSensitiveBodyWithRegex($recordedResponse);
         $recordedResponse = $this->beforeSave($recordedResponse);
+        $recordedResponse->context = $this->context->merge($recordedResponse->context)->all();
 
         $this->storage->put($this->getFixturePath(), $recordedResponse->toFile());
 
@@ -263,5 +276,40 @@ class Fixture
     protected function beforeSave(RecordedResponse $recordedResponse): RecordedResponse
     {
         return $recordedResponse;
+    }
+
+    /**
+     * Get a specific context value or return the entire context
+     *
+     * @return ($key is null ? ArrayStoreContract : mixed)
+     */
+    public function getContext(?string $key = null): mixed
+    {
+        if ($key === null) {
+            return $this->context;
+        }
+
+        return $this->context->get($key);
+    }
+
+    /**
+     * Set a specific context value
+     */
+    public function setContext(string $key, mixed $value): static
+    {
+        $this->context->add($key, $value);
+
+        return $this;
+    }
+
+    /**
+     * Merge context values into the fixture
+     * @param array<string, mixed> $context
+     */
+    public function withContext(array $context): static
+    {
+        $this->context->merge($context);
+
+        return $this;
     }
 }

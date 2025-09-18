@@ -39,7 +39,7 @@ class TextToJsonField extends RuleBase {
     $instance = $this->prepareLlmInstance('chat', $automatorConfig);
     foreach ($prompts as $prompt) {
       // Normalize the response.
-      $values = str_replace("\n", "", trim(str_replace(['```json', '```'], '', $this->runRawChatMessage($prompt, $automatorConfig, $instance)->getText())));
+      $values = str_replace("\n", "", trim(str_replace(['```json', '```'], '', $this->runRawChatMessage($prompt, $automatorConfig, $instance, $entity)->getText())));
 
       if (!empty($values)) {
         $total[] = $values;

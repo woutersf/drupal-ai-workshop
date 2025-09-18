@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * AI test module file.
+ */
+
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\ai_test\Hook\OperationTypeHook;
+
+/**
+ * Implements hook_ai_operationtype_alter().
+ */
+#[LegacyHook]
+function ai_test_ai_operationtype_alter(array &$operation_types) {
+  \Drupal::service(OperationTypeHook::class)->echoOperationType($operation_types);
+}

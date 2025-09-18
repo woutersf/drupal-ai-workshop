@@ -64,6 +64,9 @@ class AdminToolbarSearchSettingTest extends BrowserTestBase {
 
   /**
    * Tests search functionality without admin_toolbar_tools enabled.
+   *
+   * @return void
+   *   Nothing to return.
    */
   public function testToolbarSearch() {
     $this->drupalLogin($this->userWithAccess);

@@ -2,12 +2,13 @@
 
 namespace Drupal\ai\OperationType\TranslateText;
 
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for text translations.
  */
-class TranslateTextInput implements InputInterface {
+class TranslateTextInput extends InputBase implements InputInterface {
 
   /**
    * The text to translate.

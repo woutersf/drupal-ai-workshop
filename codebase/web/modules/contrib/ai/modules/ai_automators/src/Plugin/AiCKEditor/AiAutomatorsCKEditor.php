@@ -10,8 +10,10 @@ use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\ai\AiProviderPluginManager;
 use Drupal\ai_automators\Service\Automate;
@@ -27,8 +29,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
   id: 'ai_automators_ckeditor',
   label: new TranslatableMarkup('AI Automators CKEditor'),
   description: new TranslatableMarkup('Chained workflows setup with AI Automators.'),
+  module_dependencies: [],
 )]
 final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
+
+  use StringTranslationTrait;
 
   /**
    * The automate service.
@@ -66,6 +71,13 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
   protected $entityFormBuilder;
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected LanguageManagerInterface $languageManager;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
@@ -82,13 +94,15 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
     EntityFieldManagerInterface $field_manager,
     FileUrlGeneratorInterface $file_url_generator,
     EntityFormBuilderInterface $entity_form_builder,
+    LanguageManagerInterface $language_manager,
   ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $ai_provider_manager, $entity_type_manager, $account, $requestStack, $logger_factory);
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $ai_provider_manager, $entity_type_manager, $account, $requestStack, $logger_factory, $language_manager);
     $this->automate = $automate;
     $this->configFactory = $config_factory;
     $this->fieldManager = $field_manager;
     $this->fileUrlGenerator = $file_url_generator;
     $this->entityFormBuilder = $entity_form_builder;
+    $this->languageManager = $language_manager;
   }
 
   /**
@@ -109,6 +123,7 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
       $container->get('entity_field.manager'),
       $container->get('file_url_generator'),
       $container->get('entity.form_builder'),
+      $container->get('language_manager'),
     );
   }
 
@@ -201,6 +216,13 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
   /**
    * {@inheritdoc}
    */
+  protected function needsSelectedText() {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
 
   }
@@ -226,6 +248,8 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
     $form_state->setCached(FALSE);
     $storage = $form_state->getStorage();
     $form = parent::buildCkEditorModalForm($form, $form_state);
+    unset($form['selected_text']);
+    unset($form['#markup']);
 
     // Something is wrong with the settings if we don't get the ids.
     if (!isset($settings['config_id']) || !isset($settings['editor_id']) || !isset($settings['plugin_id'])) {
@@ -301,7 +325,7 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
     ];
 
     // Get the inputs.
-    foreach ($plugin_config['inputs'] as $input) {
+    foreach ($plugin_config['inputs'] as $input => $value) {
       // Use the entity field.
       if (isset($fields[$input]) && in_array($fields[$input]->getType(), [
         'image',
@@ -309,8 +333,8 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
       ])) {
         $form[$input] = [
           '#type' => 'managed_file',
-          '#title' => t('Upload a file'),
-          '#description' => t('Allowed types: jpg, jpeg, png.'),
+          '#title' => $this->t('Upload a file'),
+          '#description' => $this->t('Allowed types: jpg, jpeg, png.'),
           '#upload_location' => 'public://uploads/',
         ];
       }
@@ -346,22 +370,7 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
           break;
       }
     }
-
     $form['#attached']['library'][] = 'ai_automators/automator_ckeditor';
-
-    // Output is fixed.
-    $editor_id = $this->requestStack->getParentRequest()->get('editor_id');
-
-    $form['response_text'] = [
-      '#type' => 'text_format',
-      '#title' => $this->t('Response from AI'),
-      '#description' => $this->t('The response from AI will appear in the box above. You can edit and tweak the response before saving it back to the main editor.'),
-      '#prefix' => '<div id="ai-ckeditor-response">',
-      '#suffix' => '</div>',
-      '#default_value' => '',
-      '#allowed_formats' => [$editor_id],
-      '#format' => $editor_id,
-    ];
 
     return $form;
   }
@@ -390,6 +399,8 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
         'automator_output',
         'automator_storage',
         'automator_write_mode',
+        'generate_actions',
+        'response_wrapper',
         'config_id',
       ])) {
         if (isset($fields[$key]) && in_array($fields[$key]->getType(), [
@@ -469,6 +480,7 @@ final class AiAutomatorsCKEditor extends AiCKEditorPluginBase {
       $url = $this->fileUrlGenerator->generateAbsoluteString($file->getFileUri());
       return '<img data-entity-uuid="' . $file->uuid() . '" data-entity-type="file" src="' . $url . '" width="' . $data['width'] . '" height="' . $data['height'] . '" />';
     }
+    return '';
   }
 
 }

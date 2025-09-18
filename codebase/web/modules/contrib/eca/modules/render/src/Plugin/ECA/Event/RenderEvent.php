@@ -6,11 +6,12 @@ use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Entity\Eca;
 use Drupal\eca\Entity\Objects\EcaEvent;
 use Drupal\eca\Event\Tag;
 use Drupal\eca\Plugin\ECA\Event\EventBase;
+use Drupal\eca\Plugin\FormFieldMachineName;
 use Drupal\eca\Plugin\PluginUsageInterface;
 use Drupal\eca_render\Event\EcaRenderBlockEvent;
 use Drupal\eca_render\Event\EcaRenderContextualLinksEvent;
@@ -233,10 +234,9 @@ class RenderEvent extends EventBase implements PluginUsageInterface {
     }
     if ($this->eventClass() === EcaRenderExtraFieldEvent::class) {
       $form['extra_field_name'] = [
-        '#type' => 'machine_name',
-        '#machine_name' => [
-          'exists' => [$this, 'alwaysFalse'],
-        ],
+        '#type' => 'textfield',
+        '#maxlength' => 1024,
+        '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
         '#title' => $this->t('Machine name of the extra field'),
         '#description' => $this->t('The <em>machine name</em> of the extra field. Must only container lowercase alphanumeric characters and underscores.'),
         '#default_value' => $this->configuration['extra_field_name'],
@@ -505,7 +505,7 @@ class RenderEvent extends EventBase implements PluginUsageInterface {
       $this->entityFieldManager->clearCachedFieldDefinitions();
     }
     foreach ($this->cacheBackends as $cache) {
-      $cache->invalidateAll();
+      $cache->deleteAll();
     }
   }
 
@@ -575,6 +575,9 @@ class RenderEvent extends EventBase implements PluginUsageInterface {
       new Token(name: 'view_id', description: 'The view ID.', classes: [
         EcaRenderViewsFieldEvent::class,
       ]),
+      new Token(name: 'view_args:?', description: 'The list of arguments given to the view.', classes: [
+        EcaRenderViewsFieldEvent::class,
+      ]),
     ]
   )]
   protected function buildEventData(): array {
@@ -613,6 +616,7 @@ class RenderEvent extends EventBase implements PluginUsageInterface {
       $data += [
         'entity' => $event->getEntity(),
         'relationships' => $event->getRelationshipEntities(),
+        'view_args' => $event->getFieldPlugin()->view->args,
         'view_id' => $event->getFieldPlugin()->view->id(),
         'view_display' => $event->getFieldPlugin()->view->current_display,
       ];

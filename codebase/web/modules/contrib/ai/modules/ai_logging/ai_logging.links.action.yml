@@ -9,4 +9,3 @@ ai_log.add_page:
   route_name: entity.ai_log.add_page
   appears_on:
     - entity.ai_log_type.collection
-

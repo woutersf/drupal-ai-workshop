@@ -2,11 +2,14 @@
 
 namespace Drupal\eca_form\Plugin\Action;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Plugin\DataType\EntityAdapter;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\eca\Plugin\DataType\DataTransferObject;
+use Drupal\eca\Plugin\FormFieldYamlTrait;
 use Drupal\eca\Service\YamlParser;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -15,12 +18,30 @@ use Symfony\Component\Yaml\Exception\ParseException;
  */
 trait FormFieldSetOptionsTrait {
 
+  use FormFieldYamlTrait;
+
   /**
    * The YAML parser.
    *
    * @var \Drupal\eca\Service\YamlParser
    */
   protected YamlParser $yamlParser;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
+    $result = parent::access($object, $account, TRUE);
+    if ($result->isAllowed() && $this->configuration['use_yaml'] && $this->configuration['validate_yaml']) {
+      try {
+        $this->yamlParser->parse($this->configuration['value']);
+      }
+      catch (ParseException) {
+        $result = AccessResult::forbidden('YAML data is not valid.');
+      }
+    }
+    return $return_as_object ? $result : $result->isAllowed();
+  }
 
   /**
    * {@inheritdoc}
@@ -66,6 +87,7 @@ trait FormFieldSetOptionsTrait {
     return [
       'options' => '',
       'use_yaml' => FALSE,
+      'validate_yaml' => FALSE,
     ] + parent::defaultConfiguration();
   }
 
@@ -80,13 +102,12 @@ trait FormFieldSetOptionsTrait {
       '#default_value' => $this->configuration['options'],
       '#weight' => -49,
     ];
-    $form['use_yaml'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Interpret above value as YAML format'),
-      '#description' => $this->t('When using YAML format to define the options above, this option needs to be enabled.'),
-      '#default_value' => $this->configuration['use_yaml'],
-      '#weight' => -48,
-    ];
+    $this->buildYamlFormFields(
+      $form,
+      $this->t('Interpret above value as YAML format'),
+      $this->t('When using YAML format to define the options above, this option needs to be enabled.'),
+      -48,
+    );
     return parent::buildConfigurationForm($form, $form_state);
   }
 
@@ -96,6 +117,7 @@ trait FormFieldSetOptionsTrait {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $this->configuration['options'] = $form_state->getValue('options');
     $this->configuration['use_yaml'] = !empty($form_state->getValue('use_yaml'));
+    $this->configuration['validate_yaml'] = !empty($form_state->getValue('validate_yaml'));
     parent::submitConfigurationForm($form, $form_state);
   }
 

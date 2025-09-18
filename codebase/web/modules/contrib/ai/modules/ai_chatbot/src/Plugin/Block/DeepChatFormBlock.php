@@ -11,6 +11,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -68,11 +70,18 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
   protected $moduleHandler;
 
   /**
-   * The theme handler.
+   * The theme manager.
    *
    * @var \Drupal\Core\Theme\ThemeManager
    */
   protected $themeManager;
+
+  /**
+   * The theme handler.
+   *
+   * @var \Drupal\Core\Extension\ThemeHandlerInterface
+   */
+  protected $themeHandler;
 
   /**
    * The messages button service.
@@ -96,6 +105,20 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
   protected $logger;
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
+   * The current path.
+   *
+   * @var \Drupal\Core\Path\CurrentPathStack
+   */
+  protected $currentPath;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -107,9 +130,12 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     $plugin->fileUrlGenerator = $container->get('file_url_generator');
     $plugin->moduleHandler = $container->get('module_handler');
     $plugin->themeManager = $container->get('theme.manager');
+    $plugin->themeHandler = $container->get('theme_handler');
     $plugin->messagesButton = $container->get('ai_chatbot.buttons');
     $plugin->cache = $container->get('cache.default');
     $plugin->logger = $container->get('logger.factory')->get('ai_chatbot');
+    $plugin->requestStack = $container->get('request_stack');
+    $plugin->currentPath = $container->get('path.current');
     return $plugin;
   }
 
@@ -126,7 +152,7 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
       'use_avatar' => TRUE,
       'default_avatar' => '/core/misc/favicon.ico',
       'first_message' => 'Hello! How can I help you today?',
-      'stream' => TRUE,
+      'stream' => FALSE,
       'toggle_state' => 'remember',
       'width' => '400px',
       'height' => '500px',
@@ -135,6 +161,7 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
       'collapse_minimal' => FALSE,
       'style_file' => 'bard.yml',
       'show_copy_icon' => TRUE,
+      'verbose_mode' => TRUE,
     ];
   }
 
@@ -142,6 +169,8 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
+    $form['#prefix'] = '<div id="ai-chatbot-form-wrapper">';
+    $form['#suffix'] = '</div>';
     // Warn people to install the CommonMark library.
     if (!class_exists('League\CommonMark\CommonMarkConverter')) {
       $form['notice'] = [
@@ -180,7 +209,24 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
       ]),
       '#options' => $assistants,
       '#default_value' => $this->configuration['ai_assistant'],
+      '#required' => TRUE,
+      // We need to change some fields depending on the assistant selected.
+      '#ajax' => [
+        'callback' => [$this, 'updateForm'],
+        'wrapper' => 'ai-chatbot-form-wrapper',
+      ],
     ];
+
+    // If the assistant is set, we load it.
+    $is_legacy_assistant = TRUE;
+    $selected_assistant = $form_state->getCompleteFormState()->getUserInput()['settings']['ai_assistant'] ?? $this->configuration['ai_assistant'];
+    if (!empty($selected_assistant)) {
+      $assistant = $this->entityTypeManager->getStorage('ai_assistant')->load($selected_assistant);
+      // Check if an agent is set.
+      if ($assistant && $assistant->get('ai_agent')) {
+        $is_legacy_assistant = FALSE;
+      }
+    }
 
     $form['messages'] = [
       '#type' => 'details',
@@ -301,16 +347,16 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     ];
 
     $form['advanced']['stream'] = [
-      '#type' => 'checkbox',
+      '#type' => $is_legacy_assistant ? 'checkbox' : 'hidden',
       '#title' => $this->t('Stream'),
-      '#description' => $this->t('Stream the messages in real-time.'),
+      '#description' => $this->t('Stream the messages in real-time. Note that this will be disabled for agents based assistants.'),
       '#default_value' => $this->configuration['stream'],
     ];
 
     $form['advanced']['show_structured_results'] = [
-      '#type' => 'checkbox',
+      '#type' => $is_legacy_assistant ? 'checkbox' : 'hidden',
       '#title' => $this->t('Show structured results'),
-      '#description' => $this->t('Show the structured results from the actions taken.'),
+      '#description' => $this->t('Show the structured results from the actions taken. Only available for legacy'),
       '#default_value' => $this->configuration['show_structured_results'],
     ];
 
@@ -326,7 +372,36 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
       '#default_value' => $this->configuration['toggle_state'],
     ];
 
+    $form['advanced']['verbose_mode'] = [
+      '#type' => $is_legacy_assistant ? 'hidden' : 'checkbox',
+      '#title' => $this->t('Verbose Mode'),
+      '#description' => $this->t('If enabled shows a message at each step the assistant takes while generating the final response. Will only work with assistants created in version 1.1.0.'),
+      '#default_value' => $this->configuration['verbose_mode'],
+    ];
+
     return $form;
+  }
+
+  /**
+   * Ajax callback to update the form.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return array
+   *   The updated form.
+   */
+  public function updateForm(array $form, FormStateInterface $form_state) {
+    // Set a state of the assistant picked.
+    $this->configuration['ai_assistant'] = $form_state->getUserInput()['settings']['ai_assistant'] ?? $this->configuration['ai_assistant'];
+
+    // Rebuild the form with the new AI assistant.
+    $form_state->setRebuild();
+
+    // Return the updated form.
+    return $form['settings'];
   }
 
   /**
@@ -347,9 +422,35 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     $this->configuration['placement'] = $form_state->getValue('styling')['placement'];
     $this->configuration['collapse_minimal'] = $form_state->getValue('styling')['collapse_minimal'];
     $this->configuration['show_copy_icon'] = $form_state->getValue('styling')['show_copy_icon'];
-    $this->configuration['stream'] = $form_state->getValue('advanced')['stream'];
-    $this->configuration['show_structured_results'] = $form_state->getValue('advanced')['show_structured_results'];
+    $this->configuration['stream'] = $form_state->getValue('advanced')['stream'] ?? FALSE;
+    $this->configuration['show_structured_results'] = $form_state->getValue('advanced')['show_structured_results'] ?? FALSE;
     $this->configuration['toggle_state'] = $form_state->getValue('advanced')['toggle_state'];
+    $this->configuration['verbose_mode'] = $form_state->getValue('advanced')['verbose_mode'] ?? FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    // Load the AI assistant entity based on the block configuration.
+    $assistant = $this->entityTypeManager->getStorage('ai_assistant')->load($this->configuration['ai_assistant']);
+
+    // Check if the assistant exists and is enabled.
+    if (!$assistant || !$assistant->status()) {
+      return AccessResult::forbidden();
+    }
+
+    // Set the assistant in the runner and check setup and access.
+    $this->aiAssistantRunner->setAssistant($assistant);
+    if (!$this->aiAssistantRunner->isSetup()) {
+      return AccessResult::forbidden();
+    }
+    if (!$this->aiAssistantRunner->userHasAccess()) {
+      return AccessResult::forbidden();
+    }
+
+    // If all checks pass, allow access.
+    return AccessResult::allowed();
   }
 
   /**
@@ -360,12 +461,7 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     $assistant = $this->entityTypeManager->getStorage('ai_assistant')->load($this->configuration['ai_assistant']);
 
     $this->aiAssistantRunner->setAssistant($assistant);
-    // Check if the assistant is setup and that the user has access to it.
-    if (!$this->aiAssistantRunner->isSetup() || !$this->aiAssistantRunner->userHasAccess()) {
-      $this->logger->warning('The AI Assistants AI provider is not setup or you are exposing it to a user that does not have access to it.');
-      return [];
-    }
-    $this->aiAssistantRunner->streamedOutput($this->configuration['stream'] ?? FALSE);
+    $this->aiAssistantRunner->streamedOutput($this->isStreamingSupported());
     $block = [];
 
     $block['#theme'] = 'ai_deepchat';
@@ -393,7 +489,9 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     $block['#attached']['drupalSettings']['ai_deepchat']['collapse_minimal'] = $this->configuration['collapse_minimal'];
     $block['#attached']['drupalSettings']['ai_deepchat']['show_copy_icon'] = $this->configuration['show_copy_icon'];
     $block['#attached']['drupalSettings']['ai_deepchat']['messages'] = $this->historicalMessages();
-
+    $block['#attached']['drupalSettings']['ai_deepchat']['session_exists'] = $this->requestStack->getCurrentRequest()->getSession()->isStarted();
+    $block['#attached']['drupalSettings']['ai_deepchat']['verbose_mode'] = $this->configuration['verbose_mode'];
+    $block['#cache']['contexts'][] = 'session.exists';
     return $block;
   }
 
@@ -414,6 +512,7 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
    *   Return the parameters.
    */
   public function getDeepChatParameters(string $style) {
+    $deepchat = [];
     // Some basic settings.
     $style_parameters = $this->getStyleParameters($style);
     // Special solution for style.
@@ -440,7 +539,18 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     // Override the avatars.
     $user_data = $this->getUserData();
     $deepchat['avatars']['ai']['src'] = $this->configuration['bot_image'];
+    if (empty($deepchat['avatars']['ai']['src'])) {
+      unset($deepchat['avatars']['ai']);
+    }
     $deepchat['avatars']['user']['src'] = $user_data['avatar'];
+    if (empty($deepchat['avatars']['user']['src'])) {
+      unset($deepchat['avatars']['user']);
+    }
+
+    if (is_array($deepchat['avatars']) && !count($deepchat['avatars'])) {
+      unset($deepchat['avatars']);
+    }
+
     $deepchat['class'] = 'deepchat-element';
     $deepchat['intromessage']['text'] = $this->configuration['first_message'];
 
@@ -469,12 +579,16 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     $deepchat['connect'] = [
       'url' => $url->toString(),
       'method' => 'POST',
-      'stream' => $this->configuration['stream'],
+      'stream' => $this->isStreamingSupported(),
       'additionalBodyProps' => [
         'assistant_id' => $this->configuration['ai_assistant'],
-        'stream' => $this->configuration['stream'],
+        'stream' => $this->isStreamingSupported(),
         'structured_results' => $this->configuration['show_structured_results'],
         'show_copy_icon' => $this->configuration['show_copy_icon'],
+        'verbose_mode' => $this->configuration['verbose_mode'],
+        'contexts' => [
+          'current_route' => $this->currentPath->getPath(),
+        ],
       ],
     ];
 
@@ -506,9 +620,21 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
    *   Return an array of styles.
    */
   public function getStyles() {
-    // Get the folder of this module.
-    $module_path = $this->moduleHandler->getModule('ai_chatbot')->getPath();
-    $styles = $this->getStylesFromPath($module_path . '/deepchat_styles');
+    $styles = [];
+    $module_list = ['ai_chatbot'];
+    $this->moduleHandler->alter('ai_chatbot_style_modules', $module_list);
+
+    foreach ($module_list as $module_name) {
+      $module_path = $this->moduleHandler->getModule($module_name)->getPath();
+      $styles += $this->getStylesFromPath($module_path . '/deepchat_styles', 'module:' . $module_name);
+    }
+
+    // Also get the active themes.
+    $themes = $this->themeHandler->listInfo();
+    foreach ($themes as $theme) {
+      $styles += $this->getStylesFromPath($theme->getPath() . '/deepchat_styles', 'theme:' . $theme->getName());
+    }
+
     return $styles;
   }
 
@@ -526,6 +652,9 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
   protected function getStylesFromPath(string $path, string $prefix = '') {
     $styles = [];
 
+    if (!is_dir($path)) {
+      return $styles;
+    }
     foreach (scandir($path) as $file) {
       // If its a yaml or yml file.
       if (preg_match('/\.ya?ml$/', $file)) {
@@ -542,24 +671,41 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
   /**
    * Get the style YAML files parameters.
    *
-   * @param string $style
+   * @param string $old_style
    *   The style to get the parameters for.
    *
    * @return array
    *   Return the parameters.
    */
-  public function getStyleParameters(string $style) {
-    // If its cached, get it cached.
-    $key = 'ai_chatbot:style:' . $style;
+  public function getStyleParameters(string $old_style) {
+    // If it's cached, get it cached.
+    $parts = explode(':', $old_style);
+    if (count($parts) == 3) {
+      $type = $parts[0];
+      $name = $parts[1];
+      $style = $parts[2];
+    }
+    else {
+      // Fallback to the old style.
+      $type = 'module';
+      $name = 'ai_chatbot';
+      $style = $old_style;
+    }
+    $key = $type . ':name:' . $name . ':style:' . $style;
     $data = $this->cache->get($key);
     if ($data) {
       return $data->data;
     }
 
-    $module_path = $this->moduleHandler->getModule('ai_chatbot')->getPath();
-    $path = $module_path . '/deepchat_styles/' . $style;
+    if ($type == 'theme') {
+      $type_path = $this->themeHandler->getTheme($name)->getPath();
+    }
+    else {
+      $type_path = $this->moduleHandler->getModule($name)->getPath();
+    }
+    $path = $type_path . '/deepchat_styles/' . $style;
     $style = Yaml::parse(file_get_contents($path));
-    $this->cache->set($key, $style['parameters'], CacheBackendInterface::CACHE_PERMANENT, ['ai_chatbot:style']);
+    $this->cache->set($key, $style['parameters'], CacheBackendInterface::CACHE_PERMANENT, [$type . ':type:' . $name . ':style']);
     return $style['parameters'];
   }
 
@@ -572,7 +718,6 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
   public function getUserData() {
     $user = $this->currentUser->getAccount();
     // Figure out username and avatar based on settings.
-    $user = $this->currentUser->getAccount();
     $username = $this->configuration['default_username'];
     if ($user->isAuthenticated() && $this->configuration['use_username']) {
       $username = $user->getDisplayName();
@@ -635,6 +780,24 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
       }
     }
     return $messages;
+  }
+
+  /**
+   * Function to check if streaming actually works.
+   *
+   * @return bool
+   *   Return TRUE if streaming is supported, FALSE otherwise.
+   */
+  public function isStreamingSupported() {
+    // Get the assistant.
+    $assistant = $this->aiAssistantRunner->getAssistant();
+    // Check if the assistant has an agent connected.
+    if (!empty($assistant->get('ai_agent'))) {
+      // We do not allow streaming on tools calling.
+      return FALSE;
+    }
+    // Otherwise return block settings.
+    return $this->configuration['stream'] ?? FALSE;
   }
 
 }

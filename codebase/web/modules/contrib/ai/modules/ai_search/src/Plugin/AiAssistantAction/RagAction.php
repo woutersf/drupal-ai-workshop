@@ -185,6 +185,26 @@ class RagAction extends AiAssistantActionBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getFunctionCallSchema(): array {
+    return [
+      'action' => [
+        'type' => 'string',
+        'description' => 'The action to call, always search_rag.',
+      ],
+      'query' => [
+        'type' => 'string',
+        'description' => 'The query to search the rag database.',
+      ],
+      'database' => [
+        'type' => 'string',
+        'description' => 'The database to search.',
+      ],
+    ];
+  }
+
+  /**
    * Get all search databases.
    */
   private function getSearchDatabases(): array {

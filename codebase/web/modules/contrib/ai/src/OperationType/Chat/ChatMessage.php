@@ -35,6 +35,20 @@ class ChatMessage {
   private array $images;
 
   /**
+   * The tools.
+   *
+   * @var \Drupal\ai\OperationType\Chat\Tools\ToolsOutputInterface[]|null
+   */
+  private ?array $tools = NULL;
+
+  /**
+   * The tool id if any.
+   *
+   * @var string
+   */
+  private string $toolId = "";
+
+  /**
    * The constructor.
    *
    * @param string $role
@@ -111,6 +125,62 @@ class ChatMessage {
   }
 
   /**
+   * Get the tools.
+   *
+   * @return \Drupal\ai\OperationType\Chat\Tools\ToolsOutputInterface[]|null
+   *   The tools.
+   */
+  public function getTools(): ?array {
+    return $this->tools;
+  }
+
+  /**
+   * Set the tools.
+   *
+   * @param \Drupal\ai\OperationType\Chat\Tools\ToolsOutputInterface[] $tools
+   *   The tools.
+   */
+  public function setTools(array $tools): void {
+    $this->tools = $tools;
+  }
+
+  /**
+   * Get rendered tools output array.
+   *
+   * @return array
+   *   The rendered array.
+   */
+  public function getRenderedTools(): array {
+    $output = [];
+    if ($this->tools) {
+      foreach ($this->tools as $tool) {
+        $output[] = $tool->getOutputRenderArray();
+      }
+    }
+    return $output;
+  }
+
+  /**
+   * Get the tool id.
+   *
+   * @return string
+   *   The tool id.
+   */
+  public function getToolsId(): string {
+    return $this->toolId;
+  }
+
+  /**
+   * Set the tool id.
+   *
+   * @param string $tool_id
+   *   The tool id.
+   */
+  public function setToolsId(string $tool_id): void {
+    $this->toolId = $tool_id;
+  }
+
+  /**
    * Sets the image from a binary string.
    *
    * @param string $binary
@@ -156,6 +226,26 @@ class ChatMessage {
    */
   public function setImageFromFile(File $file): void {
     $this->images[] = new ImageFile(file_get_contents($file->getFileUri()), $file->getMimeType(), $file->getFilename());
+  }
+
+  /**
+   * Create an array of the message.
+   *
+   * @return array
+   *   The array of the message.
+   */
+  public function toArray(): array {
+    $images = [];
+    foreach ($this->images as $image) {
+      $images[] = $image->getBinary();
+    }
+    return [
+      'role' => $this->role,
+      'text' => $this->text,
+      'images' => $images,
+      'tools' => $this->tools ? $this->getRenderedTools() : NULL,
+      'tool_id' => $this->toolId,
+    ];
   }
 
 }

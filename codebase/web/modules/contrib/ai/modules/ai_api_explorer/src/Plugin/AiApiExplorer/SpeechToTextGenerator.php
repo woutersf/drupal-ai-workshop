@@ -75,27 +75,30 @@ final class SpeechToTextGenerator extends AiApiExplorerPluginBase {
    * {@inheritdoc}
    */
   public function getResponse(array &$form, FormStateInterface $form_state): array {
-    $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'speech_to_text', 'stt');
-    if ($audio_file = $this->generateFile()) {
-      $raw_file = new SpeechToTextInput($audio_file);
+    $file = $form_state->getValue('file');
+    if (!empty($file)) {
+      $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'speech_to_text', 'stt');
+      if ($audio_file = $this->generateFile()) {
+        $raw_file = new SpeechToTextInput($audio_file);
 
-      try {
-        $form['right']['response']['#context']['ai_response']['response'] = [
-          '#type' => 'html_tag',
-          '#tag' => 'p',
-          '#value' => $provider->speechToText($raw_file, $form_state->getValue('stt_ai_model'), ['ai_api_explorer'])
-            ->getNormalized(),
-        ];
-        $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $audio_file->getFilename());
-      }
-      catch (\Exception $e) {
-        $form['right']['response']['#context']['ai_response']['response'] = [
-          '#type' => 'inline_template',
-          '#template' => '{{ error|raw }}',
-          '#context' => [
-            'error' => $this->explorerHelper->renderException($e),
-          ],
-        ];
+        try {
+          $form['right']['response']['#context']['ai_response']['response'] = [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => $provider->speechToText($raw_file, $form_state->getValue('stt_ai_model'), ['ai_api_explorer'])
+              ->getNormalized(),
+          ];
+          $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $audio_file->getFilename());
+        }
+        catch (\Exception $e) {
+          $form['right']['response']['#context']['ai_response']['response'] = [
+            '#type' => 'inline_template',
+            '#template' => '{{ error|raw }}',
+            '#context' => [
+              'error' => $this->explorerHelper->renderException($e),
+            ],
+          ];
+        }
       }
     }
 

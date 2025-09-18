@@ -108,7 +108,12 @@ class EntityAccess extends Event implements AccessEventInterface, EntityEventInt
    * {@inheritdoc}
    */
   public function setAccessResult(AccessResultInterface $result): EntityAccess {
-    $this->accessResult = $result;
+    if ($this->accessResult === NULL) {
+      $this->accessResult = $result;
+    }
+    else {
+      $this->accessResult = $this->accessResult->orIf($result);
+    }
     return $this;
   }
 

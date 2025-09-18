@@ -13,9 +13,7 @@ use Drupal\Tests\toolbar\Functional\ToolbarAdminMenuTest;
 class AdminToolbarAdminMenuTest extends ToolbarAdminMenuTest {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
   protected static $modules = [
     'admin_toolbar',

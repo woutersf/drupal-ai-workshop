@@ -204,7 +204,7 @@ final class EcaController extends ControllerBase {
   public function edit(string $eca): array {
     /** @var \Drupal\eca\Entity\Eca|null $config */
     $config = $this->storage->load($eca);
-    if ($config && $config->isEditable() && $modeller = $config->getModeller()) {
+    if ($config && $config->isEditable() && $modeller = $config->getModeller(FALSE)) {
       $build = $modeller->edit();
       $build['#title'] = $this->t('%label ECA Model', ['%label' => $config->label()]);
       return $build;

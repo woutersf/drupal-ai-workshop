@@ -17,6 +17,7 @@ eca.save:
     _controller: '\Drupal\eca_ui\Controller\EcaController::save'
   requirements:
     _permission: 'administer eca'
+    _csrf_request_header_token: 'TRUE'
 entity.eca.delete_form:
   path: '/admin/config/workflow/eca/{eca}/delete'
   defaults:
@@ -30,24 +31,28 @@ entity.eca.enable:
     _controller: '\Drupal\eca_ui\Controller\EcaController::enable'
   requirements:
     _permission: 'administer eca'
+    _csrf_token: 'TRUE'
 entity.eca.disable:
   path: '/admin/config/workflow/eca/{eca}/disable'
   defaults:
     _controller: '\Drupal\eca_ui\Controller\EcaController::disable'
   requirements:
     _permission: 'administer eca'
+    _csrf_token: 'TRUE'
 entity.eca.clone:
   path: '/admin/config/workflow/eca/{eca}/clone'
   defaults:
     _controller: '\Drupal\eca_ui\Controller\EcaController::clone'
   requirements:
     _permission: 'administer eca'
+    _csrf_token: 'TRUE'
 entity.eca.export:
   path: '/admin/config/workflow/eca/{eca}/export'
   defaults:
     _controller: '\Drupal\eca_ui\Controller\EcaController::export'
   requirements:
     _permission: 'administer eca'
+    _csrf_token: 'TRUE'
 entity.eca.export_recipe:
   path: '/admin/config/workflow/eca/{eca}/recipe'
   defaults:

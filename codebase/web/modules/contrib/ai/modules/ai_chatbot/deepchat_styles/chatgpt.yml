@@ -22,6 +22,12 @@ parameters:
     default:
       styles:
         position: "left"
+  auxiliaryStyle:
+    "@keyframes pulse-color {
+      0%   { color: #555; }
+      50%  { color: #ccc; }
+      100% { color: #555; }
+    }"
   submitButtonStyles:
     submit:
       container:

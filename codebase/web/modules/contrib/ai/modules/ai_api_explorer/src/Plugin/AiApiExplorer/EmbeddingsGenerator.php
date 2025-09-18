@@ -78,6 +78,10 @@ final class EmbeddingsGenerator extends AiApiExplorerPluginBase {
       '#ajax' => [
         'callback' => $this->getAjaxResponseId(),
         'wrapper' => 'ai-embeddings-response',
+        'event' => 'click',
+      ],
+      '#validate' => [
+        [$this, 'validateGenerateEmbeddingForm'],
       ],
     ];
 
@@ -85,47 +89,64 @@ final class EmbeddingsGenerator extends AiApiExplorerPluginBase {
   }
 
   /**
+   * Custom validation to ensure either prompt or image is provided.
+   */
+  public function validateGenerateEmbeddingForm(array &$form, FormStateInterface $form_state) {
+
+    $prompt = trim($form_state->getValue('prompt') ?? '');
+    $image = $form_state->getValue('image');
+
+    if (empty($prompt) && empty($image)) {
+      $form_state->setErrorByName('prompt', $this->t('Please enter your prompt or upload an image.'));
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getResponse(array &$form, FormStateInterface $form_state): array {
     $provider = $this->aiProviderHelper->generateAiProviderFromFormSubmit($form, $form_state, 'embeddings', 'embed');
+    $prompt = $form_state->getValue('prompt');
+    $image = $form_state->getValue('image');
 
-    // Normalize the input.
-    $input = new EmbeddingsInput();
-    if ($file = $this->generateFile('image')) {
-      $file_name = $file->getFilename();
+    // Check if a prompt or image has value.
+    if (!empty($prompt) || (!empty($image))) {
+      // Normalize the input.
+      $input = new EmbeddingsInput();
+      if ($file = $this->generateFile('image')) {
+        $file_name = $file->getFilename();
 
-      // Because its octect/stream sometimes.
-      $file->resetMimeTypeFromFileName();
-      $input->setImage($file);
-    }
-    else {
-      $input->setPrompt($form_state->getValue('prompt'));
-      $file_name = NULL;
-    }
-    try {
-      $embeddings = $provider->embeddings($input, $form_state->getValue('embed_ai_model'), ['ai_api_explorer']);
-      $response = implode(', ', $embeddings->getNormalized());
-    }
-    catch (\Exception $e) {
+        // Because its octect/stream sometimes.
+        $file->resetMimeTypeFromFileName();
+        $input->setImage($file);
+      }
+      else {
+        $input->setPrompt($form_state->getValue('prompt'));
+        $file_name = NULL;
+      }
+      try {
+        $embeddings = $provider->embeddings($input, $form_state->getValue('embed_ai_model'), ['ai_api_explorer']);
+        $response = implode(', ', $embeddings->getNormalized());
+      }
+      catch (\Exception $e) {
+        $form['right']['response']['#context']['ai_response']['response'] = [
+          '#type' => 'inline_template',
+          '#template' => '{{ error|raw }}',
+          '#context' => [
+            'error' => $this->explorerHelper->renderException($e),
+          ],
+        ];
+
+        // Early return if we've hit an error.
+        return $form['right'];
+      }
       $form['right']['response']['#context']['ai_response']['response'] = [
-        '#type' => 'inline_template',
-        '#template' => '{{ error|raw }}',
-        '#context' => [
-          'error' => $this->explorerHelper->renderException($e),
-        ],
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $response,
       ];
-
-      // Early return if we've hit an error.
-      return $form['right'];
+      $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $form_state->getValue('prompt'), $file_name);
     }
-
-    $form['right']['response']['#context']['ai_response']['response'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'p',
-      '#value' => $response,
-    ];
-    $form['right']['response']['#context']['ai_response']['code'] = $this->normalizeCodeExample($provider, $form_state, $form_state->getValue('prompt'), $file_name);
 
     return $form['right'];
   }

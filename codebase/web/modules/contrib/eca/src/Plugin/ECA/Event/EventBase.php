@@ -3,7 +3,7 @@
 namespace Drupal\eca\Plugin\ECA\Event;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\EcaEvents;
 use Drupal\eca\Entity\Objects\EcaEvent;
 use Drupal\eca\Plugin\DataType\DataTransferObject;
@@ -38,7 +38,7 @@ abstract class EventBase extends EcaPluginBase implements EventInterface {
   /**
    * The list of tokens that the event provides when dispatched.
    *
-   * @var \Drupal\eca\Attributes\Token[]|null
+   * @var \Drupal\eca\Attribute\Token[]|null
    */
   protected ?array $tokens = NULL;
 
@@ -156,9 +156,8 @@ abstract class EventBase extends EcaPluginBase implements EventInterface {
   /**
    * {@inheritdoc}
    */
-  public function setConfiguration(array $configuration): EventBase {
+  public function setConfiguration(array $configuration): void {
     $this->configuration = $configuration + $this->defaultConfiguration();
-    return $this;
   }
 
   /**
@@ -185,8 +184,11 @@ abstract class EventBase extends EcaPluginBase implements EventInterface {
       }
       do {
         foreach ($reflection->getAttributes() as $attribute) {
-          if ($attribute->getName() === 'Drupal\eca\Attributes\Token') {
-            /** @var \Drupal\eca\Attributes\Token $token */
+          if (
+            $attribute->getName() === 'Drupal\eca\Attribute\Token' ||
+            $attribute->getName() === 'Drupal\eca\Attributes\Token'
+          ) {
+            /** @var \Drupal\eca\Attribute\Token $token */
             $token = $attribute->newInstance();
             if ($this->getSupportedProperties($eventClass, $token)) {
               $tokens[] = $token;
@@ -209,7 +211,7 @@ abstract class EventBase extends EcaPluginBase implements EventInterface {
    *
    * @param string $eventClass
    *   The event class.
-   * @param \Drupal\eca\Attributes\Token $token
+   * @param \Drupal\eca\Attribute\Token $token
    *   The token.
    *
    * @return bool
@@ -256,7 +258,7 @@ abstract class EventBase extends EcaPluginBase implements EventInterface {
   /**
    * Helper function to render a supported token and its properties.
    *
-   * @param \Drupal\eca\Attributes\Token $token
+   * @param \Drupal\eca\Attribute\Token $token
    *   The token.
    * @param string $prefix
    *   The prefix.

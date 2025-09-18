@@ -52,7 +52,7 @@ class SimpleTextChat extends RuleBase {
     $total = [];
     $instance = $this->prepareLlmInstance('chat', $automatorConfig);
     foreach ($prompts as $prompt) {
-      $value[] = $this->runRawChatMessage($prompt, $automatorConfig, $instance)->getText();
+      $value[] = $this->runRawChatMessage($prompt, $automatorConfig, $instance, $entity)->getText();
       if (!empty($value[0])) {
         $total = array_merge_recursive($total, $value);
       }

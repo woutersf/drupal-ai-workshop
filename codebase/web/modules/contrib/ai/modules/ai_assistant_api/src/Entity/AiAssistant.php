@@ -57,6 +57,8 @@ use Drupal\ai_assistant_api\AiAssistantInterface;
  *     "llm_model",
  *     "llm_configuration",
  *     "roles",
+ *     "use_function_calling",
+ *      "ai_agent",
  *   },
  * )
  */
@@ -95,7 +97,7 @@ final class AiAssistant extends ConfigEntityBase implements AiAssistantInterface
   /**
    * The pre action prompt.
    */
-  protected string $pre_action_prompt;
+  protected ?string $pre_action_prompt;
 
   /**
    * The system prompt.
@@ -153,5 +155,15 @@ final class AiAssistant extends ConfigEntityBase implements AiAssistantInterface
    * The roles that can run this assistant.
    */
   protected array $roles = [];
+
+  /**
+   * Use function calling.
+   */
+  protected ?bool $use_function_calling = FALSE;
+
+  /**
+   * An AI Agent.
+   */
+  protected ?string $ai_agent = NULL;
 
 }

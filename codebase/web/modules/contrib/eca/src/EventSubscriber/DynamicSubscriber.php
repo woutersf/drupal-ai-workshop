@@ -15,6 +15,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 class DynamicSubscriber implements EventSubscriberInterface {
 
   /**
+   * Whether ECA is active.
+   *
+   * @var bool
+   */
+  protected static bool $isActive = TRUE;
+
+  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents(): array {
@@ -26,6 +33,26 @@ class DynamicSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Set the processor to be active or not.
+   *
+   * @param bool $active
+   *   Set TRUE to be active, FALSE otherwise.
+   */
+  public static function setActive(bool $active): void {
+    self::$isActive = $active;
+  }
+
+  /**
+   * Get to know whether the processor is active or not.
+   *
+   * @return bool
+   *   Returns TRUE when active, FALSE otherwise.
+   */
+  public static function isActive(): bool {
+    return self::$isActive;
+  }
+
+  /**
    * Callback forwarding the given event to the ECA processor.
    *
    * @param \Symfony\Contracts\EventDispatcher\Event $event
@@ -34,6 +61,9 @@ class DynamicSubscriber implements EventSubscriberInterface {
    *   The specific event name that got triggered for that event.
    */
   public function onEvent(Event $event, string $event_name): void {
+    if (!self::$isActive) {
+      return;
+    }
     try {
       if (!Settings::get('eca_disable', FALSE)) {
         Processor::get()->execute($event, $event_name);

@@ -1,0 +1,86 @@
+ai_agents.settings:
+  type: config_entity
+  label: AI Assistant
+  mapping:
+    # We have to decide if we want config entities later.
+    agent_settings:
+      type: sequence
+      label: Agent Settings
+      required: false
+      sequence:
+        type: ignore
+
+ai_agents.ai_agent.*:
+  type: config_entity
+  label: AI Agent
+  mapping:
+    id:
+      type: string
+      label: ID
+      description: 'The ID of the AI agent. This is the machine name of the AI agent. Can only contain lowercase letters, numbers and underscores.'
+    label:
+      type: label
+      label: Label
+      description: 'The label of the AI agent. This is the name that will be displayed in the UI and that any orchestration tool sees.'
+    uuid:
+      type: string
+      label: UUID
+      description: 'The UUID of the AI agent. Fill this in only if you want to import an existing AI agent.'
+    description:
+      type: string
+      label: Description
+      description: 'A description of the AI agent. This is really important, because triage agents or orchestration tools will base their decisions to pick the right agent on this.'
+    system_prompt:
+      type: string
+      label: Agent Instructions
+      description: 'Instructions for the AI agent that define its behavior and capabilities. This text guides how the agent interacts and selects tools.'
+    secured_system_prompt:
+      type: string
+      label: Secured System Prompt
+      description: 'The secured system prompt with tokens. Use [ai_agent:agent_instructions] to include the Agent Instructions. If left empty, it will default to [ai_agent:agent_instructions].'
+    tools:
+      type: sequence
+      label: Tools
+      description: 'The tools that the AI agent can use. This is a list of tools that the AI agent can use to perform its tasks. The AI agent will pick the right tool based on the system prompt and the user input. It only have to list the tools used. Not disabled tools.'
+      sequence:
+        type: ignore
+    tool_settings:
+      type: sequence
+      label: Tool Settings
+      description: 'The settings for the tools that the AI agent can use. This is a list of tool settings that the AI agent can use to perform its tasks. The AI agent will pick the right tool based on the system prompt and the user input.'
+      sequence:
+        type: ignore
+    orchestration_agent:
+      type: boolean
+      label: Orchestration Agent
+      description: 'Whether the AI agent is an orchestration agent or not. Orchestration agents are agents that only will pick other agents to do their work. They are the top level agents that can be used by the user.'
+    triage_agent:
+      type: boolean
+      label: Triage Agent
+      description: 'Whether the AI agent is a triage agent or not. Triage agents are agents that can pick other agents to do their work, but that can also do work themselves. They are the middle level agents that can be used by the user.'
+    max_loops:
+      type: integer
+      label: Max Loops
+      description: 'The maximum number of loops that the AI agent can do. This is to prevent infinite loops. If the AI agent reaches this number of loops, it will stop and return the result.'
+      default: 3
+    default_information_tools:
+      type: string
+      label: Default Information Tools
+      description: 'The default information tools that the AI agent can use in the system message. This is a list of tools that the AI agent can use to get information. The AI agent will pick the right tool based on the system prompt and the user input. It only have to list the tools used. Not disabled tools.'
+    tool_usage_limits:
+      type: sequence
+      label: Tool Usage Limits
+      description: 'The tool usage limits for the AI agent. This is a mapping of tool names to their usage limits. The AI agent will use these limits to determine how to use the tools.'
+      sequence:
+        type: ignore
+    exclude_users_role:
+      type: boolean
+      label: Exclude Users Role
+      description: 'Whether to exclude the users role from the AI agent. If this is set to true, the AI agent will not use the users role in its system prompt. This is useful for agents that are not meant to be used by users.'
+      default: false
+    masquerade_roles:
+      type: sequence
+      label: Masquerade Roles
+      description: 'The roles that the AI agent can masquerade as. This is a list of roles that the AI agent can use to perform its tasks. The AI agent will pick the right role based on the system prompt and the user input.'
+      sequence:
+        type: ignore

@@ -6,7 +6,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\ContentEntityFormInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Form\BaseFormIdInterface;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\Event\FormEventInterface;
 use Drupal\eca\EventSubscriber\EcaExecutionFormSubscriber;
 use Drupal\eca\Plugin\DataType\DataTransferObject;

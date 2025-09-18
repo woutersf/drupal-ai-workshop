@@ -6,6 +6,12 @@ ai_ckeditor:
     - editor/drupal.editor.dialog
     - ai_ckeditor/ai_ckeditor.dialog
 
+ai_balloon_menu:
+  js:
+    js/build/ai_balloon_menu.js: { preprocess: false, minified: true }
+  dependencies:
+    - core/ckeditor5
+
 admin.ai_ckeditor:
   css:
     theme:

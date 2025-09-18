@@ -2,6 +2,9 @@ ai_translate.settings:
   type: config_object
   label: 'AI Translate settings'
   mapping:
+    use_ai_translate:
+      type: boolean
+      label: 'Use AI Translate as the default to translate content'
     reference_defaults:
       type: ignore # Weird mix.
       label: reference_defaults

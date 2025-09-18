@@ -334,7 +334,7 @@ final class AiSetupForm extends FormBase {
         'module' => $this->t('Provider module'),
       ],
       '#options' => [],
-      '#empty' => t('No modules found'),
+      '#empty' => $this->t('No modules found'),
       '#default_value' => [],
     ];
 
@@ -773,7 +773,7 @@ final class AiSetupForm extends FormBase {
 
       // Generate the form.
       $provider_state = new FormState();
-      $provider_form = $this->formBuilder->buildForm($form_id, $provider_state);
+      $this->formBuilder->buildForm($form_id, $provider_state);
 
       // Then set the values in our state, as building the form empties them.
       $provider_state->setUserInput($form_state->getUserInput());

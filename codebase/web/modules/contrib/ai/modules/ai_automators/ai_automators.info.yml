@@ -1,6 +1,6 @@
 name: AI Automators
 description: Allows AI and other tools and services to automatically generate field values on content creation.
-package: AI (Experimental)
+package: AI
 type: module
 core_version_requirement: ^10.2 || ^11
 
@@ -8,7 +8,7 @@ dependencies:
   - ai:ai
   - token:token
 
-# Information added by Drupal.org packaging script on 2025-03-05
-version: '1.0.5'
+# Information added by Drupal.org packaging script on 2025-09-17
+version: '1.1.4'
 project: 'ai'
-datestamp: 1741174945
+datestamp: 1758116446

@@ -16,6 +16,8 @@ services:
   ai.tokenizer:
     class: Drupal\ai\Utility\Tokenizer
     arguments: ['@ai.provider']
+  ai.context_definition_normalizer:
+    class: Drupal\ai\Utility\ContextDefinitionNormalizer
   ai.text_chunker:
     class: Drupal\ai\Utility\TextChunker
     arguments: ['@ai.tokenizer']
@@ -23,6 +25,15 @@ services:
     class: Drupal\ai\Breadcrumb\AiModelSettingsBreadcrumbBuilder
     tags:
       - { name: breadcrumb_builder, priority: 100 }
+  plugin.manager.ai.function_calls:
+    class: Drupal\ai\Service\FunctionCalling\FunctionCallPluginManager
+    parent: default_plugin_manager
+  plugin.manager.ai.function_groups:
+    class: Drupal\ai\Service\FunctionCalling\FunctionGroupPluginManager
+    parent: default_plugin_manager
+  ai.function_call_form_helper:
+    class: Drupal\ai\Service\FunctionCalling\PropertyFormBuilder
+    arguments: ['@plugin.manager.ai.function_calls']
   cache.ai:
     class: Drupal\Core\Cache\CacheBackendInterface
     arguments: ['ai']

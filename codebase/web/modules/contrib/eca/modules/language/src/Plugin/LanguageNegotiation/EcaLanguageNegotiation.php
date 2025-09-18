@@ -44,7 +44,7 @@ final class EcaLanguageNegotiation extends LanguageNegotiationMethodBase impleme
   /**
    * {@inheritdoc}
    */
-  public function getLangcode(?Request $request = NULL) {
+  public function getLangcode(?Request $request = NULL): ?string {
     $langcode = NULL;
 
     if ($event = $this->triggerEvent->dispatchFromPlugin('eca_language:negotiate')) {

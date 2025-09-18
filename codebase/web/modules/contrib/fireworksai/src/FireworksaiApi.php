@@ -4,7 +4,6 @@ namespace Drupal\fireworksai;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\file\FileInterface;
-use Drupal\fireworksai\Form\FireworksaiConfigForm;
 use GuzzleHttp\Client;
 
 /**
@@ -116,10 +115,9 @@ class FireworksaiApi {
    */
   public function chatCompletion(array $messages, $model, array $options = []) {
     $body = $options;
-    $body = [
-      'messages' => $messages,
-      'model' => $model,
-    ];
+    $body['messages'] = $messages;
+    $body['model'] = $model;
+
     return $this->makeRequest('chat/completions', [], 'POST', $body);
   }
 
@@ -152,6 +150,34 @@ class FireworksaiApi {
       $guzzleOptions['headers']['accept'] = $imageType;
     }
     return $this->makeRequest('image_generation/accounts/fireworks/models/' . $model, [], 'POST', $body, $guzzleOptions);
+  }
+
+  /**
+   * Text-To-Image v3 generation call.
+   *
+   * @param string $prompt
+   *   The prompt.
+   * @param string $model
+   *   The model.
+   * @param string $imageType
+   *   The image type.
+   * @param string $ratio
+   *   The ratio.
+   * @param array $options
+   *   Extra options to send.
+   */
+  public function textToImageV3($prompt, $model, $imageType, $ratio, array $options = []) {
+    $body = $options;
+    $body = [
+      'prompt' => $prompt,
+      'model' => $model,
+      'ratio' => $ratio,
+    ];
+    $guzzleOptions = [];
+    if ($imageType) {
+      $guzzleOptions['headers']['accept'] = $imageType;
+    }
+    return $this->makeRequest('workflows/accounts/fireworks/models/' . $model . '/text_to_image', [], 'POST', $body, $guzzleOptions);
   }
 
   /**
@@ -227,7 +253,7 @@ class FireworksaiApi {
   }
 
   /**
-   * Canny edge detenction.
+   * Canny edge detection.
    *
    * @param string $model
    *   The model.
@@ -328,6 +354,53 @@ class FireworksaiApi {
       'input' => $text,
     ];
     return $this->makeRequest('embeddings', [], 'POST', $body);
+  }
+
+  /**
+   * Transcribe audio.
+   *
+   * @param string $path
+   *   The audio file.
+   * @param string $model
+   *   The model.
+   * @param array $options
+   *   The options.
+   *
+   * @return string|object
+   *   The response.
+   */
+  public function transcribe($path, $model, $options) {
+    $guzzleOptions['multipart'] = [
+      [
+        'name' => 'file',
+        'contents' => fopen($path, 'r'),
+        'filename' => basename($path),
+      ],
+      [
+        'name' => 'model',
+        'contents' => $model,
+      ],
+    ];
+
+    // Add extra options.
+    foreach ($options as $key => $value) {
+      if (is_array($value)) {
+        foreach ($value as $subValue) {
+          $guzzleOptions['multipart'][] = [
+            'name' => $key,
+            'contents' => $subValue,
+          ];
+        }
+      }
+      elseif ($value) {
+        $guzzleOptions['multipart'][] = [
+          'name' => $key,
+          'contents' => $value,
+        ];
+      }
+    }
+
+    return $this->makeRequest('audio/transcriptions', [], 'POST', NULL, $guzzleOptions);
   }
 
   /**

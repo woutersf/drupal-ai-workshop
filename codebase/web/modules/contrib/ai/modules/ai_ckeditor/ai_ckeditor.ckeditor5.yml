@@ -23,5 +23,16 @@ ai_ckeditor_ai:
         label: AI CKEditor
     elements: false
     class: Drupal\ai_ckeditor\Plugin\CKEditor5Plugin\AiCKEditor
-    conditions:
-      toolbarItem: aickeditor
+
+ai_ckeditor_balloon_menu:
+  ckeditor5:
+    plugins:
+      - ai_balloon_menu.AiBalloonMenu
+  drupal:
+    label: AI tools
+    library: ai_ckeditor/ai_balloon_menu
+    admin_library: ai_ckeditor/admin.ai_ckeditor
+    toolbar_items:
+      ai_balloon_menu:
+        label: AI Balloon Menu
+    elements: false

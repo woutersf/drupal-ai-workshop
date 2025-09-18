@@ -1,0 +1,9 @@
+{
+    "name": "drupal/ai_vdb_provider_postgres",
+    "description": "Enables the use of a Postgres (pgvector) VDB in the AI module.",
+    "type": "drupal-module",
+    "require": {
+        "ext-pgsql": "*",
+        "drupal/ai": "^1.1@beta"
+    }
+}

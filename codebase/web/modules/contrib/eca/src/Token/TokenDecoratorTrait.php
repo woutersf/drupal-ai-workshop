@@ -434,7 +434,9 @@ trait TokenDecoratorTrait {
     if (!in_array(get_class($this->token), [
       'Drupal\Core\Utility\Token',
       'Drupal\token\Token',
-    ], TRUE) && method_exists($this->token, 'replacePlain')) {
+    ], TRUE) &&
+    // @phpstan-ignore-next-line
+    method_exists($this->token, 'replacePlain')) {
       $plain = $this->token->replacePlain($plain, $data, $options, $bubbleable_metadata);
     }
     return $plain;

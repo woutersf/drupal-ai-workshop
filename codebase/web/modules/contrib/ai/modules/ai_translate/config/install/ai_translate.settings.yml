@@ -1,3 +1,4 @@
+use_ai_translate: true
 prompt: >1
   You are a helpful translator that can translate text and understand context when translating.
   You will be given a context text to {% if source_lang_name %} translate from the source language {{ source_lang_name }} {% else %}guess the source language and translate {% endif %} to the target language {{ dest_lang_name }}.

@@ -122,14 +122,14 @@ class GetAIImage {
     }
     if (str_contains($model,'stable-diffusion')) {
       $config = [
-//        "prompt" => $prompt,
+        //        "prompt" => $prompt,
         "response_format" => "url",
         "negative_prompt"=> "((out of frame)), ((extra fingers)), mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), (((tiling))), ((naked)), ((tile)), ((fleshpile)), ((ugly)), (((abstract))), blurry, ((bad anatomy)), ((bad proportions)), ((extra limbs)), cloned face, (((skinny))), glitchy, ((extra breasts)), ((double torso)), ((extra arms)), ((extra hands)), ((mangled fingers)), ((missing breasts)), (missing lips), ((ugly face)), ((fat)), ((extra legs)), anime",
         "cfg_scale" => null,
         "image_size" => "1024x1024",
         "size" => "1024x1024",
-//        "width"=> 1024,
-//        "height"=> 1024,
+        //        "width"=> 1024,
+        //        "height"=> 1024,
         "samples"=> "1",
         "steps"=> null,
         "sampler"=> 'None',

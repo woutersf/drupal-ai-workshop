@@ -34,15 +34,16 @@ trait EntitySaveTrait {
     if (isset($original) && !$entity->isNew()) {
       // Behave the same as \Drupal\Core\Entity\EntityStorageBase::doPreSave.
       $id = $entity->getOriginalId() ?? $entity->id();
-      if ($id !== NULL) {
-        $etm = $this->entityTypeManager ?? \Drupal::entityTypeManager();
-        try {
-          $this->setOriginal($entity, $etm->getStorage($entity->getEntityTypeId())->loadUnchanged($id));
-        }
-        catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
-          // This exception can not happen because the plugin is definitely
-          // available, otherwise the $entity would be available either.
-        }
+      // Don't check if $id is NULL because this is implied the entity not being
+      // new.
+      // @see https://www.drupal.org/project/eca/issues/3540487
+      $etm = $this->entityTypeManager ?? \Drupal::entityTypeManager();
+      try {
+        $this->setOriginal($entity, $etm->getStorage($entity->getEntityTypeId())->loadUnchanged($id));
+      }
+      catch (InvalidPluginDefinitionException | PluginNotFoundException $e) {
+        // This exception can not happen because the plugin is definitely
+        // available, otherwise the $entity would be available either.
       }
     }
 

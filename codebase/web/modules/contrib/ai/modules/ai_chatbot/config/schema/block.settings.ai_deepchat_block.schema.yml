@@ -53,3 +53,6 @@ block.settings.ai_deepchat_block:
     style_file:
       type: string
       label: Style File
+    verbose_mode:
+      type: boolean
+      label: Verbose Mode

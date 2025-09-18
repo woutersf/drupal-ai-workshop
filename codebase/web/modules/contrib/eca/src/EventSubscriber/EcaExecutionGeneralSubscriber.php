@@ -5,13 +5,14 @@ namespace Drupal\eca\EventSubscriber;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\eca\Attributes\Token;
+use Drupal\eca\Attribute\Token;
 use Drupal\eca\EcaEvents;
 use Drupal\eca\Event\AccountEventInterface;
 use Drupal\eca\Event\AfterInitialExecutionEvent;
 use Drupal\eca\Event\BeforeInitialExecutionEvent;
 use Drupal\eca\Event\EntityEventInterface;
 use Drupal\eca\Event\RenderEventInterface;
+use Drupal\eca\Plugin\ECA\Event\EventInterface;
 
 /**
  * General ECA event subscriber for EcaEvents::BEFORE_INITIAL_EXECUTION events.
@@ -40,6 +41,15 @@ class EcaExecutionGeneralSubscriber extends EcaExecutionSubscriberBase {
     classes: [EntityEventInterface::class],
   )]
   public function onBeforeInitialExecution(BeforeInitialExecutionEvent $before_event): void {
+    // Find previous token provider of type EventInterface and remove it from
+    // the list and remember it to be restored afterwards.
+    foreach ($this->tokenService->getDataProviders() as $dataProvider) {
+      if ($dataProvider instanceof EventInterface) {
+        $this->tokenService->removeTokenDataProvider($dataProvider);
+        $before_event->setPrestate('previous_data_provider', $dataProvider);
+      }
+    }
+
     $plugin = $before_event->getEcaEvent()->getPlugin();
     $this->tokenService->addTokenDataProvider($plugin);
 
@@ -86,6 +96,10 @@ class EcaExecutionGeneralSubscriber extends EcaExecutionSubscriberBase {
   public function onAfterInitialExecution(AfterInitialExecutionEvent $after_event): void {
     $plugin = $after_event->getEcaEvent()->getPlugin();
     $this->tokenService->removeTokenDataProvider($plugin);
+    // Restore the previous EventInterface token data provider if available.
+    if ($dataProvider = $after_event->getPrestate('previous_data_provider')) {
+      $this->tokenService->addTokenDataProvider($dataProvider);
+    }
   }
 
   /**

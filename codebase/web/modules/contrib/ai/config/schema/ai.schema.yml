@@ -21,6 +21,12 @@ ai.settings:
         chat_with_image_vision:
           label: 'Default chat with image vision provider'
           type: ai.default_operation_provider
+        chat_with_structured_response:
+          label: 'Default chat with structured response provider'
+          type: ai.default_operation_provider
+        chat_with_tools:
+          label: 'Default chat with tools provider'
+          type: ai.default_operation_provider
         embeddings:
           label: 'Default embeddings provider'
           type: ai.default_operation_provider

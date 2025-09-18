@@ -130,27 +130,27 @@ final class Taxonomy extends AiContentSuggestionsPluginBase {
     parent::buildSettingsForm($form);
     $prompt = $this->promptConfig->get($this->getPluginId() . '_open');
     $form[$this->getPluginId()][$this->getPluginId() . '_prompt_open'] = [
-      '#title' => $this->t('Suggest taxonomy prompt (not limited to vocabulary)', []),
+      '#title' => $this->t('Suggest taxonomy prompt (not limited to vocabulary)'),
       '#type' => 'textarea',
       '#required' => TRUE,
       '#default_value' => $prompt ?? $this->defaultOpenPrompt . PHP_EOL,
-      '#parents' => [$this->getPluginId(), $this->getPluginId() . '_prompt_open'],
+      '#parents' => ['plugins', $this->getPluginId(), $this->getPluginId() . '_prompt_open'],
       '#states' => [
         'visible' => [
-          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled' . ']"]' => ['checked' => TRUE],
+          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled]"]' => ['checked' => TRUE],
         ],
       ],
     ];
     $prompt = $this->promptConfig->get($this->getPluginId() . '_from_voc');
     $form[$this->getPluginId()][$this->getPluginId() . '_prompt_from_voc'] = [
-      '#title' => $this->t('Suggest taxonomy prompt (limited to vocabulary)', []),
+      '#title' => $this->t('Suggest taxonomy prompt (limited to vocabulary)'),
       '#type' => 'textarea',
       '#required' => TRUE,
       '#default_value' => $prompt ?? $this->defaultFromVocPrompt . PHP_EOL,
-      '#parents' => [$this->getPluginId(), $this->getPluginId() . '_prompt_from_voc'],
+      '#parents' => ['plugins', $this->getPluginId(), $this->getPluginId() . '_prompt_from_voc'],
       '#states' => [
         'visible' => [
-          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled' . ']"]' => ['checked' => TRUE],
+          ':input[name="' . $this->getPluginId() . '[' . $this->getPluginId() . '_enabled]"]' => ['checked' => TRUE],
         ],
       ],
     ];
@@ -160,7 +160,7 @@ final class Taxonomy extends AiContentSuggestionsPluginBase {
    * {@inheritdoc}
    */
   public function saveSettingsForm(array &$form, FormStateInterface $form_state): void {
-    $value = $form_state->getValue($this->getPluginId());
+    $value = $form_state->getValue(['plugins', $this->getPluginId()]);
     $prompt_open = $value[$this->getPluginId() . '_prompt_open'];
     $this->promptConfig->set($this->getPluginId() . '_open', $prompt_open)->save();
     $prompt_from_voc = $value[$this->getPluginId() . '_prompt_from_voc'];
@@ -234,29 +234,23 @@ final class Taxonomy extends AiContentSuggestionsPluginBase {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   private function getRelevantVocabularies(EntityInterface $entity): array {
-    $fields = $this->entityFieldManager->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
-
-    $term_reference_fields = array_filter($fields, function ($field) {
-      return $field->getType() === 'entity_reference' && $field->getSetting('target_type') === 'taxonomy_term';
-    });
-
-    // Iterate through the term reference fields and get the vocabularies.
-    $relevant_vocabularies = [];
-
-    foreach ($term_reference_fields as $field) {
-      $target_bundles = $field->getSetting('handler_settings')['target_bundles'] ?? [];
-      $relevant_vocabularies = array_merge($relevant_vocabularies, $target_bundles);
-    }
-
-    // Get all the vocabularies.
+    // Get all vocabularies.
     $all_vocabularies = $this->entityTypeManager
       ->getStorage('taxonomy_vocabulary')
       ->loadMultiple();
 
     $vocabularies_options = [];
-
-    foreach ($relevant_vocabularies as $vocabulary_id) {
-      $vocabularies_options[$vocabulary_id] = $all_vocabularies[$vocabulary_id]->label();
+    foreach ($all_vocabularies as $vocabulary_id => $vocabulary) {
+      // Check if the vocabulary has any terms.
+      $query = $this->entityTypeManager
+        ->getStorage('taxonomy_term')
+        ->getQuery();
+      $query->condition('vid', $vocabulary_id);
+      $query->accessCheck();
+      $terms = $query->execute();
+      if (!empty($terms)) {
+        $vocabularies_options[$vocabulary_id] = $vocabulary->label();
+      }
     }
 
     return $vocabularies_options;

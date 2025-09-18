@@ -96,15 +96,27 @@ class AiTranslateCommands extends DrushCommands {
       return;
     }
     $textMetadata = $this->textExtractor->extractTextMetadata($entity);
-    foreach ($textMetadata as &$singleText) {
-      try {
-        $singleText['translated'] = $this->textTranslator->translateContent(
-          $singleText['value'], $langNames[$langTo], $langNames[$langFrom] ?? NULL);
+    foreach ($textMetadata as &$singleField) {
+      // Get translations for each extracted field property.
+      foreach ($singleField['_columns'] as $column) {
+        try {
+          $singleField['translated'][$column] = '';
+          if (!empty($singleField[$column])) {
+            $singleField['translated'][$column] = $this->textTranslator->translateContent(
+              $singleField[$column], $langNames[$langTo], $langNames[$langFrom] ?? NULL);
+          }
+        }
+        catch (TranslationException) {
+          // Error already logged by text_translate service.
+          $this->messenger()->addError('Error translating content.');
+          return;
+        }
       }
-      catch (TranslationException) {
-        // Error already logged by text_translate service.
-        $this->messenger()->addError('Error translating content.');
-        return;
+
+      // Decodes HTML entities in translation.
+      // Because of sanitation in StringFormatter/Markup, this should be safe.
+      foreach ($singleField['translated'] as &$translated_text_item) {
+        $translated_text_item = html_entity_decode($translated_text_item);
       }
     }
     $translation = $entity->addTranslation($langTo);

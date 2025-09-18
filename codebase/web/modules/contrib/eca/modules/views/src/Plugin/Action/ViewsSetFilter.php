@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\eca\Plugin\Action\ConfigurableActionBase;
 use Drupal\eca\Plugin\DataType\DataTransferObject;
+use Drupal\eca\Plugin\FormFieldYamlTrait;
 use Drupal\eca\Service\YamlParser;
 use Drupal\eca_views\Event\ViewsBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,6 +23,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  * )
  */
 class ViewsSetFilter extends ConfigurableActionBase {
+
+  use FormFieldYamlTrait;
 
   /**
    * The YAML parser.
@@ -65,7 +68,18 @@ class ViewsSetFilter extends ConfigurableActionBase {
       if ($value instanceof DataTransferObject) {
         $value = $value->getValue();
       }
-      $event->getView()->filter[$id]->value['value'] = $value;
+      $filter = &$event->getView()->filter[$id]->value;
+      if (is_array($filter)) {
+        if (isset($filter['value'])) {
+          $filter['value'] = $value;
+        }
+        else {
+          $filter = [$value];
+        }
+      }
+      else {
+        $filter = $value;
+      }
     }
   }
 
@@ -74,6 +88,15 @@ class ViewsSetFilter extends ConfigurableActionBase {
    */
   public function access($object, ?AccountInterface $account = NULL, $return_as_object = FALSE) {
     $result = AccessResult::forbidden();
+    if ($this->configuration['use_yaml'] && $this->configuration['validate_yaml']) {
+      try {
+        $this->yamlParser->parse($this->configuration['value']);
+      }
+      catch (ParseException) {
+        $result->setReason('YAML data is not valid.');
+        return $result;
+      }
+    }
     $event = $this->getEvent();
     if ($event instanceof ViewsBase) {
       $id = $this->tokenService->getOrReplace($this->configuration['filter_id']);
@@ -92,6 +115,7 @@ class ViewsSetFilter extends ConfigurableActionBase {
       'filter_id' => '',
       'value' => '',
       'use_yaml' => FALSE,
+      'validate_yaml' => FALSE,
     ] + parent::defaultConfiguration();
   }
 
@@ -115,12 +139,12 @@ class ViewsSetFilter extends ConfigurableActionBase {
       '#description' => $this->t('The value of the filter. This can either be a string or a YAML array when multiple keys have to be set for that filter.'),
       '#eca_token_replacement' => TRUE,
     ];
-    $form['use_yaml'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Interpret above config value as YAML format'),
-      '#default_value' => $this->configuration['use_yaml'],
-      '#weight' => -10,
-    ];
+    $this->buildYamlFormFields(
+      $form,
+      $this->t('Interpret above config value as YAML format'),
+      $this->t('Interpret above value as YAML format'),
+      -10,
+    );
     return parent::buildConfigurationForm($form, $form_state);
   }
 
@@ -131,6 +155,7 @@ class ViewsSetFilter extends ConfigurableActionBase {
     $this->configuration['filter_id'] = $form_state->getValue('filter_id');
     $this->configuration['value'] = $form_state->getValue('value');
     $this->configuration['use_yaml'] = !empty($form_state->getValue('use_yaml'));
+    $this->configuration['validate_yaml'] = !empty($form_state->getValue('validate_yaml'));
     parent::submitConfigurationForm($form, $form_state);
   }
 

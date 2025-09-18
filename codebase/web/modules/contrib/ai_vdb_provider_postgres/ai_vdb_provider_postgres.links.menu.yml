@@ -1,0 +1,5 @@
+ai_vdb_provider_postgres.settings_menu:
+  title: "Postgres Configuration"
+  description: "Configure Postgres Vector Database"
+  route_name: ai_vdb_provider_postgres.settings_form
+  parent: ai.admin_vdb_providers

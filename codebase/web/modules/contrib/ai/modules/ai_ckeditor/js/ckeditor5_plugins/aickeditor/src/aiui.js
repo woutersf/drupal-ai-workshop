@@ -18,7 +18,11 @@ export default class Aiui extends Plugin {
     const options = config.get('ai_ckeditor_ai');
 
     if (!options) {
-      return;
+      return ViewModel;
+    }
+    // Empty ViewModel if no access.
+    if (options.hasAccess === false) {
+      return ViewModel;
     }
 
     editor.commands.add('AiDrupalDialog', new AiDrupalDialog(editor));
@@ -34,14 +38,14 @@ export default class Aiui extends Plugin {
           if (config.plugins[plugin_id].enabled) {
             items.add({
               type: 'button',
-              model: new ViewModel({
+              model: {
                 isEnabled: config.plugins[plugin_id].enabled,
                 label: config.plugins[plugin_id].meta.label,
                 withText: true,
                 command: 'AiDrupalDialog',
                 group: 'ai_ckeditor_ai',
                 plugin_id: plugin_id
-              })
+              }
             });
           }
         });

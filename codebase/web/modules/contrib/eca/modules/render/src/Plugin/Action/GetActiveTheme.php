@@ -3,6 +3,7 @@
 namespace Drupal\eca_render\Plugin\Action;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\eca\Plugin\FormFieldMachineName;
 
 /**
  * Get the active theme.
@@ -30,10 +31,9 @@ class GetActiveTheme extends ActiveThemeActionBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form['token_name'] = [
-      '#type' => 'machine_name',
-      '#machine_name' => [
-        'exists' => [$this, 'alwaysFalse'],
-      ],
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#element_validate' => [[FormFieldMachineName::class, 'validateElementsMachineName']],
       '#title' => $this->t('Token name'),
       '#description' => $this->t('Specify the name of the token, that holds the name of the currently active theme.'),
       '#default_value' => $this->configuration['token_name'],

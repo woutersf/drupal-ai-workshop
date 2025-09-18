@@ -3,12 +3,13 @@
 namespace Drupal\ai\OperationType\SpeechToText;
 
 use Drupal\ai\OperationType\GenericType\AudioFile;
+use Drupal\ai\OperationType\InputBase;
 use Drupal\ai\OperationType\InputInterface;
 
 /**
  * Input object for speech to text input.
  */
-class SpeechToTextInput implements InputInterface {
+class SpeechToTextInput extends InputBase implements InputInterface {
   /**
    * The audio file to convert to text.
    *

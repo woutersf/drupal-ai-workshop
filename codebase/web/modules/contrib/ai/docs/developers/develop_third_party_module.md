@@ -59,7 +59,7 @@ use Drupal\ai\OperationType\Chat\ChatInput;
 use Drupal\ai\OperationType\Chat\ChatMessage;
 
 $ai_provider = \Drupal::service('ai_provider');
-$provider_model = $ai_provider->\Drupal::service('ai_provider');
+$provider_model = $config->get('provider_model');
 // If not set, try to load default.
 if (!$provider_model) {
   $default = $ai_provider->getDefaultProviderForOperationType('chat');

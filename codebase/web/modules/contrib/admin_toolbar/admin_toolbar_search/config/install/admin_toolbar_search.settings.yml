@@ -1,1 +1,2 @@
-display_menu_item: 0
+display_menu_item: false
+enable_keyboard_shortcut: true

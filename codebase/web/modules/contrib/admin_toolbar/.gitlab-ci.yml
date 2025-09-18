@@ -43,6 +43,11 @@ variables:
   OPT_IN_TEST_NEXT_MINOR: 1
   OPT_IN_TEST_NEXT_MAJOR: 1
   OPT_IN_TEST_MAX_PHP: 1
+  # Speed up the execution of the Tests.
+  _PHPUNIT_CONCURRENT: 1
+  # # Convenient for debugging: Enable in issue forks for testing.
+  # _SHOW_ENVIRONMENT_VARIABLES: 1
+
 
 #
 # PHPCS overrides and configuration.

@@ -1,0 +1,11 @@
+name: Real-Time SEO Test Theme
+type: theme
+description: A theme to test the support for rendering in a configurable theme
+core_version_requirement: '>=9.0'
+base theme: olivero
+hidden: true
+
+# Information added by Drupal.org packaging script on 2025-07-16
+version: '8.x-2.2'
+project: 'yoast_seo'
+datestamp: 1752664190

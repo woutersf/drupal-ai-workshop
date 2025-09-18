@@ -25,16 +25,9 @@ ckeditor5.plugin.ai_ckeditor_ai:
       sequence:
         type: ckeditor5.plugin.ai_ckeditor_ai.[%key]
 ai_ckeditor.settings:
-  type: mapping
+  type: config_object
   label: 'AI Ckeditor Settings'
   mapping:
-    _core:
-      type: mapping
-      label: 'Core settings'
-      mapping:
-        default_config_hash:
-          type: string
-          label: 'The default configuration hash to use for the editor.'
     prompts:
       type: mapping
       label: 'Prompts settings'
@@ -42,6 +35,9 @@ ai_ckeditor.settings:
         complete:
           type: string
           label: 'Completion prompt'
+        modify_prompt:
+          type: text
+          label: 'Modify with a prompt template'
         reformat:
           type: text
           label: 'Reformat prompt'
@@ -57,3 +53,55 @@ ai_ckeditor.settings:
         translate:
           type: text
           label: 'Translate prompt'
+
+# Individual AiCKEditor plugins config schema.
+ckeditor5.plugin.ai_ckeditor_ai_base:
+  type: mapping
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enabled'
+    provider:
+      type: string
+      label: 'AI Provider-model'
+
+ckeditor5.plugin.ai_ckeditor_ai.ai_ckeditor_completion:
+  type: ckeditor5.plugin.ai_ckeditor_ai_base
+
+ckeditor5.plugin.ai_ckeditor_ai.ai_ckeditor_modify_prompt:
+  type: ckeditor5.plugin.ai_ckeditor_ai_base
+
+ckeditor5.plugin.ai_ckeditor_ai.ai_ckeditor_reformat_html:
+  type: ckeditor5.plugin.ai_ckeditor_ai_base
+
+ckeditor5.plugin.ai_ckeditor_ai.ai_ckeditor_spellfix:
+  type: ckeditor5.plugin.ai_ckeditor_ai_base
+
+ckeditor5.plugin.ai_ckeditor_ai.ai_ckeditor_summarize:
+  type: ckeditor5.plugin.ai_ckeditor_ai_base
+
+ckeditor5.plugin.ai_ckeditor_ai_taxonomy_base.ai_ckeditor_tone:
+  type: ckeditor5.plugin.ai_ckeditor_ai_base
+  mapping:
+    autocreate:
+      type: boolean
+      label: 'Autocreate'
+    tone_vocabulary:
+      type: string
+      label: 'Tone vocabulary'
+    use_description:
+      type: boolean
+      label: 'Use description'
+
+ckeditor5.plugin.ai_ckeditor_ai_taxonomy_base.ai_ckeditor_translate:
+  type: ckeditor5.plugin.ai_ckeditor_ai_base
+  mapping:
+    autocreate:
+      type: boolean
+      label: 'Autocreate'
+    translate_vocabulary:
+      type: string
+      label: 'Translate vocabulary'
+    use_description:
+      type: boolean
+      label: 'Use description'

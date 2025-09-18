@@ -1,5 +1,17 @@
 entity.automator_chain_type.collection:
   title: 'Automator Chain Settings'
   description: 'Manage and CRUD actions on Automator Chain type.'
-  parent: ai.admin_settings
+  parent: ai_automators.list
   route_name: entity.automator_chain_type.collection
+
+ai_automators.list:
+  title: 'AI Automators'
+  description: 'Configure the AI Automators.'
+  parent: ai.admin_settings
+  route_name: ai_automators.list
+
+entity.automators_tool.overview:
+  title: Automators Tools
+  parent: ai_automators.list
+  description: 'Create a tool from an automators workflow.'
+  route_name: entity.automators_tool.collection

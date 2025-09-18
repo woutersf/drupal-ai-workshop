@@ -50,7 +50,7 @@ class TextFieldExtractor implements FieldTextExtractorInterface {
   ) : void {
     $newValue = [];
     foreach ($value as $delta => $singleValue) {
-      unset($singleValue['field_name'], $singleValue['field_type']);
+      unset($singleValue['field_name'], $singleValue['field_type'], $singleValue['_columns']);
       $newValue[$delta] = $singleValue;
       // Trim result if the field definition has a length limit.
       $field_definition = $entity->getFieldDefinition($fieldName);
