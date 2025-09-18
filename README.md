@@ -314,6 +314,14 @@ We will add a chatbot block to the frontpage and test it there.
 ![adding deepchat to the blocks](assets/deepchat.png)
 ![Deepchat assistant selection](assets/deepchat2.png)
 
+3.  **Test the Chatbot:**
+test the chatbot on the frontage by asking it a question from the course agent. You'll see it dispatching the question to the right agent. Then ask it a question about another agent (eg. content types) and you'll see it consulting the content-type agent for the response. 
+
+4.  **Add the RAG to the chatbot**
+
+Add the RAG agent to the chatbot so it is able to search in the content we created. 
+
+
 ### 📧 Questions?
 
 If you have any questions during the workshop, please feel free to reach out to the instructors.
