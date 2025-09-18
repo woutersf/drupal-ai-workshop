@@ -110,11 +110,14 @@ Congratulations, You improved accessibility. Visually impaired visitors will now
 
 #### AI Assistant in CKEditor
 
-1.  Go to a content type and ensure the AI Assistant is enabled in the CKEditor toolbar.
-2. Configure the CKeditor Basic HTML toolbar at `/admin/config/content/formats`. 
-3. Add the AI assistant into the active toolbar
-4.  **Crucially:** Enable the assistant functionalities in the AI sub configuration, make sure to check the prompts.
-5.  Create new content at `/node/add/article` and **test it out**.
+![ai in ckeditor](assets/ckeditor.png)
+
+1. Configure the CKeditor Basic HTML toolbar at `/admin/config/content/formats`. 
+2. Add the AI assistant into the active toolbar
+3.  **Crucially:** Enable the assistant functionalities in the AI sub configuration, make sure to check the prompts.
+![ai in ckeditor](assets/ckeditor_config.png)
+
+4.  Create new content at `/node/add/article` and **test it out**.
 
 Congratulations, you can now configure a tone of voice in the assistant config (for example always speak in spanish pirate speak). And then when editors use the generation, it will take that into account.
 
@@ -122,14 +125,19 @@ Congratulations, you can now configure a tone of voice in the assistant config (
 
 1.  Configure automatic translations at **`/admin/config/ai/ai-translate`**.
 2.  Choose an AI model per language and configure the corresponding prompt.
-4.  **Test it out** on the node I have provided `/node/1/translations`.
+3.  **Test it out** on the node I have provided `/node/1/translations`.
+
+![ai in ckeditor](assets/ai_translate.png)
 
 #### Smart Content Suggestions
 
 1.  Configure Smart Content suggestions at **`/admin/config/ai/suggestions`**.
+![ai in ckeditor](assets/content_suggestions.png)
 2.  Enable multiple of the available suggestions.
 3.  Change the prompt for any suggestion if needed.
 4.  **Test it out** on the node I have provided `/node/1/edit`.
+
+![ai in ckeditor](assets/content_sugg.png)
 
 ### AI Automators
 
@@ -161,10 +169,13 @@ CONTEXT
 ````
 5.  **See it working** by updating the existing node or saving a new Article node.
 
-![automated social media text](assets/automator.png)
+![automated social media text](assets/automator_config.png)
+
+
 
 #### Exercise 2: Yoast stuff (@DB / 1X)
 TODO TODOTODO TODOTODO TODOTODO TODOTODO TODO
+
 
 ### AI Powered Search (RAG)
 
@@ -174,22 +185,24 @@ This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline
 
 #### RAG Setup
 
-1.  Create a **Vector DB Key**.
+1.  Create a **Vector DB Key**  (manage keys here: `/admin/config/system/keys`).
 2.  Set the vector provider (VDB) setting, configuring the **Postgres VDB provider**.
 
-![postgres VDB configuration](assets/vdb.png)
+![postgres VDB configuration](assets/vdb_config.png)
+- use the username/port/Host/database provided by the course teacher.
+- Select the right vector DB Key from the keys list (This is not the LLM key, this is a separate key).
 
 #### Search Indexing
 
 1.  Create a **Search API search server**.
-![search_api config](assets/search_api_server1.png)
-![search_api config](assets/search_api_server2.png)
-![search_api config](assets/search_api_server3.png)
+
 - Use the `Litellm Embeddings` engine
 - Use the `2-5-Flash` Chat counting model
 - Use the `Postgres Vector Database`
 - Use Database name `DB_NAME`
 - Use Collection name `frederiks_collection` But replace Frederik with your unique identifier. Like your drupal org account or something.
+![search_api config](assets/search_api_server1.png)
+![search_api config](assets/search_api_server2.png)
 
 **Tip:** Name your collection uniquely, *unless you like chaos*.
 
@@ -201,7 +214,8 @@ This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline
 ![search_api config](assets/search_api_index.png)
 
 3. Take some time to create some nodes from wikipedia pages  (copy the wikiedia page content and just paste it in the ckeditor of the body field) or other web content, Asking your site questions is way more fun if you have more content. 
-4.  Index the content.
+
+5.  Index the content. It's normal this takes some time.
 
 #### Placing the blocks
 
