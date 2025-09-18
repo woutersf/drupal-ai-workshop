@@ -1,169 +1,253 @@
-# Docker-based Drupal stack
 
-[![Build Status](https://github.com/wodby/docker4drupal/workflows/Run%20tests/badge.svg)](https://github.com/wodby/docker4drupal/actions)
+# 🤖 Drupal & AI - GETTING STARTED Workshop
 
-## Introduction
+## AI for editors / AI search / Automated content input
 
-Docker4Drupal is a set of docker images optimized for Drupal. Use
-`compose.yml` file from the [latest stable release](https://github.com/wodby/docker4drupal/releases) to spin up local environment on Linux, Mac OS X and Windows.
+Welcome to the **Drupal & AI - GETTING STARTED Workshop**! This workshop is designed to provide you with hands-on experience integrating and leveraging Artificial Intelligence within the Drupal content management system.
 
-* Read the docs on [**how to use**](https://wodby.com/docs/stacks/drupal/local#usage)
-* Ask questions on [Discord](http://discord.wodby.com/)
-* Ask questions on [Slack](http://slack.wodby.com/)
-* Follow [@wodbycloud](https://twitter.com/wodbycloud) for future announcements
+### 🎯 Workshop Goal
 
-## Stack
+The goal of this workshop is to get you started with practical AI implementation in Drupal, covering key areas such as enhancing the editorial experience, implementing AI-powered search (RAG), and setting up automated  AI flows.
 
-The Drupal stack consist of the following containers:
+---
 
-| Container             | Versions                | Image                                     | ARM64 support | Enabled by default |
-|-----------------------|-------------------------|-------------------------------------------|---------------|--------------------|
-| [Nginx]               | 1.27, 1.26              | [wodby/nginx]                             | ✓             | ✓                  |
-| [Apache]              | 2.4                     | [wodby/apache]                            | ✓             |                    |
-| Drupal CMS            | 1                       | [wodby/drupal-cms]                        | ✓             | ✓                  |
-| Vanilla Drupal        | 11, 10                  | [wodby/drupal]                            | ✓             |                    |
-| [PHP]                 | 8.4, 8.3, 8.2, 8.1      | [wodby/drupal-php]                        | ✓             |                    |
-| Crond                 |                         | [wodby/drupal-php]                        | ✓             | ✓                  |
-| [MariaDB]             | 11.4, 10.11, 10.6, 10.5 | [wodby/mariadb]                           | ✓             | ✓                  |
-| [PostgreSQL]          | 17, 16, 15, 14, 13      | [wodby/postgres]                          | ✓             |                    |
-| [Valkey]              | 8, 7                    | [wodby/valkey]                            | ✓             |                    |
-| [Memcached]           | 1                       | [wodby/memcached]                         | ✓             |                    |
-| [Varnish]             | 6.0                     | [wodby/varnish]                           | ✓             |                    |
-| [Node.js]             | 22, 20, 18              | [wodby/node]                              | ✓             |                    |
-| [Solr]                | 9                       | [wodby/solr]                              | ✓             |                    |
-| Zookeeper             | 3.8                     | [zookeeper]                               | ✓             |                    |
-| OpenSearch            | 2                       | [opensearchproject/opensearch]            | ✓             |                    |
-| OpenSearch Dashboards | 2                       | [opensearchproject/opensearch-dashboards] | ✓             |                    |
-| [OpenSMTPD]           | 7                       | [wodby/opensmtpd]                         | ✓             |                    |
-| Mailpit               | latest                  | [axllent/mailpit]                         | ✓             | ✓                  |
-| Gotenberg             | latest                  | [gotenberg/gotenberg]                     | ✓             |                    |
-| [Rsyslog]             | latest                  | [wodby/rsyslog]                           | ✓             |                    |
-| [Webgrind]            | 1                       | [wodby/webgrind]                          | ✓             |                    |
-| [Xhprof viewer]       | latest                  | [wodby/xhprof]                            | ✓             |                    |
-| Adminer               | 4.6                     | [wodby/adminer]                           | ✓             |                    |
-| phpMyAdmin            | latest                  | [phpmyadmin/phpmyadmin]                   |               |                    |
-| Selenium chrome       | 3.141                   | [selenium/standalone-chrome]              |               |                    |
-| Traefik               | latest                  | [_/traefik]                               | ✓             | ✓                  |
+### Prerequisites
 
-## Documentation
+To participate in this workshop, you will need:
 
-Full documentation is available at https://wodby.com/docs/stacks/drupal/local.
+* A **GitHub user account** (required to access the Codespace environment).
+* A stable internet connection.
 
-## Image's tags
+---
 
-Images' tags format is `[VERSION]-[STABILITY_TAG]` where:
+### Start Your Engines (Starting the Workspace)
 
-`[VERSION]` is the _version of an application_ (without patch version) running in a container, e.g.
-`wodby/nginx:1.15-x.x.x` where Nginx version is `1.15` and
-`x.x.x` is a stability tag. For some images we include both major and minor version like PHP
-`7.2`, for others we include only major like Valkey `7`.
 
-`[STABILITY_TAG]` is the _version of an image_ that corresponds to a git tag of the image repository, e.g.
-`wodby/mariadb:10.2-3.3.8` has MariaDB `10.2` and stability tag [
-`3.3.8`](https://github.com/wodby/mariadb/releases/tag/3.3.8). New stability tags include patch updates for applications and image's fixes/improvements (new env vars, orchestration actions fixes, etc). Stability tag changes described in the corresponding a git tag description. Stability tags follow [semantic versioning](https://semver.org/).
 
-We highly encourage to use images only with stability tags.
+1.  Navigate to **https://github.com/codespaces/new**. 
+2. Start a new codespace
+![Screenshot of the configuration to start the codespace](assets/codespace.png)
+3.  Choose the repository **woutersf/drupal-ai-workshop**. 
+4. Give it some time as it will pull the images and start the containers.
 
-## Maintenance
+![Screenshot of the configuration to start the codespace](assets/codespace2.png)
 
-We regularly update images used in this stack and release them together, see [releases page](https://github.com/wodby/docker4drupal/releases) for full changelog and update instructions. Most of routine updates for images and this project performed by [the bot](https://github.com/wodbot) via scripts located at [wodby/images](https://github.com/wodby/images).
+4. Open the Drupal environment by right clicking the url behind port 80 and Clicking Open in Browser
 
-## Beyond local environment
+![Screenshot of the open in browser](assets/open_in_browser.png)
+ 
+ Congratulations, you now have a Drupal workspace running.
+ 
 
-Docker4Drupal is a project designed to help you spin up local environment with Docker Compose. If you want to deploy a consistent stack with orchestrations to your own server, check out [Drupal stack](https://wodby.com/stacks/drupal) on Wodby ![](https://www.google.com/s2/favicons?domain=wodby.com).
+> Don't forget to stop the workspace. Frederik's Visa card will thank you!
 
-## Other Docker4x projects
+![Screenshot of the open in browser](assets/codespace_stop.png)
 
-* [docker4php](https://github.com/wodby/docker4php)
-* [docker4laravel](https://github.com/wodby/docker4laravel)
-* [docker4wordpress](https://github.com/wodby/docker4wordpress)
-* [docker4ruby](https://github.com/wodby/docker4ruby)
-* [docker4python](https://github.com/wodby/docker4python)
+### Logging in to Drupal
 
-## License
+Navigate in your browser to `/user` in the Drupal site.
+Log in to the Drupal instance using the provided credentials:
 
-This project is licensed under the MIT open source license.
+| Role | Username (U) | Password (P) |
+| :--- | :----------- | :----------- |
+| Admin | `admin`  | `davos`  |
 
-[Apache]: https://wodby.com/docs/stacks/drupal/containers#apache
+### Enabling the modules
+Enable the following modules.
+- Ai
+- Ai Automator
+- Ai_ckeditor
+- Ai_content_suggestions
+- Ai_translate
+- Ai_image_alt_text
+- Ai_agents
+- Ai_assistant
+- Litellm provider
+- Postgres vdb provider
 
-[Drupal CMS]: https://wodby.com/docs/stacks/drupal/containers#php
+### Configuring AI Providers (The Key)
 
-[Vanilla Drupal]: https://wodby.com/docs/stacks/drupal/containers#php
+You will need to configure the AI gateway to allow the modules to communicate with large language models (LLMs).
 
-[MariaDB]: https://wodby.com/docs/stacks/drupal/containers#mariadb
+1. Add the **Lite LLM provider key** (manage keys here: `/admin/config/system/keys`). 
+2. Navigate to the configuration section for **providers** `/admin/config/ai/providers`.
+3. Configure the LLM provider with the following details:
+    * **AI Gateway:** `https://dev-playground.gateway.dropsolid.ai` 
+    * The specific **AI API KEY** (`sk-***`) will be provided by the instructor.
 
-[Memcached]: https://wodby.com/docs/stacks/drupal/containers#memcached
+### Configuring AI Defaults
 
-[Nginx]: https://wodby.com/docs/stacks/drupal/containers#nginx
+Navigate to **`/admin/config/ai/settings`** to configure the core AI settings.
 
-[Node.js]: https://wodby.com/docs/stacks/drupal/containers#nodejs
+1.  Configure the **default AI chat model**.
+![test the chat LLM](assets/test_chat.png)
+2.  Configure the **default Translation model**.
+![test the chat LLM](assets/translate.png)
+3.  **Test it out:** 
+	1. Navigate to the chat generation explorer `/admin/config/ai/explorers/chat_generator`
+	2. Submit the question: `"Who made you?"` 
 
-[OpenSMTPD]: https://wodby.com/docs/stacks/drupal/containers#opensmtpd
+![test the chat LLM](assets/test_chat.png)
 
-[PHP]: https://wodby.com/docs/stacks/drupal/containers#php
+### AI for Editors
 
-[PostgreSQL]: https://wodby.com/docs/stacks/drupal/containers#postgresql
+This section focuses on using AI to make the content creation and translation process more efficient.
 
-[Redis]: https://wodby.com/docs/stacks/drupal/containers#redis
+#### 2. Automatic Image Alt Text
 
-[Valkey]: https://wodby.com/docs/stacks/valkey/containers#valkey
+1.  Download a picture (e.g. from pexels.com).
+2.  Configure the module at **`/admin/config/ai/ai_image_alt_text`**.
+![image generation](assets/img_alt_config.png)
+- make sure to configure a Model that has vision capabilities (like Gemini-2-5-flash)
+- make sure to read the prompt so you understand what will happen.
+- Configure the image style that the AI model wil look at.
 
-[Rsyslog]: https://wodby.com/docs/stacks/drupal/containers#rsyslog
+3.  Create new content at `/node/add/article` and upload the image to **test the automatic alt text generation**.
 
-[Solr]: https://wodby.com/docs/stacks/drupal/containers#solr
+![image generation](assets/image_gen.png)
 
-[Varnish]: https://wodby.com/docs/stacks/drupal/containers#varnish
+Congratulations, You improved accessibility. Visually impaired visitors will now understand what't in the images you upload.
 
-[Webgrind]: https://wodby.com/docs/stacks/drupal/containers#webgrind
+#### AI Assistant in CKEditor
 
-[XHProf viewer]: https://wodby.com/docs/stacks/php/containers#xhprof-viewer
+1.  Go to a content type and ensure the AI Assistant is enabled in the CKEditor toolbar.
+2. Configure the CKeditor Basic HTML toolbar at `/admin/config/content/formats`. 
+3. Add the AI assistant into the active toolbar
+4.  **Crucially:** Enable the assistant functionalities in the AI sub configuration, make sure to check the prompts.
+5.  Create new content at `/node/add/article` and **test it out**.
 
-[_/traefik]: https://hub.docker.com/_/traefik
+Congratulations, you can now configure a tone of voice in the assistant config (for example always speak in spanish pirate speak). And then when editors use the generation, it will take that into account.
 
-[gotenberg/gotenberg]: https://hub.docker.com/r/gotenberg/gotenberg
+#### Automatic Translations
 
-[axllent/mailpit]: https://hub.docker.com/r/axllent/mailpit
+1.  Configure automatic translations at **`/admin/config/ai/ai-translate`**.
+2.  Choose an AI model per language and configure the corresponding prompt.
+4.  **Test it out** on the node I have provided `/node/1/translations`.
 
-[phpmyadmin/phpmyadmin]: https://hub.docker.com/r/phpmyadmin/phpmyadmin
+#### Smart Content Suggestions
 
-[selenium/standalone-chrome]: https://hub.docker.com/r/selenium/standalone-chrome
+1.  Configure Smart Content suggestions at **`/admin/config/ai/suggestions`**.
+2.  Enable multiple of the available suggestions.
+3.  Change the prompt for any suggestion if needed.
+4.  **Test it out** on the node I have provided `/node/1/edit`.
 
-[wodby/adminer]: https://hub.docker.com/r/wodby/adminer
+### AI Automators
 
-[wodby/apache]: https://github.com/wodby/apache
+This section focuses on using AI to automate content creation and data import.
 
-[wodby/drupal-php]: https://github.com/wodby/drupal-php
+#### Exercise 1: Automatic Derived Social Media Content
 
-[wodby/drupal]: https://github.com/wodby/drupal
+**Goal:** Automatically propose social media content based on the article's body, helping marketers skip straight to the end-redaction phase.
 
-[wodby/drupal-cms]: https://github.com/wodby/drupal-cms
+1.  Ensure the `AI automator` module is enabled.
+2.  Add a **text field** to the **Article content type** (e.g., `field_social_media_draft`).
+3. Enable the AI automator Checkbox in the field configuration.
+4.  Configure the automator to generate content into this field based on the article body.
+	1. Automator Type: **LLM: Text**
+	2. Automator Input mode: **Base Mode**
+	3. Automator Base field: **Body**
+	4. Automator Prompt:
+````
+INSTRUCTION
+----------
+From the context below generate a very short summary that is suitable for social media. 
+Use a limited amount of emoji;s and put a newline after every sentence. 
+Keep it brief and business.
+It's for linkedin.
 
-[wodby/mariadb]: https://github.com/wodby/mariadb
+CONTEXT
+-------
+{{ context }}
+````
+5.  **See it working** by updating the existing node or saving a new Article node.
 
-[wodby/memcached]: https://github.com/wodby/memcached
+![automated social media text](assets/automator.png)
 
-[wodby/nginx]: https://github.com/wodby/nginx
+#### Exercise 2: Yoast stuff (@DB / 1X)
+TODO TODOTODO TODOTODO TODOTODO TODOTODO TODO
 
-[wodby/node]: https://github.com/wodby/node
+### AI Powered Search (RAG)
 
-[wodby/opensmtpd]: https://github.com/wodby/opensmtpd
+This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline for intelligent search. The end result is a GPT style search.
 
-[wodby/postgres]: https://github.com/wodby/postgres
+![ai powered search](https://www.drupal.org/files/project-images/ezgif.com-coalesce.gif)
 
-[wodby/valkey]: https://github.com/wodby/valkey
+#### RAG Setup
 
-[wodby/rsyslog]: https://hub.docker.com/r/wodby/rsyslog
+1.  Create a **Vector DB Key**.
+2.  Set the vector provider (VDB) setting, configuring the **Postgres VDB provider**.
 
-[wodby/solr]: https://github.com/wodby/solr
+![postgres VDB configuration](assets/vdb.png)
 
-[wodby/varnish]: https://github.com/wodby/varnish
+#### Search Indexing
 
-[wodby/webgrind]: https://hub.docker.com/r/wodby/webgrind
+1.  Create a **Search API search server**.
+![search_api config](assets/search_api_server1.png)
+![search_api config](assets/search_api_server2.png)
+![search_api config](assets/search_api_server3.png)
+- Use the `Litellm Embeddings` engine
+- Use the `2-5-Flash` Chat counting model
+- Use the `Postgres Vector Database`
+- Use Database name `DB_NAME`
+- Use Collection name `frederiks_collection` But replace Frederik with your unique identifier. Like your drupal org account or something.
 
-[wodby/xhprof]: https://hub.docker.com/r/wodby/xhprof
+**Tip:** Name your collection uniquely, *unless you like chaos*.
 
-[zookeeper]: https://hub.docker.com/_/zookeeper
+2.  Create a **search index**.
 
-[opensearchproject/opensearch]: https://hub.docker.com/r/opensearchproject/opensearch
+    * Add the relevant content types to the index (double check this as the copy in the search_api screen is misleading).
+    * Add the rendered_item (**Full**) to the index. And make sure you select `Main content`.
 
-[opensearchproject/opensearch-dashboards]: https://hub.docker.com/r/opensearchproject/opensearch-dashboards
+![search_api config](assets/search_api_index.png)
+
+3. Take some time to create some nodes from wikipedia pages  (copy the wikiedia page content and just paste it in the ckeditor of the body field) or other web content, Asking your site questions is way more fun if you have more content. 
+4.  Index the content.
+
+#### Placing the blocks
+
+Place the required **search blocks** (2 blocks are needed).
+![search_api config](assets/search_blocks.png)
+
+The AI search block needs some configuration.
+Most of the default configuration is good, but make sure to
+
+- Select the right search_api_index 
+- Select a good LLM model
+- Review the RAG prompt
+- Disable the access check.
+
+#### Testing the AI search
+**Test it out** by performing a search query.
+Navigate to your frontpage and ask it questions about your recently created content. 
+
+Congratulations, you have now added AI search to your website.
+
+---
+
+## 🧑‍💻 Advanced: Agents and Assistants
+
+This section covers the creation and testing of AI agents and assistants.
+
+1.  **Create an Agent:** Navigate to **`/admin/config/ai/agents`** and define a new agent.
+2.  **Test your agent**.
+3.  **Create an AI Assistant**.
+4.  **Test your assistant**.
+5.  **Integrate the Chatbot:**
+    * Step 2: Add a **Deepchat Block**.
+    * Step 3: **Configure the block** to connect to your assistant/agent.
+
+---
+
+### 📚 Homework & Further Reading
+
+Explore these advanced AI workflow concepts:
+
+* [Automate Fact-Checking](https://workflows-of-ai.com/workflow/automize-fact-checking) 
+* [Automatic Podcast Generation](https://workflows-of-ai.com/workflow/automatic-podcast) 
+* [Migrate Without Code](https://workflows-of-ai.com/workflow/migrate-without-code) 
+
+### 📧 Questions?
+
+If you have any questions during the workshop, please feel free to reach out to the instructor:
+
+**Frederik Wouters** at `frederik.wouters@dropsolid.com` 
