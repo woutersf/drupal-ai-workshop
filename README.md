@@ -39,7 +39,7 @@ To participate in this workshop, you will need:
  Congratulations, you now have a Drupal workspace running.
  
 
-> Don't forget to stop the workspace. Frederik's Visa card will thank you!
+> When you're done, don't forget to stop the workspace. Frederik's Visa card will thank you!
 
 ![Screenshot of the open in browser](assets/codespace_stop.png)
 
@@ -54,16 +54,30 @@ Log in to the Drupal instance using the provided credentials:
 
 ### Enabling the modules
 Enable the following modules.
-- Ai
-- Ai Automator
-- Ai_ckeditor
-- Ai_content_suggestions
-- Ai_translate
-- Ai_image_alt_text
-- Ai_agents
-- Ai_assistant
-- Litellm provider
-- Postgres vdb provider
+AI
+- Ai API explore
+- Ai automators
+- Ai ckeditor integration
+- Ai content suggestions
+- Ai core
+- Ai translate
+Experimental
+- A Search
+- Ai search block
+- Ai search block log
+AI providers
+- LiteLLM AI provider
+AI tools
+- Ai agents
+- Ai agent explorer
+- AI assistant API
+- AI chatbot
+- Ai image alt text
+- ConvertAPI
+Ai Vector DB Providers
+- Postgres VDB provider
+
+
 
 ### Configuring AI Providers (The Key)
 
