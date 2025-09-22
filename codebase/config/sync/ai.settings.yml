@@ -2,4 +2,22 @@ _core:
   default_config_hash: RGedRkFydKZjS0ZJ6vbtZH00KbhYVGsK-ABILHdQLyw
 prompt_logging: false
 prompt_logging_tags: ''
-default_providers: {  }
+default_providers:
+  chat:
+    provider_id: litellm
+    model_id: vertex-gemini-2-5-flash
+  chat_with_complex_json:
+    provider_id: litellm
+    model_id: vertex-gemini-2-5-pro
+  chat_with_structured_response:
+    provider_id: litellm
+    model_id: vertex-gemini-2-5-pro
+  chat_with_tools:
+    provider_id: litellm
+    model_id: vertex-gemini-2-5-pro
+  embeddings:
+    provider_id: litellm
+    model_id: self_hosted/embeddings
+  translate_text:
+    provider_id: chat_translation
+    model_id: vertex-gemini-2-5-flash

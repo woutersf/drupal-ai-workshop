@@ -1,7 +1,7 @@
+host: dev-playground.gateway.dropsolid.ai
+port: 15432
+username: liipai_demo
+password: vdb_password
+default_database: liipai_demo_e5
 _core:
   default_config_hash: zEgXHS20RKg5hj3QNhMcDQxhQd1gVO3_mE6qxdKWSfA
-host: ''
-port: null
-username: ''
-password: ''
-default_database: ''
