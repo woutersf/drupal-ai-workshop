@@ -1,0 +1,19 @@
+uuid: 0688f9da-265f-4976-a47e-e85afb7e69a5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_auto_field
+    - node.type.article
+id: node.article.field_auto_field
+field_name: field_auto_field
+entity_type: node
+bundle: article
+label: auto_field
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

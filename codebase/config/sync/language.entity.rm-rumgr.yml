@@ -1,0 +1,9 @@
+uuid: f44f6b88-1fa4-412c-96f3-caf1af3ad450
+langcode: en
+status: true
+dependencies: {  }
+id: rm-rumgr
+label: 'Rumantsch Grischun'
+direction: ltr
+weight: 3
+locked: false

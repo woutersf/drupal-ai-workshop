@@ -1,0 +1,13 @@
+uuid: 65a2abec-b79c-4947-a214-34e99c36e28d
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_agents_explorer
+_core:
+  default_config_hash: 0KmzU4-mkW1bqIsEdxm5HJAgQdTOVcRlXuZ0ng9O5L4
+id: ai_agent_decision_delete_action
+label: 'Delete agent decisions'
+type: ai_agent_decision
+plugin: 'entity:delete_action:ai_agent_decision'
+configuration: {  }

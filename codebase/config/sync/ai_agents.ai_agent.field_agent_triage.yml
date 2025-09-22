@@ -1,0 +1,248 @@
+uuid: 6ea1fcc8-e00d-47aa-b494-61d56b4ce2e5
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: WRmV0x3FfI_w-za7m3YQawzIvxWmWIuldFy298FawrE
+id: field_agent_triage
+label: 'Field Agent'
+description: 'This is capable of adding, editing, informing, reordering or removing a field types to an existing Drupal entity type/bundles, lookup fields existing on entities and also change the form display and view display of the fields. Note that this does not generate entity type or bundles.'
+default_information_tools: "list_field_types:\r\n  label: 'List of all field types'\r\n  description: 'These are all field types you can set'\r\n  tool: 'ai_agent:list_field_types'\r\n  parameters:\r\n    simple_representation: true\r\nlist_storage_fields:\r\n  label: 'List of entity types and storages'\r\n  description: 'The list of entity type and field storages'\r\n  tool: 'ai_agent:get_entity_type_field_storage'\r\n  parameters: {  }\r\nlist_entity_types_and_bundles:\r\n  label: 'List of entity types and bundles'\r\n  description: 'The current list of entity types and bundles on this system'\r\n  tool: 'ai_agent:list_bundles'\r\n  parameters: {  }\r\n  available_on_loop:\r\n    - 1\r\nlist_field_view_types:\r\n  label: 'List of view display type'\r\n  description: 'The current list of view display types on this system'\r\n  tool: 'ai_agent:list_field_display_types'\r\n  parameters:\r\n    type_of_display: display\r\nlist_field_form_types:\r\n  label: 'List of form display type'\r\n  description: 'The current list of form display types on this system'\r\n  tool: 'ai_agent:list_field_display_types'\r\n  parameters:\r\n    type_of_display: form\r\n"
+system_prompt: "You are a Drupal developer who can generate and edit Drupal fields for entity types, but also answer questions about fields on entities. You are a looping agent, this means that you can run yourself multiple times and get context for the actions you need to take before you take them.\r\n\r\nYou will get a list of all entity type and bundles and also a list of all field storages that exists on the entity type and bundles.\r\n\r\nIf the user asks to create a field, they have to specify entity type, bundle and field type. Field name you can make up, if they do not specify anything.\r\n\r\nFirst think of this:\r\n1. You are not allowed to delete fields. Please just answer that you can not do that.\r\n2. You can not do changes to Field Groups, just answer that you can not do that.\r\n3. You are not allowed to change field types on already existing fields. Just tell the user that its not allowed and that they should generate a new field instead.\r\n4. You need to know the entity type or entity type and bundle to create or edit fields. Do ask for this.\r\n5. Do not use your own knowledge for known fields like Body or Content, they might have changed, so always use tools to get information.\r\n6. If the entity type or bundle they are asking for doesn't exist on your list, just tell them that this doesn't exist and do nothing more.\r\n\r\nIf someone asks to create a field, do the following:\r\n1. In the first run, use the tools ai_agents_get_entity_field_information with the entity type and bundle and use ai_agent_get_field_config_form and ai_agent_get_field_storage_form with the field type. The later to will give you information on how to fill out the settings of when creating storage and config.\r\n2. If the field does exists both in storage and config, just tell the end user so and do nothing.\r\n3. If the field storage exists, but not the field config, create a field config if its the same field type. If its another field type, tell the user so.\r\n4. If the field storage does not exist, first create it and then create the field config. You can do it in the same loop, but in that order.\r\n5. Note that the output of ai_agent_get_field_storage_form is to be used in settings in ai_agent_create_field_storage_config and ai_agent_get_field_config_form in settings for the ai_agent_manipulate_field_config function.\r\n6. You only have to fill in the field in settings that are actually being changed or created different then the default value.\r\n7. If the field label has plural in its name and if cardinality has not been mentioned, set cardinality to -1. Otherwise set to 1 if nothing has been mentioned. So the field name Mentions should have -1, the field name Mention should have 1.\r\n\r\nIf the user wants to update a field, do the following:\r\n1. Make sure that the field config exists on the entity type and bundle.\r\n2. Use Manipulate Field Config to do your changes.\r\n\r\nOn create or update, if the user is asking about changing the form or view display type in some way:\r\n1. Use the ai_agent_get_field_display_form with the type and the field they want to change, also make sure to use get_current_values if the specific field only matter, or get_full_display if you also need to know about the other components, for instance for reordering.\r\n2. Use the ai_agent_manipulate_field_display_form as many type as you need to save it.\r\n\r\nNote: DO only do that if they specifically ask for display changes.\r\n\r\nOther information - if the user asks to create an image field, and its not explicitly stated, you should instead create a media field (entity_reference) with the image as the target. Clearly state in your answer that you did create a media field instead.\r\n\r\nIf the user asks questions feel free to use all the tools at your disposal."
+secured_system_prompt: '[ai_agent:agent_instructions]'
+tools:
+  'ai_agent:get_config_schema': true
+  'ai_agent:get_field_config_form': true
+  'ai_agent:get_entity_field_information': true
+  'ai_agent:get_field_display_form': true
+  'ai_agent:list_bundles': true
+  'ai_agent:get_field_storage': true
+  'ai_agent:get_field_storage_form': true
+  'ai_agent:get_field_config': true
+  'ai_agent:create_field_storage_config': true
+  'ai_agent:manipulate_field_display_form': true
+  'ai_agent:manipulate_field_config': true
+tool_usage_limits:
+  'ai_agent:get_config_schema':
+    schema_id:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:get_field_config_form':
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    bundle:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_type:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:get_entity_field_information':
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    bundle:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:get_field_display_form':
+    type_of_display:
+      action: ''
+      hide_property: 0
+      values: ''
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    bundle:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+    wanted_widget:
+      action: ''
+      hide_property: 0
+      values: ''
+    get_current_values:
+      action: ''
+      hide_property: 0
+      values: ''
+    get_full_display:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:list_bundles':
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:get_field_storage':
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:get_field_storage_form':
+    field_type:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:get_field_config':
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    bundle:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:create_field_storage_config':
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    cardinality:
+      action: ''
+      hide_property: 0
+      values: ''
+    translatable:
+      action: ''
+      hide_property: 0
+      values: ''
+    settings:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:manipulate_field_display_form':
+    type_of_display:
+      action: ''
+      hide_property: 0
+      values: ''
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    bundle:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+    label:
+      action: ''
+      hide_property: 0
+      values: ''
+    type:
+      action: ''
+      hide_property: 0
+      values: ''
+    weight:
+      action: ''
+      hide_property: 0
+      values: ''
+    settings:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:manipulate_field_config':
+    type_of_operation:
+      action: ''
+      hide_property: 0
+      values: ''
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    bundle:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    label:
+      action: ''
+      hide_property: 0
+      values: ''
+    description:
+      action: ''
+      hide_property: 0
+      values: ''
+    required:
+      action: ''
+      hide_property: 0
+      values: ''
+    translatable:
+      action: ''
+      hide_property: 0
+      values: ''
+    settings:
+      action: ''
+      hide_property: 0
+      values: ''
+tool_settings:
+  'ai_agent:get_config_schema':
+    return_directly: 0
+  'ai_agent:get_field_config_form':
+    return_directly: 0
+  'ai_agent:get_entity_field_information':
+    return_directly: 0
+  'ai_agent:get_field_display_form':
+    return_directly: 0
+  'ai_agent:list_bundles':
+    return_directly: 0
+  'ai_agent:get_field_storage':
+    return_directly: 0
+  'ai_agent:get_field_storage_form':
+    return_directly: 0
+  'ai_agent:get_field_config':
+    return_directly: 0
+  'ai_agent:create_field_storage_config':
+    return_directly: 0
+  'ai_agent:manipulate_field_display_form':
+    return_directly: 0
+  'ai_agent:manipulate_field_config':
+    return_directly: 0
+orchestration_agent: false
+triage_agent: true
+max_loops: 15
+masquerade_roles: {  }
+exclude_users_role: false

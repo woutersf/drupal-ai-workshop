@@ -1,0 +1,126 @@
+uuid: c990b5bf-6637-41cd-8e40-23e5165de5f9
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: Wg4s3oRV-jHl750hGc1rObWOQSuUf9m830SqMEGKrNc
+id: taxonomy_agent_config
+label: 'Taxonomy Agent'
+description: 'The taxonomy agent can generate and edit vocabularies, as well as create and edit taxonomy terms. It can also answer questions, and give suggestions on what taxonomy terms to create from a general question. Please do ask it multiple instructions at once, it can handle it.'
+default_information_tools: "vocabularies:\r\n  label: Vocabularies\r\n  description: 'The existing Vocabularies on the system'\r\n  tool: 'ai_agent:list_config_entities'\r\n  parameters:\r\n    entity_type: taxonomy_vocabulary\r\n    amount: 0\r\n    fields:\r\n      - vid\r\n      - name\r\n      - description\r\n"
+system_prompt: "You are an Drupal developer agent, that is specialized on creating and editing vocabularies and taxonomies - you also have the possibility to answer questions by searching among the existing vocabularies and taxonomies. Only do answer questions around this, any other question you should not answer.\r\n\r\nYou are an looping agent, that can use tools over and over to be able to answer the users request.\r\n\r\nYou have a couple of tools to your disposal. First of all, you will always be given a list of all vocabularies that exists on the system. This will always be embedded in your system message, the other tools you have that you can use is:\r\n\r\nThe following is true when working with vocabularies.\r\n1. If you need to add or edit a vocabulary, you should use the tool modify vocabulary.\r\n\r\nThe following is true when working with taxonomy terms.\r\n1. If the user asks to create some taxonomy terms in a vocabulary, make sure you use the List Taxonomy Terms tool with the bundle set correctly to figure out so no doublets exists or if its a general question like \"add 10 famous footballer to vocabulary footballers\", you can list what already exists to create new ones. \r\n2. This means that almost any time you run, the first time you are being run the List Taxonomy Terms tool is the first one to use. Do not set any value in the fields parameter when using this.\r\n3. If a taxonomy term exists with the name or something very similar, just answer that something similar already exists and that you will not create it, unless the user is very specific that it should be created anyway.\r\n4. If the user is asking to edit or create an taxonomy term use the modify taxonomy term tool. You have to invoke it once per term in the same loop, unless you need child/parent structure, then create the parents first so you can read the id.\r\n6. If the user only asks for suggestions, do only get information, never use the content entity seeder.\r\n"
+secured_system_prompt: '[ai_agent:agent_instructions]'
+tools:
+  'ai_agent:get_field_values_and_context': true
+  'ai_agent:list_taxonomy_term': true
+  'ai_agent:get_current_content_entity_values': true
+  'ai_agent:modify_taxonomy_term': true
+  'ai_agent:modify_vocabulary': true
+tool_usage_limits:
+  'ai_agent:get_field_values_and_context':
+    entity_type:
+      action: only_allow
+      hide_property: 0
+      values:
+        - "taxonomy_term\r"
+        - ''
+    bundle:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_name:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:list_taxonomy_term':
+    vid:
+      action: ''
+      hide_property: 0
+      values: ''
+    tid:
+      action: ''
+      hide_property: 0
+      values: ''
+    parent:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:get_current_content_entity_values':
+    entity_type:
+      action: ''
+      hide_property: 0
+      values: ''
+    entity_id:
+      action: ''
+      hide_property: 0
+      values: ''
+    field_names:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:modify_taxonomy_term':
+    vid:
+      action: ''
+      hide_property: 0
+      values: ''
+    tid:
+      action: ''
+      hide_property: 0
+      values: ''
+    name:
+      action: ''
+      hide_property: 0
+      values: ''
+    description:
+      action: ''
+      hide_property: 0
+      values: ''
+    parent:
+      action: ''
+      hide_property: 0
+      values: ''
+    weight:
+      action: ''
+      hide_property: 0
+      values: ''
+    term_language:
+      action: ''
+      hide_property: 0
+      values: ''
+  'ai_agent:modify_vocabulary':
+    vid:
+      action: ''
+      hide_property: 0
+      values: ''
+    name:
+      action: ''
+      hide_property: 0
+      values: ''
+    description:
+      action: ''
+      hide_property: 0
+      values: ''
+    create_new_revisions:
+      action: ''
+      hide_property: 0
+      values: ''
+    vocabulary_language:
+      action: ''
+      hide_property: 0
+      values: ''
+tool_settings:
+  'ai_agent:get_field_values_and_context':
+    return_directly: 0
+  'ai_agent:list_taxonomy_term':
+    return_directly: 0
+  'ai_agent:get_current_content_entity_values':
+    return_directly: 0
+  'ai_agent:modify_taxonomy_term':
+    return_directly: 0
+  'ai_agent:modify_vocabulary':
+    return_directly: 0
+orchestration_agent: false
+triage_agent: true
+max_loops: 10
+masquerade_roles: {  }
+exclude_users_role: false

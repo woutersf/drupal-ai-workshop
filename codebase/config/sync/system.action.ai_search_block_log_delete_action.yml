@@ -1,0 +1,13 @@
+uuid: a34a88d4-398f-4496-b011-9c4b71c56a42
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_search_block_log
+_core:
+  default_config_hash: gzu92dyP46adzW2V3EQ8P3MqKjMc3bAHv7M1FLOEkXM
+id: ai_search_block_log_delete_action
+label: 'Delete ai search block logs'
+type: ai_search_block_log
+plugin: 'entity:delete_action:ai_search_block_log'
+configuration: {  }
