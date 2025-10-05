@@ -37,6 +37,5 @@
   "remoteUser": "www-data",
   "containerEnv": {
     "SHELL": "/bin/bash"
-  },
-  "postStartCommand": "sudo chsh -s /bin/bash www-data"
+  }
 }
