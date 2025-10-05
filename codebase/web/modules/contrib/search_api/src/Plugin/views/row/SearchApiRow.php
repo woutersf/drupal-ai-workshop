@@ -5,10 +5,12 @@ namespace Drupal\search_api\Plugin\views\row;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\search_api\LoggerTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\ComplexDataInterface;
+use Drupal\search_api\LoggerTrait;
 use Drupal\search_api\Plugin\views\query\SearchApiQuery;
 use Drupal\search_api\SearchApiException;
+use Drupal\views\Attribute\ViewsRow;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\row\RowPluginBase;
 use Drupal\views\ViewExecutable;
@@ -17,14 +19,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides a row plugin for displaying a result as a rendered item.
  *
- * @ViewsRow(
- *   id = "search_api",
- *   title = @Translation("Rendered entity"),
- *   help = @Translation("Displays entity of the matching search API item"),
- * )
- *
  * @see search_api_views_plugins_row_alter()
  */
+#[ViewsRow(
+  id: 'search_api',
+  title: new TranslatableMarkup('Rendered entity'),
+  help: new TranslatableMarkup('Displays entity of the matching search API item'),
+  display_types: ['normal'],
+)]
 class SearchApiRow extends RowPluginBase {
 
   use LoggerTrait;

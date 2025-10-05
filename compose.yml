@@ -58,15 +58,17 @@ services:
 ## For XHProf and Xdebug profiler traces
 #    - files:/mnt/files
 
-  crond:
-    init: true
-    image: wodby/drupal-php:$PHP_TAG
-    container_name: "${PROJECT_NAME}_crond"
-    environment:
-      CRONTAB: "0 * * * * drush -r /var/www/html/web cron"
-    command: sudo -E crond -f -d 0
-    volumes:
-      - ./codebase:/var/www/html
+  # crond:
+  #   init: true
+  #   image: wodby/drupal-php:$PHP_TAG
+  #   container_name: "${PROJECT_NAME}_crond"
+  #   environment:
+  #     CRONTAB: "0 * * * * drush -r /var/www/html/web cron"
+  #   command: sudo -E crond -f -d 0
+  #   volumes:
+  #     - ./codebase:/var/www/html
+
+
 ## Alternative for macOS users: Mutagen https://wodby.com/docs/stacks/drupal/local#docker-for-mac
 #    - drupal:/var/www/html
 
@@ -92,14 +94,20 @@ services:
     labels:
     - "traefik.http.routers.${PROJECT_NAME}_nginx.rule=Host(`${PROJECT_BASE_URL}`)"
 
-  mailpit:
-    ports:
-      - "8025:8025"
-    image: axllent/mailpit
-    container_name: "${PROJECT_NAME}_mailpit"
-    labels:
-    - "traefik.http.services.${PROJECT_NAME}_mailpit.loadbalancer.server.port=8025"
-    - "traefik.http.routers.${PROJECT_NAME}_mailpit.rule=Host(`mailpit.${PROJECT_BASE_URL}`)"
+
+
+
+  # mailpit:
+  #   ports:
+  #     - "8025:8025"
+  #   image: axllent/mailpit
+  #   container_name: "${PROJECT_NAME}_mailpit"
+  #   labels:
+  #   - "traefik.http.services.${PROJECT_NAME}_mailpit.loadbalancer.server.port=8025"
+  #   - "traefik.http.routers.${PROJECT_NAME}_mailpit.rule=Host(`mailpit.${PROJECT_BASE_URL}`)"
+
+
+
 
 #  postgres:
 #    image: wodby/postgres:$POSTGRES_TAG
@@ -163,18 +171,22 @@ services:
 #    labels:
 #    - "traefik.http.routers.${PROJECT_NAME}_adminer.rule=Host(`adminer.${PROJECT_BASE_URL}`)"
 
-  pma:
-    image: phpmyadmin/phpmyadmin
-    container_name: "${PROJECT_NAME}_pma"
-    environment:
-      PMA_HOST: $DB_HOST
-      PMA_USER: $DB_USER
-      PMA_PASSWORD: $DB_PASSWORD
-      UPLOAD_LIMIT: 1G
-    ports:
-      - '82:80'
-    labels:
-    - "traefik.http.routers.${PROJECT_NAME}_pma.rule=Host(`pma.${PROJECT_BASE_URL}`)"
+
+
+  # pma:
+  #   image: phpmyadmin/phpmyadmin
+  #   container_name: "${PROJECT_NAME}_pma"
+  #   environment:
+  #     PMA_HOST: $DB_HOST
+  #     PMA_USER: $DB_USER
+  #     PMA_PASSWORD: $DB_PASSWORD
+  #     UPLOAD_LIMIT: 1G
+  #   ports:
+  #     - '82:80'
+  #   labels:
+  #   - "traefik.http.routers.${PROJECT_NAME}_pma.rule=Host(`pma.${PROJECT_BASE_URL}`)"
+
+
 
 #  solr:
 #    image: wodby/solr:$SOLR_TAG

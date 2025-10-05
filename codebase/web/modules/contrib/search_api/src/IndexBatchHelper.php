@@ -69,11 +69,19 @@ class IndexBatchHelper {
    * @param int $limit
    *   (optional) Maximum number of items to index. Defaults to indexing all
    *   remaining items.
+   * @param int $time_limit
+   *   (optional) The maximum number of seconds allowed to run indexing for a
+   *   given index. Defaults to -1 (no limit).
    *
    * @throws \Drupal\search_api\SearchApiException
    *   Thrown if the batch could not be created.
    */
-  public static function create(IndexInterface $index, $batch_size = NULL, $limit = -1) {
+  public static function create(
+    IndexInterface $index,
+    $batch_size = NULL,
+    $limit = -1,
+    int $time_limit = -1,
+  ) {
     // Make sure that the indexing lock is available.
     if (!\Drupal::lock()->lockMayBeAvailable($index->getLockId())) {
       throw new SearchApiException("Items are being indexed in a different process.");
@@ -86,10 +94,11 @@ class IndexBatchHelper {
     }
     // Check if indexing items is allowed.
     if ($index->status() && !$index->isReadOnly() && $batch_size !== 0 && $limit !== 0) {
+      $index->setIndexingRequestTime(\Drupal::time()->getRequestTime());
       // Define the search index batch definition.
       $batch_definition = [
         'operations' => [
-          [[__CLASS__, 'process'], [$index, $batch_size, $limit]],
+          [[__CLASS__, 'process'], [$index, $batch_size, $limit, $time_limit]],
         ],
         'finished' => [__CLASS__, 'finish'],
         'progress_message' => static::t('Completed about @percentage% of the indexing operation (@current of @total).'),
@@ -112,16 +121,29 @@ class IndexBatchHelper {
    *   The maximum number of items to index per batch pass.
    * @param int $limit
    *   The maximum number of items to index in total, or -1 to index all items.
+   * @param int $time_limit
+   *   (optional) The maximum number of seconds allowed to run indexing, or -1
+   *   to not have any limit. Defaults to -1 (no limit).
    * @param array|\ArrayAccess $context
    *   The context of the current batch, as defined in the @link batch Batch
    *   operations @endlink documentation.
    */
-  public static function process(IndexInterface $index, $batch_size, $limit, &$context) {
+  public static function process(
+    IndexInterface $index,
+    $batch_size,
+    $limit,
+    int $time_limit,
+    &$context,
+  ) {
     // Check if the sandbox should be initialized.
     if (!isset($context['sandbox']['limit'])) {
       // Initialize the sandbox with data which is shared among the batch runs.
       $context['sandbox']['limit'] = $limit;
       $context['sandbox']['batch_size'] = $batch_size;
+      if ($time_limit >= 0) {
+        $context['sandbox']['time_limit'] = $time_limit;
+        $context['sandbox']['time_start'] = time();
+      }
     }
     // Check if the results should be initialized.
     if (!isset($context['results']['indexed'])) {
@@ -133,6 +155,19 @@ class IndexBatchHelper {
     // the value will be set to zero which will cause the batch process to
     // stop.
     $remaining_item_count = ($index->hasValidTracker() ? $index->getTrackerInstance()->getRemainingItemsCount() : 0);
+
+    // Time limit check.
+    if (($context['sandbox']['time_limit'] ?? -1) >= 0) {
+      $elapsed_seconds = time() - $context['sandbox']['time_start'];
+      if ($elapsed_seconds > $context['sandbox']['time_limit']) {
+        $context['finished'] = 1;
+        $context['message'] = static::t('Time limit of @time_limit seconds reached during indexing on @index', [
+          '@time_limit' => $context['sandbox']['time_limit'],
+          '@index' => $index->label(),
+        ]);
+        return;
+      }
+    }
 
     // Check if an explicit limit needs to be used.
     if ($context['sandbox']['limit'] > -1) {

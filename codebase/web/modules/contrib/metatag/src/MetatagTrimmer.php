@@ -101,35 +101,46 @@ class MetatagTrimmer {
    *   Allowed values: 'afterValue', 'onValue' and 'beforeValue'.
    * @param string $trimEndChars
    *   The characters to trim at the end of the string.
+   * @param string $suffix
+   *   Characters to optionally add to the end of the trimmed string.
+   *
+   * @return string
+   *   The updated string.
    */
-  public function trimByMethod($value, $maxlength, $method, $trimEndChars = ''): string {
-    if ($trimEndChars === NULL) {
-      $trimEndChars = '';
-    }
+  public function trimByMethod($value, $maxlength, $method, $trimEndChars = '', $suffix = ''): string {
     if (empty($value) || empty($maxlength)) {
       return $value;
     }
-    $trimmedValue = $value;
+
+    // If the string is shorter than the max length then skip the rest of the
+    // logic.
+    if ($maxlength > mb_strlen($value)) {
+      return $value;
+    }
+
+    if ($trimEndChars === NULL) {
+      $trimEndChars = '';
+    }
 
     switch ($method) {
       case 'afterValue':
-        $trimmedValue = $this->trimAfterValue($value, $maxlength);
+        $value = $this->trimAfterValue($value, $maxlength);
         break;
 
       case 'onValue':
-        $trimmedValue = trim(mb_substr($value, 0, $maxlength));
+        $value = trim(mb_substr($value, 0, $maxlength));
         break;
 
       case 'beforeValue':
-        $trimmedValue = $this->trimBeforeValue($value, $maxlength);
+        $value = $this->trimBeforeValue($value, $maxlength);
         break;
 
       default:
         throw new Exception('Unknown trimming method: ' . $method);
     }
 
-    // Do additional cleanup trimming:
-    return $this->trimEndChars($trimmedValue, $trimEndChars);
+    // Do additional cleanup trimming, append the suffix.
+    return $this->trimEndChars($value, $trimEndChars) . $suffix;
   }
 
 }

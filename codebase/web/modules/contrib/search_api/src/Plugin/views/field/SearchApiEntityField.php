@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api\Plugin\views\field;
 
+use Drupal\views\Attribute\ViewsField;
 use Drupal\Core\Form\FormHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\search_api\Plugin\views\EntityFieldRenderer;
@@ -17,9 +18,8 @@ use Drupal\views\Views;
  * Displays entity field data.
  *
  * @ingroup views_field_handlers
- *
- * @ViewsField("search_api_field")
  */
+#[ViewsField('search_api_field')]
 class SearchApiEntityField extends EntityField {
 
   use SearchApiFieldTrait {

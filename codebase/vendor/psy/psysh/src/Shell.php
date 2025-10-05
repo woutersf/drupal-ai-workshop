@@ -53,7 +53,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.12.10';
+    const VERSION = 'v0.12.12';
 
     private Configuration $config;
     private CodeCleaner $cleaner;
@@ -1098,8 +1098,10 @@ class Shell extends Application
      *
      * @param string $out
      * @param int    $phase Output buffering phase
+     *
+     * @return string Empty string
      */
-    public function writeStdout(string $out, int $phase = \PHP_OUTPUT_HANDLER_END)
+    public function writeStdout(string $out, int $phase = \PHP_OUTPUT_HANDLER_END): string
     {
         if ($phase & \PHP_OUTPUT_HANDLER_START) {
             if ($this->output instanceof ShellOutput) {
@@ -1138,6 +1140,8 @@ class Shell extends Application
                 $this->output->stopPaging();
             }
         }
+
+        return '';
     }
 
     /**

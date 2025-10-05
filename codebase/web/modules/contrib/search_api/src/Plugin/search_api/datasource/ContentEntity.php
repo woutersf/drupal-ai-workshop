@@ -30,6 +30,7 @@ use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\external_entities\Entity\Query\External\Query as ExternalEntitiesQuery;
 use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
+use Drupal\search_api\Attribute\SearchApiDatasource;
 use Drupal\search_api\Datasource\DatasourcePluginBase;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\LoggerTrait;
@@ -41,12 +42,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Represents a datasource which exposes the content entities.
- *
- * @SearchApiDatasource(
- *   id = "entity",
- *   deriver = "Drupal\search_api\Plugin\search_api\datasource\ContentEntityDeriver"
- * )
  */
+#[SearchApiDatasource(
+  id: 'entity',
+  deriver: ContentEntityDeriver::class,
+)]
 class ContentEntity extends DatasourcePluginBase implements PluginFormInterface {
 
   use LoggerTrait;

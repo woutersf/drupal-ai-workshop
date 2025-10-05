@@ -43,7 +43,7 @@ class FormFieldAddState extends FormFieldActionBase {
         if ($condition === '_eca_token') {
           $condition = $this->getTokenValue('condition', 'empty');
         }
-        $value = ($condition === 'value') ?
+        $value = ($condition === 'value' || $condition === '!value') ?
           trim((string) $this->tokenService->replaceClear($this->configuration['value'])) :
           TRUE;
         if ($selector !== '') {
@@ -112,21 +112,44 @@ class FormFieldAddState extends FormFieldActionBase {
         'expanded' => $this->t('expanded'),
         'collapsed' => $this->t('collapsed'),
         'value' => $this->t('value'),
+        '!value' => $this->t('NOT value'),
       ],
       '#default_value' => $this->configuration['condition'],
       '#required' => TRUE,
       '#weight' => -15,
       '#eca_token_select_option' => TRUE,
     ];
+    $value_conditions = [
+      ':input[name="condition"]' => [
+        ['value' => 'value'],
+        ['value' => '!value'],
+      ],
+    ];
     $form['value'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Value'),
-      '#description' => $this->t('The value for the condition. This is only required if "value" is selected as the condition.'),
+      '#description' => $this->t('The value for the condition. This is only required if "value" or "NOT value" is selected as the condition.'),
       '#default_value' => $this->configuration['value'],
       '#weight' => -10,
       '#eca_token_replacement' => TRUE,
+      '#states' => [
+        'visible' => $value_conditions,
+        'required' => $value_conditions,
+      ],
     ];
     return parent::buildConfigurationForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
+    $condition = $form_state->getValue('condition');
+    $value = $form_state->getValue('value');
+    if (empty($value) && ($condition === 'value' || $condition === '!value')) {
+      $form_state->setError($form['value'], $this->t('The "value" configuration field is required.'));
+    }
+    parent::validateConfigurationForm($form, $form_state);
   }
 
   /**

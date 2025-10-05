@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\search_api\Kernel\ConfigEntity;
 
-use Drupal\Core\Serialization\Yaml;
+use Drupal\Component\Serialization\Yaml;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\search_api\Entity\Index;
 use Drupal\search_api\Entity\Server;

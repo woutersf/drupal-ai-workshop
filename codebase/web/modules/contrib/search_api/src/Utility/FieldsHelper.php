@@ -36,59 +36,15 @@ use Symfony\Component\DependencyInjection\Container;
 class FieldsHelper implements FieldsHelperInterface {
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * The entity field manager.
-   *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
-   */
-  protected $entityFieldManager;
-
-  /**
-   * The entity type bundle info service.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
-   */
-  protected $entityBundleInfo;
-
-  /**
-   * The data type plugin manager.
-   *
-   * @var \Drupal\search_api\Utility\DataTypeHelperInterface
-   */
-  protected $dataTypeHelper;
-
-  /**
    * The theme switcher.
-   *
-   * @var \Drupal\search_api\Utility\ThemeSwitcherInterface
    */
-  protected $themeSwitcher;
+  protected ThemeSwitcherInterface $themeSwitcher;
 
-  /**
-   * Constructs a FieldsHelper object.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   The entity type manager.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
-   *   The entity field manager.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entityBundleInfo
-   *   The entity type bundle info service.
-   * @param \Drupal\search_api\Utility\DataTypeHelperInterface $dataTypeHelper
-   *   The data type helper service.
-   * @param \Drupal\search_api\Utility\ThemeSwitcherInterface|null $themeSwitcher
-   *   (optional) The theme switcher service.
-   */
   public function __construct(
-    EntityTypeManagerInterface $entityTypeManager,
-    EntityFieldManagerInterface $entityFieldManager,
-    EntityTypeBundleInfoInterface $entityBundleInfo,
-    DataTypeHelperInterface $dataTypeHelper,
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected EntityFieldManagerInterface $entityFieldManager,
+    protected EntityTypeBundleInfoInterface $entityBundleInfo,
+    protected DataTypeHelperInterface $dataTypeHelper,
     ?ThemeSwitcherInterface $themeSwitcher = NULL,
   ) {
     if (!$themeSwitcher) {
@@ -96,10 +52,6 @@ class FieldsHelper implements FieldsHelperInterface {
         E_USER_DEPRECATED);
       $themeSwitcher = \Drupal::service('search_api.theme_switcher');
     }
-    $this->entityTypeManager = $entityTypeManager;
-    $this->entityFieldManager = $entityFieldManager;
-    $this->entityBundleInfo = $entityBundleInfo;
-    $this->dataTypeHelper = $dataTypeHelper;
     $this->themeSwitcher = $themeSwitcher;
   }
 
@@ -250,6 +202,13 @@ class FieldsHelper implements FieldsHelperInterface {
 
         $properties = $index->getPropertyDefinitions($datasource_id);
         foreach ($required_properties[$datasource_id] as $property_path => $combined_id) {
+          // Extract a field ID the caller might have added to the property
+          // path.
+          $field_id = NULL;
+          if (strpos($property_path, '|') !== FALSE) {
+            [$property_path, $field_id] = explode('|', $property_path, 2);
+          }
+
           $item_values[$combined_id] = [];
 
           // If a field with the right property path is already set on the item,
@@ -292,9 +251,17 @@ class FieldsHelper implements FieldsHelperInterface {
               // If the index contains a field with that property, just use the
               // configuration from there instead of the default configuration.
               // This will probably be what users expect in most situations.
-              $field = $this->findField($index->getFields(), $datasource_id, $property_path, $combined_id);
-              if ($field) {
-                $field_info['configuration'] = $field->getConfiguration();
+              // If the caller passed the field ID with the property path, even
+              // better.
+              if ($field_id && $index->getField($field_id)) {
+                $field_info['configuration'] = $index->getField($field_id)
+                  ->getConfiguration();
+              }
+              else {
+                $field = $this->findField($index->getFields(), $datasource_id, $property_path, $combined_id);
+                if ($field) {
+                  $field_info['configuration'] = $field->getConfiguration();
+                }
               }
             }
             $processor_fields[] = $this->createField($index, $combined_id, $field_info);
@@ -306,7 +273,7 @@ class FieldsHelper implements FieldsHelperInterface {
         }
       }
       if ($missing_fields) {
-        $this->extractFields($item->getOriginalObject(), $missing_fields);
+        $this->extractFields($item->getOriginalObject(), $missing_fields, $item->getLanguage());
         foreach ($missing_fields as $property_fields) {
           foreach ($property_fields as $field) {
             $item_values[$field->getFieldIdentifier()] = $field->getValues();

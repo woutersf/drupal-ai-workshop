@@ -67,8 +67,8 @@ class MetaTagCustomTagDeriver extends DeriverBase implements ContainerDeriverInt
       // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
       $derivative['description'] = $this->t($metatag_custom_tag->get('description'));
       $derivative['htmlElement'] = $metatag_custom_tag->get('htmlElement');
-      $derivative['htmlNameAttribute'] = $metatag_custom_tag->get('htmlNameAttribute');
       $derivative['htmlValueAttribute'] = $metatag_custom_tag->get('htmlValueAttribute');
+      $derivative['attributes'] = $metatag_custom_tag->get('attributes');
 
       // Reference derivatives based on their UUID instead of the record ID.
       $this->derivatives[$derivative['id']] = $derivative;

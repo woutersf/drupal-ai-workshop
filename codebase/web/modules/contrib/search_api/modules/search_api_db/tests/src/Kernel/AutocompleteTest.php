@@ -33,6 +33,7 @@ class AutocompleteTest extends KernelTestBase {
     'search_api_autocomplete',
     'search_api_db',
     'search_api_db_test_autocomplete',
+    'search_api_test',
     'search_api_test_db',
     'search_api_test_example_content',
   ];

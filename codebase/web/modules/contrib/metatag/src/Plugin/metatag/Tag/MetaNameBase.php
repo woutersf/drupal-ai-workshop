@@ -426,6 +426,9 @@ abstract class MetaNameBase extends PluginBase {
       $form['#description'] .= ' ' . $this->t('Any URLs which start with "http://" will be converted to "https://".');
     }
 
+    // Add a final note about adding the "<none>" value.
+    $form['#description'] .= ' ' . $this->t('Set to %none to disable inheritance of the parent value and prevent the output of this metatag entirely.', ['%none' => '<none>']);
+
     $settings = \Drupal::config('metatag.settings');
     $trimlengths = $settings->get('tag_trim_maxlength') ?? [];
     if (!empty($trimlengths['metatag_maxlength_' . $this->id])) {
@@ -505,8 +508,19 @@ abstract class MetaNameBase extends PluginBase {
    *   A render array.
    */
   public function output(): array {
-    // If there is no value, just return either an empty array or empty string.
+    // If there is no value, meaning the parent value is also empty, hide all
+    // output for this meta tag:
+    // @todo It is quite hard to understand, that the parent value will be set
+    // as "$this->value" on form submit ONLY. It is not possible, to
+    // set the value programmatically to an empty string. Otherwise we would end
+    // up inside this return statement here, even if we'd like the parent value
+    // instead.
     if (is_null($this->value) || $this->value == '') {
+      return [];
+    }
+
+    // Do the same if the value is explicitly set to "<none>":
+    if (!is_array($this->value) && $this->value == '<none>') {
       return [];
     }
 
@@ -654,9 +668,9 @@ abstract class MetaNameBase extends PluginBase {
           $currentMaxValue = $maxValue;
         }
       }
+      $suffix = (string) $settings->get('trim_suffix');
       $trimmerService = \Drupal::service('metatag.trimmer');
-      // Do the trimming:
-      $value = $trimmerService->trimByMethod($value, $currentMaxValue, $trimMethod, $trimEndChars);
+      $value = $trimmerService->trimByMethod($value, $currentMaxValue, $trimMethod, $trimEndChars, $suffix);
     }
     return $value;
   }

@@ -55,7 +55,7 @@ interface QueryInterface extends ConditionSetInterface {
    *
    * @param \Drupal\search_api\IndexInterface $index
    *   The index for which the query should be created.
-   * @param array $options
+   * @param array<string, mixed> $options
    *   (optional) The options to set for the query.
    *
    * @return static
@@ -196,8 +196,8 @@ interface QueryInterface extends ConditionSetInterface {
    *
    * If this is not called, all fulltext fields will be searched.
    *
-   * @param array $fields
-   *   An array containing fulltext fields that should be searched.
+   * @param string[] $fields
+   *   An array containing fulltext field IDs that should be searched.
    *
    * @return $this
    */

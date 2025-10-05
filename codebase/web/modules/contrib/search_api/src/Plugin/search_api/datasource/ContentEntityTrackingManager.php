@@ -31,42 +31,11 @@ class ContentEntityTrackingManager {
    */
   protected const DATASOURCE_BASE_ID = 'entity';
 
-  /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * The language manager.
-   *
-   * @var \Drupal\Core\Language\LanguageManagerInterface
-   */
-  protected $languageManager;
-
-  /**
-   * The Search API task manager.
-   *
-   * @var \Drupal\search_api\Task\TaskManagerInterface
-   */
-  protected $taskManager;
-
-  /**
-   * Constructs a new class instance.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   The entity type manager.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
-   *   The language manager.
-   * @param \Drupal\search_api\Task\TaskManagerInterface $taskManager
-   *   The task manager.
-   */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, LanguageManagerInterface $languageManager, TaskManagerInterface $taskManager) {
-    $this->entityTypeManager = $entityTypeManager;
-    $this->languageManager = $languageManager;
-    $this->taskManager = $taskManager;
-  }
+  public function __construct(
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected LanguageManagerInterface $languageManager,
+    protected TaskManagerInterface $taskManager,
+  ) {}
 
   /**
    * Computes the item ID for the given entity and language.

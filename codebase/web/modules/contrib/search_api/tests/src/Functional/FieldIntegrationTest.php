@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\search_api\Functional;
 
-use Drupal\Core\Serialization\Yaml;
+use Drupal\Component\Serialization\Yaml;
 use Drupal\search_api\Entity\Index;
 
 /**

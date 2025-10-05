@@ -24,15 +24,38 @@ parameters:
 
     # Specific errors we don't want to or cannot fix.
 
+    - # The enum was newly introduced in Drupal 11.2.
+      # @todo Remove once we depend on Drupal 11.2+.
+      message: "#^Access to constant Error on an unknown class Drupal\\\\Core\\\\Extension\\\\Requirement\\\\RequirementSeverity\\.#"
+      path: modules/search_api_db/search_api_db_defaults/search_api_db_defaults.install
+      reportUnmatched: false
+
     - # Since we don't depend on the VBO module, it isn't available for PhpStan.
       message: "#^\\QParameter $event of method Drupal\\search_api\\Contrib\\ViewsBulkOperationsEventSubscriber::provideViewData() has invalid type Drupal\\views_bulk_operations\\ViewsBulkOperationsEvent.\\E#"
       count: 1
       path: src/Contrib/ViewsBulkOperationsEventSubscriber.php
 
-    - # Since we don't depend on the VBO module, it isn't available for PhpStan.
+    - # The $original property is used throughout Drupal but not actually
+      # defined.
+      # @todo Remove once #3495424 is resolved (and we depend on Drupal 11.2+).
       message: "#^Access to an undefined property Drupal\\\\search_api\\\\Entity\\\\Index::\\$original\\.#"
       count: 1
       path: src/Entity/Index.php
+
+    - # The entity type attributes were not introduced until Drupal 11.1.
+      # @todo Remove once we depend on Drupal 11.1+.
+      message: "#^Attribute class Drupal\\\\Core\\\\Entity\\\\Attribute\\\\(Config|Content)EntityType does not exist\\.$#"
+      paths:
+        - src/Entity/Index.php
+        - src/Entity/Server.php
+        - src/Entity/Task.php
+      reportUnmatched: false
+
+    - # The argument is commented out for BC reasons until Drupal 12. PhpStan
+      # apparently does not understand that syntax.
+      message: "#^Method Drupal\\\\Core\\\\Config\\\\Entity\\\\ConfigEntityListBuilder::getDefaultOperations\\(\\) invoked with 2 parameters, 1 required\\.$#"
+      path: src/IndexListBuilder.php
+      reportUnmatched: false
 
     - # Checking for a class from a contrib module we don't depend on. As this
       # is just used in an "instanceof" check, there is no actual danger here.
@@ -81,25 +104,12 @@ parameters:
       path: src/SearchApiPluginManager.php
 
     - # The class was newly introduced in Drupal 11.2.
-      # @todo Remove once default pipelines run against Drupal 11.2+.
+      # @todo Remove once we depend on Drupal 11.2+.
       message: "#^Call to static method createBundle\\(\\) on an unknown class Drupal\\\\entity_test\\\\EntityTestHelper\\.#"
       paths:
         - tests/src/Functional/ExampleContentTrait.php
         - tests/src/Kernel/Index/IndexChangesTest.php
       reportUnmatched: false
-
-    - # The class was renamed (with alias, but seems PHPStan cannot find that)
-      # but we cannot use the new name until we depend on Drupal 10.3.
-      message: "#^Call to static method decode\\(\\) on an unknown class Drupal\\\\Core\\\\Serialization\\\\Yaml\\.#"
-      paths:
-        - tests/src/Functional/FieldIntegrationTest.php
-        - tests/src/Kernel/ConfigEntity/DefaultConfigEntityInstallationTest.php
-        - tests/src/Kernel/Views/ViewsQueryTypeTest.php
-        - tests/src/Kernel/Views/ViewsQueryTypeUpdateTest.php
-
-    - # The parent method was deprecated in Drupal 10.3 and removed in 11.0.
-      message: "/^Call to an undefined static method Drupal\\\\Core\\\\Cache\\\\MemoryBackend::getRequestTime\\(\\)\\./"
-      path: tests/src/Kernel/Views/TestMemoryBackend.php
 
     - # No idea what's happening there, why it can't find the trait it is
       # currently checking?

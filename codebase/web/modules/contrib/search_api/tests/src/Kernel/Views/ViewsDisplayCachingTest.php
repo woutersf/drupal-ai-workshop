@@ -4,6 +4,7 @@ namespace Drupal\Tests\search_api\Kernel\Views;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\MemoryBackend;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\entity_test\Entity\EntityTestMulRevChanged;
 use Drupal\KernelTests\KernelTestBase;
@@ -45,7 +46,7 @@ class ViewsDisplayCachingTest extends KernelTestBase {
   /**
    * The cache backend used for testing.
    *
-   * @var \Drupal\Tests\search_api\Kernel\Views\TestMemoryBackend
+   * @var \Drupal\Core\Cache\MemoryBackend
    */
   protected $cache;
 
@@ -102,16 +103,13 @@ class ViewsDisplayCachingTest extends KernelTestBase {
     // we can test time based caching.
     $this->time = new TestTimeService();
     $this->container->set('datetime.time', $this->time);
-    $this->cache = new TestMemoryBackend();
+    $this->cache = new MemoryBackend($this->time);
     $this->container->set('cache.data', $this->cache);
     // Starting with Drupal 10.3, the cache tags invalidator uses an internal
     // list of cache bins, to which we need to add our cache.
-    // @todo Remove "if" once we depend on Drupal 10.3.
-    if (version_compare(\Drupal::VERSION, '10.3', '>=')) {
-      /** @var \Drupal\Core\Cache\CacheTagsInvalidator $invalidator */
-      $invalidator = $this->container->get('cache_tags.invalidator');
-      $invalidator->addBin($this->cache);
-    }
+    /** @var \Drupal\Core\Cache\CacheTagsInvalidator $invalidator */
+    $invalidator = $this->container->get('cache_tags.invalidator');
+    $invalidator->addBin($this->cache);
 
     // Create some demo content and index it.
     $this->createDemoContent();
@@ -142,10 +140,7 @@ class ViewsDisplayCachingTest extends KernelTestBase {
     $this->assertViewsResultsCacheNotPopulated($view);
 
     // Drupal 10.3 added a new cache tag to all forms.
-    // @todo Remove condition once we depend on Drupal 10.3.
-    if (version_compare(\Drupal::VERSION, '10.3', '>=')) {
-      $expected_cache_tags[] = 'CACHE_MISS_IF_UNCACHEABLE_HTTP_METHOD:form';
-    }
+    $expected_cache_tags[] = 'CACHE_MISS_IF_UNCACHEABLE_HTTP_METHOD:form';
 
     // Execute the search and assert the cacheability metadata.
     $this->assertViewsCacheability($view, $expected_cache_tags, $expected_cache_contexts, $expected_max_age);
@@ -243,8 +238,6 @@ class ViewsDisplayCachingTest extends KernelTestBase {
       // future.
       case 'time':
       case 'time_tag':
-        // @todo Only the second call is needed once we depend on Drupal 10.3.
-        $this->cache->setRequestTime($this->cache->getRequestTime() + 3700);
         $this->time->advanceTime(3700);
         break;
 

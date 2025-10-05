@@ -4,23 +4,24 @@ namespace Drupal\search_api\Plugin\search_api\processor;
 
 use Drupal\Component\Transliteration\TransliterationInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Processor\FieldsProcessorPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Makes searches insensitive to accents and other non-ASCII characters.
- *
- * @SearchApiProcessor(
- *   id = "transliteration",
- *   label = @Translation("Transliteration"),
- *   description = @Translation("Makes searches insensitive to accents and other non-ASCII characters."),
- *   stages = {
- *     "pre_index_save" = 0,
- *     "preprocess_index" = -20,
- *     "preprocess_query" = -20
- *   }
- * )
  */
+#[SearchApiProcessor(
+  id: 'transliteration',
+  label: new TranslatableMarkup('Transliteration'),
+  description: new TranslatableMarkup('Makes searches insensitive to accents and other non-ASCII characters.'),
+  stages: [
+    'pre_index_save' => 0,
+    'preprocess_index' => -20,
+    'preprocess_query' => -20,
+  ],
+)]
 class Transliteration extends FieldsProcessorPluginBase {
 
   /**

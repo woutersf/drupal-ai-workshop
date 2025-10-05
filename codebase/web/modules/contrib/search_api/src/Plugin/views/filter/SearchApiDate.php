@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api\Plugin\views\filter;
 
+use Drupal\views\Attribute\ViewsFilter;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\views\Plugin\views\filter\Date;
 
@@ -9,9 +10,8 @@ use Drupal\views\Plugin\views\filter\Date;
  * Defines a filter for filtering on dates.
  *
  * @ingroup views_filter_handlers
- *
- * @ViewsFilter("search_api_date")
  */
+#[ViewsFilter('search_api_date')]
 class SearchApiDate extends Date {
 
   use SearchApiFilterTrait;

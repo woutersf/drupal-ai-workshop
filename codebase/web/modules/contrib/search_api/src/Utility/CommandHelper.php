@@ -16,7 +16,7 @@ use Drupal\search_api\SearchApiException;
 use Drush\Log\SuccessInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 // phpcs:disable DrupalPractice.General.ExceptionT.ExceptionT
 
@@ -58,7 +58,7 @@ class CommandHelper implements LoggerAwareInterface {
   /**
    * The event dispatcher.
    *
-   * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher|null
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface|null
    */
   protected $eventDispatcher;
 
@@ -76,7 +76,7 @@ class CommandHelper implements LoggerAwareInterface {
    *   The entity type manager.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
-   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher.
    * @param string|callable $translation_function
    *   (optional) A callable for translating strings.
@@ -266,6 +266,9 @@ class CommandHelper implements LoggerAwareInterface {
    *   (optional) The maximum number of items to process per batch, an empty
    *   value to use the default cron limit configured for the index, or a
    *   negative value to index all items in a single batch.
+   * @param int $timeLimit
+   *   (optional) The maximum number of seconds allowed to run indexing for a
+   *   given index. Defaults to -1 (no limit).
    *
    * @return bool
    *   TRUE if indexing for any index was queued, FALSE otherwise.
@@ -275,7 +278,12 @@ class CommandHelper implements LoggerAwareInterface {
    * @throws \Drupal\search_api\SearchApiException
    *   Thrown if one of the affected indexes had an invalid tracker set.
    */
-  public function indexItemsToIndexCommand(?array $indexIds = NULL, $limit = NULL, $batchSize = NULL) {
+  public function indexItemsToIndexCommand(
+    ?array $indexIds = NULL,
+    $limit = NULL,
+    $batchSize = NULL,
+    int $timeLimit = -1,
+  ) {
     $indexes = $this->loadIndexes($indexIds);
     if (!$indexes) {
       return FALSE;
@@ -333,10 +341,13 @@ class CommandHelper implements LoggerAwareInterface {
         '@batch_size' => $currentBatchSize,
       ];
       $this->logSuccess($this->t("Indexing a maximum number of @limit items (@batch_size items per batch run) for the index '@index'.", $arguments));
+      if ($timeLimit >= 0) {
+        $this->logSuccess($this->t("Maximum indexing time: @limit seconds.", ['@limit' => $timeLimit]));
+      }
 
       // Create the batch.
       try {
-        IndexBatchHelper::create($index, $currentBatchSize, $current_limit);
+        IndexBatchHelper::create($index, $currentBatchSize, $current_limit, $timeLimit);
         $batchSet = TRUE;
       }
       catch (SearchApiException) {

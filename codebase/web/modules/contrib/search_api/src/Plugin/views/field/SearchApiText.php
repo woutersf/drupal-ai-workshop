@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api\Plugin\views\field;
 
+use Drupal\views\Attribute\ViewsField;
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
@@ -10,9 +11,8 @@ use Drupal\Core\Form\FormStateInterface;
  * Handles the display of text fields in Search API Views.
  *
  * @ingroup views_field_handlers
- *
- * @ViewsField("search_api_text")
  */
+#[ViewsField('search_api_text')]
 class SearchApiText extends SearchApiStandard {
 
   /**

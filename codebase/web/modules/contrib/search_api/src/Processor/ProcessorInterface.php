@@ -18,7 +18,7 @@ use Drupal\search_api\Query\ResultSetInterface;
  * for which stages it should run, in addition to implementing the corresponding
  * methods.
  *
- * @see \Drupal\search_api\Annotation\SearchApiProcessor
+ * @see \Drupal\search_api\Attribute\SearchApiProcessor
  * @see \Drupal\search_api\Processor\ProcessorPluginManager
  * @see \Drupal\search_api\Processor\ProcessorPluginBase
  * @see plugin_api

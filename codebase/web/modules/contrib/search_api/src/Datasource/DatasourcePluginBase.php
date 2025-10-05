@@ -14,27 +14,24 @@ use Drupal\search_api\Utility\Utility;
 /**
  * Defines a base class from which other datasources may extend.
  *
- * Plugins extending this class need to define a plugin definition array through
- * annotation. These definition arrays may be altered through
- * hook_search_api_datasource_info_alter(). The definition includes the
- * following keys:
- * - id: The unique, system-wide identifier of the datasource.
- * - label: The human-readable name of the datasource, translated.
- * - description: A human-readable description for the datasource, translated.
+ * Plugins extending this class need to provide the plugin definition using the
+ * \Drupal\search_api\Attribute\SearchApiDatasource attribute. These definitions
+ * may be altered using the "search_api.gathering_data_sources" event.
  *
  * A complete plugin definition should be written as in this example:
  *
  * @code
- * @SearchApiDatasource(
- *   id = "my_datasource",
- *   label = @Translation("My datasource"),
- *   description = @Translation("Exposes my custom items as a datasource."),
- * )
+ * #[SearchApiDatasource(
+ *   id: 'my_datasource',
+ *   label: new TranslatableMarkup('My datasource'),
+ *   description: new TranslatableMarkup('Exposes my custom items as a datasource.'),
+ * )]
  * @endcode
  *
- * @see \Drupal\search_api\Annotation\SearchApiDatasource
+ * @see \Drupal\search_api\Attribute\SearchApiDatasource
  * @see \Drupal\search_api\Datasource\DatasourcePluginManager
  * @see \Drupal\search_api\Datasource\DatasourceInterface
+ * @see \Drupal\search_api\Event\SearchApiEvents::GATHERING_DATA_SOURCES
  * @see plugin_api
  */
 abstract class DatasourcePluginBase extends IndexPluginBase implements DatasourceInterface {

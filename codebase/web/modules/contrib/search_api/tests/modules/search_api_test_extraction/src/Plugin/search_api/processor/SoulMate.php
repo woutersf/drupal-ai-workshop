@@ -4,6 +4,8 @@ namespace Drupal\search_api_test_extraction\Plugin\search_api\processor;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Item\ItemInterface;
@@ -15,18 +17,17 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Adds the user's soul mate node for indexing.
- *
- * @SearchApiProcessor(
- *   id = "search_api_test_extraction_soul_mate",
- *   label = @Translation("Soul mate user"),
- *   description = @Translation("Add the user with the UID the same as the entity's ID."),
- *   stages = {
- *     "add_properties" = 20,
- *   },
- *   locked = true,
- *   hidden = true,
- * )
  */
+#[SearchApiProcessor(
+  id: 'search_api_test_extraction_soul_mate',
+  label: new TranslatableMarkup('Soul mate user'),
+  description: new TranslatableMarkup("Add the user with the UID the same as the entity's ID."),
+  stages: [
+    'add_properties' => 20,
+  ],
+  locked: TRUE,
+  hidden: TRUE,
+)]
 class SoulMate extends ProcessorPluginBase {
 
   /**

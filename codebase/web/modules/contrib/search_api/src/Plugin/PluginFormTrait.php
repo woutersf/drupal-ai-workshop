@@ -23,8 +23,7 @@ trait PluginFormTrait {
    *
    * @see \Drupal\Core\Plugin\PluginFormInterface::validateConfigurationForm()
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-  }
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {}
 
   /**
    * Form submission handler.

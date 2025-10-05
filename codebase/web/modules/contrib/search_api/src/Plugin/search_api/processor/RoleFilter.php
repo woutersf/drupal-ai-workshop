@@ -5,6 +5,8 @@ namespace Drupal\search_api\Plugin\search_api\processor;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Plugin\PluginFormTrait;
 use Drupal\search_api\Processor\ProcessorPluginBase;
@@ -15,16 +17,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Filters out users based on their role.
- *
- * @SearchApiProcessor(
- *   id = "role_filter",
- *   label = @Translation("Role filter"),
- *   description = @Translation("Filters out users based on their role."),
- *   stages = {
- *     "alter_items" = 0,
- *   },
- * )
  */
+#[SearchApiProcessor(
+  id: 'role_filter',
+  label: new TranslatableMarkup('Role filter'),
+  description: new TranslatableMarkup('Filters out users based on their role.'),
+  stages: [
+    'alter_items' => 0,
+  ],
+)]
 class RoleFilter extends ProcessorPluginBase implements PluginFormInterface {
 
   use PluginFormTrait;

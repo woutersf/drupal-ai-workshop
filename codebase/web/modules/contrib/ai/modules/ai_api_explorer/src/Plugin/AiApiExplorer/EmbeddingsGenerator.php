@@ -13,6 +13,7 @@ use Drupal\ai\Plugin\ProviderProxy;
 use Drupal\ai\Service\AiProviderFormHelper;
 use Drupal\ai_api_explorer\AiApiExplorerPluginBase;
 use Drupal\ai_api_explorer\Attribute\AiApiExplorer;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 /**
  * Plugin implementation of the ai_api_explorer.
@@ -29,6 +30,9 @@ use Drupal\ai_api_explorer\Attribute\AiApiExplorer;
   description: new TranslatableMarkup('Contains a form where you can experiment and test the AI embeddings generator with prompts.'),
 )]
 final class EmbeddingsGenerator extends AiApiExplorerPluginBase {
+
+  // Trait to serialize dependencies.
+  use DependencySerializationTrait;
 
   /**
    * {@inheritDoc}

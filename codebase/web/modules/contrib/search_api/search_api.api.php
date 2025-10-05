@@ -15,7 +15,7 @@
  *
  * Modules may implement this hook to alter the information that defines Search
  * API backends. All properties that are available in
- * \Drupal\search_api\Annotation\SearchApiBackend can be altered here, with the
+ * \Drupal\search_api\Attribute\SearchApiBackend can be altered here, with the
  * addition of the "class" and "provider" keys.
  *
  * @param array $backend_info
@@ -59,7 +59,7 @@ function hook_search_api_server_features_alter(array &$features, \Drupal\search_
  *
  * Modules may implement this hook to alter the information that defines
  * datasources. All properties that are available in
- * \Drupal\search_api\Annotation\SearchApiDatasource can be altered here, with
+ * \Drupal\search_api\Attribute\SearchApiDatasource can be altered here, with
  * the addition of the "class" and "provider" keys.
  *
  * @param array $infos
@@ -81,7 +81,7 @@ function hook_search_api_datasource_info_alter(array &$infos) {
  *
  * Modules may implement this hook to alter the information that defines
  * processors. All properties that are available in
- * \Drupal\search_api\Annotation\SearchApiProcessor can be altered here, with
+ * \Drupal\search_api\Attribute\SearchApiProcessor can be altered here, with
  * the addition of the "class" and "provider" keys.
  *
  * @param array $processors

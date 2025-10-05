@@ -125,4 +125,27 @@ class MetatagTrimmerTest extends UnitTestCase {
     $this->assertEquals('Test', $trimResult);
   }
 
+  /**
+   * Tests the optional suffix.
+   */
+  public function testTrimSuffix() {
+    // A string too long to be trimmed, so no suffix is added.
+    $trim_result = $this->metatagTrimmer->trimByMethod('Test 123', 10, 'onValue', suffix: '...');
+    $this->assertEquals('Test 123', $trim_result);
+
+    // A string that is trimmed to a word limit before the cutoff point, with a
+    // suffix.
+    $trim_result = $this->metatagTrimmer->trimByMethod('Test 123', 7, 'beforeValue', suffix: '...');
+    $this->assertEquals('Test...', $trim_result);
+
+    // A string that is trimmed to an exact point, with a suffix.
+    $trim_result = $this->metatagTrimmer->trimByMethod('Test 123', 7, 'onValue', suffix: '...');
+    $this->assertEquals('Test 12...', $trim_result);
+
+    // A string that is trimmed to a word limit after the cutoff point, with a
+    // suffix.
+    $trim_result = $this->metatagTrimmer->trimByMethod('Test 123 456', 7, 'afterValue', suffix: '...');
+    $this->assertEquals('Test 123...', $trim_result);
+  }
+
 }

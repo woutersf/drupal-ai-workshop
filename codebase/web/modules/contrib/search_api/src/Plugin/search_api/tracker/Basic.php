@@ -6,6 +6,8 @@ use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiTracker;
 use Drupal\search_api\LoggerTrait;
 use Drupal\search_api\Plugin\PluginFormTrait;
 use Drupal\search_api\Tracker\TrackerPluginBase;
@@ -14,13 +16,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a tracker implementation which uses a FIFO-like processing order.
- *
- *  @SearchApiTracker(
- *   id = "default",
- *   label = @Translation("Default"),
- *   description = @Translation("Default index tracker which uses a simple database table for tracking items.")
- * )
  */
+#[SearchApiTracker(
+  id: 'default',
+  label: new TranslatableMarkup('Default'),
+  description: new TranslatableMarkup('Default index tracker which uses a simple database table for tracking items.')
+)]
 class Basic extends TrackerPluginBase implements PluginFormInterface {
 
   use LoggerTrait;

@@ -12,6 +12,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Utility\Error;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Represents a PostgreSQL database.
@@ -35,6 +36,7 @@ class Pgsql extends CaseSensitiveDatabase {
    */
   public function __construct(
     Connection $database,
+    #[Autowire(service: 'transliteration')]
     TransliterationInterface $transliterator,
     LoggerChannelFactoryInterface $logger_factory
   ) {

@@ -5,7 +5,9 @@ namespace Drupal\search_api\Plugin\search_api\processor;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Item\FieldInterface;
 use Drupal\search_api\Plugin\search_api\data_type\value\TextValueInterface;
 use Drupal\search_api\Processor\FieldsProcessorPluginBase;
@@ -17,18 +19,17 @@ use Symfony\Component\Yaml\Parser;
 
 /**
  * Strips HTML tags from fulltext fields and decodes HTML entities.
- *
- * @SearchApiProcessor(
- *   id = "html_filter",
- *   label = @Translation("HTML filter"),
- *   description = @Translation("Strips HTML tags from fulltext fields and decodes HTML entities. Use this processor when indexing HTML data – for example, node bodies for certain text formats. The processor also allows to boost (or ignore) the contents of specific elements."),
- *   stages = {
- *     "pre_index_save" = 0,
- *     "preprocess_index" = -15,
- *     "preprocess_query" = -15,
- *   }
- * )
  */
+#[SearchApiProcessor(
+  id: 'html_filter',
+  label: new TranslatableMarkup('HTML filter'),
+  description: new TranslatableMarkup('Strips HTML tags from fulltext fields and decodes HTML entities. Use this processor when indexing HTML data – for example, node bodies for certain text formats. The processor also allows to boost (or ignore) the contents of specific elements.'),
+  stages: [
+    'pre_index_save' => 0,
+    'preprocess_index' => -15,
+    'preprocess_query' => -15,
+  ],
+)]
 class HtmlFilter extends FieldsProcessorPluginBase {
 
   /**

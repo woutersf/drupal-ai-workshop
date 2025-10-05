@@ -285,6 +285,10 @@ final class SearchApiDrushCommands extends DrushCommands {
    *   batch size" setting of the index if omitted or explicitly set to 0. Set
    *   to a negative value to index all items in a single batch (not
    *   recommended).
+   * @option time-limit
+   *   The maximum number of seconds allowed to run indexing per index. Batches
+   *   that were started before the limit was reached will run to completion and
+   *   may therefore slightly exceed the limit. Defaults to -1 (no limit).
    *
    * @usage drush search-api:index
    *   Index all items for all enabled indexes.
@@ -297,6 +301,8 @@ final class SearchApiDrushCommands extends DrushCommands {
    * @usage drush sapi-i --limit=100 --batch-size=10 node_index
    *   Index a maximum number of 100 items (10 items per batch run) for the
    *   index with the ID node_index.
+   * @usage drush sapi-i --time-limit=30 node_index
+   *   Index items on the index with ID "node_index" for up to 30 seconds.
    */
   #[Command(name: 'search-api:index', aliases: ['sapi-i', 'search-api-index'])]
   #[Argument(name: 'indexId', description: 'The ID of the search index')]
@@ -306,10 +312,19 @@ final class SearchApiDrushCommands extends DrushCommands {
   #[Usage(name: 'drush sapi-i node_index', description: 'Index all items for the index with the ID node_index.')]
   #[Usage(name: 'drush sapi-i --limit=100 node_index', description: 'Index a maximum number of 100 items for the index with the ID node_index.')]
   #[Usage(name: 'drush sapi-i --limit=100 --batch-size=10 node_index', description: 'Index a maximum number of 100 items (10 items per batch run) for the index with the ID node_index.')]
-  public function index(?string $indexId = NULL, array $options = ['limit' => NULL, 'batch-size' => NULL]): void {
+  #[Usage(name: 'drush sapi-i --time-limit=30 node_index', description: 'Index items on the index with ID "node_index" for up to 30 seconds.')]
+  public function index(
+    ?string $indexId = NULL,
+    array $options = [
+      'limit' => NULL,
+      'batch-size' => NULL,
+      'time-limit' => NULL,
+    ],
+  ): void {
     $limit = $options['limit'];
     $batch_size = $options['batch-size'];
-    $process_batch = $this->commandHelper->indexItemsToIndexCommand([$indexId], $limit, $batch_size);
+    $time_limit = (int) ($options['time-limit'] ?? -1);
+    $process_batch = $this->commandHelper->indexItemsToIndexCommand([$indexId], $limit, $batch_size, $time_limit);
 
     if ($process_batch === TRUE) {
       drush_backend_batch_process();

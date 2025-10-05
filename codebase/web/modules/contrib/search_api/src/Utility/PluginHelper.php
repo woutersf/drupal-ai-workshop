@@ -8,48 +8,21 @@ use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Processor\ProcessorPluginManager;
 use Drupal\search_api\SearchApiException;
 use Drupal\search_api\Tracker\TrackerPluginManager;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Provides methods for creating search plugins.
  */
 class PluginHelper implements PluginHelperInterface {
 
-  /**
-   * The datasource plugin manager.
-   *
-   * @var \Drupal\search_api\Datasource\DatasourcePluginManager
-   */
-  protected $datasourcePluginManager;
-
-  /**
-   * The processor plugin manager.
-   *
-   * @var \Drupal\search_api\processor\ProcessorPluginManager
-   */
-  protected $processorPluginManager;
-
-  /**
-   * The tracker plugin manager.
-   *
-   * @var \Drupal\search_api\tracker\TrackerPluginManager
-   */
-  protected $trackerPluginManager;
-
-  /**
-   * Constructs a PluginHelper object.
-   *
-   * @param \Drupal\search_api\Datasource\DatasourcePluginManager $datasource_plugin_manager
-   *   The datasource plugin manager.
-   * @param \Drupal\search_api\Processor\ProcessorPluginManager $processor_plugin_manager
-   *   The processor plugin manager.
-   * @param \Drupal\search_api\Tracker\TrackerPluginManager $tracker_plugin_manager
-   *   The tracker plugin manager.
-   */
-  public function __construct(DatasourcePluginManager $datasource_plugin_manager, ProcessorPluginManager $processor_plugin_manager, TrackerPluginManager $tracker_plugin_manager) {
-    $this->datasourcePluginManager = $datasource_plugin_manager;
-    $this->processorPluginManager = $processor_plugin_manager;
-    $this->trackerPluginManager = $tracker_plugin_manager;
-  }
+  public function __construct(
+    #[Autowire(service: 'plugin.manager.search_api.datasource')]
+    protected DatasourcePluginManager $datasourcePluginManager,
+    #[Autowire(service: 'plugin.manager.search_api.processor')]
+    protected ProcessorPluginManager $processorPluginManager,
+    #[Autowire(service: 'plugin.manager.search_api.tracker')]
+    protected TrackerPluginManager $trackerPluginManager,
+  ) {}
 
   /**
    * Creates a plugin object for the given index.

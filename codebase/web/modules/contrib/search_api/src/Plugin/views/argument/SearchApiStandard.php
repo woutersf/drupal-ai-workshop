@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api\Plugin\views\argument;
 
+use Drupal\views\Attribute\ViewsArgument;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\argument\ArgumentPluginBase;
 
@@ -9,9 +10,8 @@ use Drupal\views\Plugin\views\argument\ArgumentPluginBase;
  * Defines a contextual filter for applying Search API conditions.
  *
  * @ingroup views_argument_handlers
- *
- * @ViewsArgument("search_api")
  */
+#[ViewsArgument('search_api')]
 class SearchApiStandard extends ArgumentPluginBase {
 
   /**

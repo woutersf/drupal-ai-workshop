@@ -11,6 +11,7 @@ use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
 use Drupal\Core\Utility\Error;
 use Drupal\node\NodeInterface;
@@ -178,14 +179,16 @@ function search_api_hook_info() {
  * Implements hook_config_import_steps_alter().
  */
 function search_api_config_import_steps_alter(&$sync_steps, ConfigImporter $config_importer) {
-  $new = $config_importer->getUnprocessedConfiguration('create');
-  $changed = $config_importer->getUnprocessedConfiguration('update');
-  $new_or_changed = array_merge($new, $changed);
-  $prefix = \Drupal::entityTypeManager()->getDefinition('search_api_index')->getConfigPrefix() . '.';
-  $prefix_length = strlen($prefix);
-  foreach ($new_or_changed as $config_id) {
-    if (substr($config_id, 0, $prefix_length) === $prefix) {
-      $sync_steps[] = ['Drupal\search_api\Task\IndexTaskManager', 'processIndexTasks'];
+  if (!Settings::get('search_api.disable_tracking_on_import', FALSE)) {
+    $new = $config_importer->getUnprocessedConfiguration('create');
+    $changed = $config_importer->getUnprocessedConfiguration('update');
+    $new_or_changed = array_merge($new, $changed);
+    $prefix = \Drupal::entityTypeManager()->getDefinition('search_api_index')->getConfigPrefix() . '.';
+    $prefix_length = strlen($prefix);
+    foreach ($new_or_changed as $config_id) {
+      if (substr($config_id, 0, $prefix_length) === $prefix) {
+        $sync_steps[] = ['Drupal\search_api\Task\IndexTaskManager', 'processIndexTasks'];
+      }
     }
   }
 }
@@ -600,6 +603,9 @@ function search_api_form_views_exposed_form_alter(&$form, FormStateInterface $fo
     // not always actually saved in the storage, if the admin didn't change
     // their settings.)
     $query = $query_plugin->getSearchApiQuery();
+    if (empty($query)) {
+      return;
+    }
     $display_id = $query->getSearchId(FALSE);
     $facet_source_id = str_replace(':', '__', 'search_api:' . $display_id);
     $facet_source = \Drupal::entityTypeManager()

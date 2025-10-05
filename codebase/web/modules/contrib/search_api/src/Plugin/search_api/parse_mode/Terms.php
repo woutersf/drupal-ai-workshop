@@ -3,17 +3,18 @@
 namespace Drupal\search_api\Plugin\search_api\parse_mode;
 
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiParseMode;
 use Drupal\search_api\ParseMode\ParseModePluginBase;
 
 /**
  * Represents a parse mode that parses the input into multiple words.
- *
- * @SearchApiParseMode(
- *   id = "terms",
- *   label = @Translation("Multiple words"),
- *   description = @Translation("The query is interpreted as multiple keywords separated by spaces. Keywords containing spaces may be ""quoted"". Quoted keywords must still be separated by spaces. Keywords can be negated by prepending a minus sign (-) to them."),
- * )
  */
+#[SearchApiParseMode(
+  id: 'terms',
+  label: new TranslatableMarkup('Multiple words'),
+  description: new TranslatableMarkup('The query is interpreted as multiple keywords separated by spaces. Keywords containing spaces may be "quoted". Quoted keywords must still be separated by spaces. Keywords can be negated by prepending a minus sign (-) to them.'),
+)]
 class Terms extends ParseModePluginBase {
 
   /**

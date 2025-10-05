@@ -2,6 +2,8 @@
 
 namespace Drupal\search_api\Plugin\search_api\processor;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
@@ -9,18 +11,17 @@ use Drupal\search_api\Plugin\search_api\processor\Property\AddURLProperty;
 
 /**
  * Adds the item's URL to the indexed data.
- *
- * @SearchApiProcessor(
- *   id = "add_url",
- *   label = @Translation("URL field"),
- *   description = @Translation("Adds the item's URL to the indexed data."),
- *   stages = {
- *     "add_properties" = 0,
- *   },
- *   locked = true,
- *   hidden = true,
- * )
  */
+#[SearchApiProcessor(
+  id: 'add_url',
+  label: new TranslatableMarkup('URL field'),
+  description: new TranslatableMarkup("Adds the item's URL to the indexed data."),
+  stages: [
+    'add_properties' => 0,
+  ],
+  locked: TRUE,
+  hidden: TRUE,
+)]
 class AddURL extends ProcessorPluginBase {
 
   /**

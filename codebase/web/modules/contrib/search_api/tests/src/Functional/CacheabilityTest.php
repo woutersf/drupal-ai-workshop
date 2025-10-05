@@ -147,12 +147,12 @@ class CacheabilityTest extends SearchApiBrowserTestBase {
    * Tests that exceptions during searches are handled correctly.
    */
   public function testExceptionHandling(): void {
-    $state = \Drupal::state();
-    $state->set('search_api_test_views.throw_exception', TRUE);
+    $key_value = \Drupal::keyValue('search_api_test_views');
+    $key_value->set('throw_exception', TRUE);
     $this->drupalGet('search-api-test-search-view-caching-tag');
     $this->assertSession()->pageTextContains('Test exception thrown from search_api_test_views_search_api_query_alter().');
 
-    $state->set('search_api_test_views.throw_exception', FALSE);
+    $key_value->set('throw_exception', FALSE);
     $this->drupalGet('search-api-test-search-view-caching-tag');
     $this->assertSession()->pageTextNotContains('Test exception thrown from search_api_test_views_search_api_query_alter().');
     $this->assertSession()->pageTextContains('Displaying 5 search results');

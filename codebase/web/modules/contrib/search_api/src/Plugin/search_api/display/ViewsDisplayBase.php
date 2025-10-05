@@ -8,6 +8,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a base class for Views displays.
+ *
+ * Display plugins extending this class should use the
+ * \Drupal\search_api\Attribute\SearchApiViewsDisplay attribute for their plugin
+ * definitions.
+ *
+ * @see \Drupal\search_api\Attribute\SearchApiViewsDisplay
  */
 abstract class ViewsDisplayBase extends DisplayPluginBase {
 

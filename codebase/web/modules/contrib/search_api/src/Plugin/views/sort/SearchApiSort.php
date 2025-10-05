@@ -2,13 +2,13 @@
 
 namespace Drupal\search_api\Plugin\views\sort;
 
+use Drupal\views\Attribute\ViewsSort;
 use Drupal\views\Plugin\views\sort\SortPluginBase;
 
 /**
  * Provides a sort plugin for Search API views.
- *
- * @ViewsSort("search_api")
  */
+#[ViewsSort('search_api')]
 class SearchApiSort extends SortPluginBase {
 
   /**
@@ -26,7 +26,7 @@ class SearchApiSort extends SortPluginBase {
     // $query->orderby to an empty array. Therefore, if that property is set,
     // we here remove all previous sorts.
     if (isset($this->query->orderby)) {
-      unset($this->query->orderby);
+      $this->query->orderby = NULL;
       $sort = &$this->query->getSort();
       $sort = [];
     }

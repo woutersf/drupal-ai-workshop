@@ -37,7 +37,6 @@ final class AutomatorsToolForm extends EntityForm {
     'changed',
     'sticky',
     'revision_default',
-    'ai_interpolator_status',
   ];
 
   /**
@@ -137,7 +136,7 @@ final class AutomatorsToolForm extends EntityForm {
       '#title' => $this->t('Workflow'),
       '#default_value' => $workflow,
       '#required' => TRUE,
-      '#description' => $this->t('This is the AI Interpolator workflow that will be used for this agent.'),
+      '#description' => $this->t('This is the AI Automator workflow that will be used for this agent.'),
       '#ajax' => [
         'callback' => '::getWorkflow',
         'wrapper' => 'field-connections-wrapper',
@@ -405,7 +404,6 @@ final class AutomatorsToolForm extends EntityForm {
         'required' => $fieldDefinition->isRequired(),
         'settings' => $fieldDefinition->getSettings(),
         'key' => $keys[$fieldName] ?? '',
-        'config' => $fieldDefinition->getConfig($bundle)->getThirdPartySetting('ai_interpolator', 'interpolator_enabled'),
       ];
     }
 

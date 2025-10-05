@@ -34,11 +34,21 @@ final class HttpTransporter implements TransporterContract
     public function __construct(
         private readonly ClientInterface $client,
         private readonly BaseUri $baseUri,
-        private readonly Headers $headers,
+        private Headers $headers,
         private readonly QueryParams $queryParams,
         private readonly Closure $streamHandler,
     ) {
         // ..
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addHeader(string $name, string $value): self
+    {
+        $this->headers = $this->headers->withCustomHeader($name, $value);
+
+        return $this;
     }
 
     /**
@@ -162,7 +172,7 @@ final class HttpTransporter implements TransporterContract
         }
 
         try {
-            /** @var array{error?: array{message: string|array<int, string>, type: string, code: string}} $data */
+            /** @var array{error?: string|array{message: string|array<int, string>, type: string, code: string}} $data */
             $data = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
 
             if (isset($data['error'])) {

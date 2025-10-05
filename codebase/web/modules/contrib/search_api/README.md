@@ -26,11 +26,11 @@ customize some aspects of the search process.
 
 ## Table of contents
 
-- Requirements
-- Installation
-- Configuration
-- Information for developers
-- Maintainers
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Information for developers](#information-for-developers)
+- [Maintainers](#maintainers)
 
 
 ## Requirements
@@ -103,6 +103,17 @@ These currently include:
   from the database (or other datasource). Consider setting this option to FALSE
   in case you have an unreliable database connection and want to avoid items
   being incorrectly removed from the search index.
+- The “Highlight” processor has a hidden option to skip processing of search
+  queries by using the `search_api_skip_processor_highlight` tag. Simply add
+  this tag to a search query (for a search view, this can be done under
+  “Advanced » Query settings”) to have this processor ignore the query.
+- In `settings.php` (or one of its includes) you can set
+  `$settings['search_api.disable_tracking_on_import'] = TRUE;` to disable
+  building of tracking information when importing search index configuration.
+  This can be used to speed up slow config imports on large sites. You are
+  advised to later manually build the tracking information since otherwise
+  indexing will be slowed down until all necessary tracking data has been built
+  during cron runs.
 
 [`search_api.schema.yml`]: config/schema/search_api.schema.yml
 

@@ -4,22 +4,23 @@ namespace Drupal\search_api\Plugin\search_api\processor;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Plugin\PluginFormTrait;
 use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Utility\Utility;
 
 /**
  * Adds a boost based on a number field value.
- *
- * @SearchApiProcessor(
- *   id = "number_field_boost",
- *   label = @Translation("Number field-based boosting"),
- *   description = @Translation("Adds a boost to indexed items based on the value of a numeric field."),
- *   stages = {
- *     "preprocess_index" = 0,
- *   }
- * )
  */
+#[SearchApiProcessor(
+  id: 'number_field_boost',
+  label: new TranslatableMarkup('Number field-based boosting'),
+  description: new TranslatableMarkup('Adds a boost to indexed items based on the value of a numeric field.'),
+  stages: [
+    'preprocess_index' => 0,
+  ],
+)]
 class NumberFieldBoost extends ProcessorPluginBase implements PluginFormInterface {
 
   use PluginFormTrait;

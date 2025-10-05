@@ -65,7 +65,7 @@ class MetatagCustomTagsTest extends BrowserTestBase {
   public function testMetatagCustomTagHttpEquiv() {
     $this->drupalLogin($this->adminUser);
     // Perform metatag custom tag add operation from the listing page.
-    $this->createCustomMetaTag('meta', 'http-equiv', 'content');
+    $this->createFooCustomMetaTag('meta', 'http-equiv', 'content');
     // Rebuild cache.
     $this->rebuildAll();
     // Save the value into the metatag custom tag.
@@ -84,7 +84,7 @@ class MetatagCustomTagsTest extends BrowserTestBase {
   public function testMetatagCustomTagName() {
     $this->drupalLogin($this->adminUser);
     // Perform metatag custom tag add operation from the listing page.
-    $this->createCustomMetaTag('meta', 'name', 'content');
+    $this->createFooCustomMetaTag('meta', 'name', 'content');
     // Rebuild cache.
     $this->rebuildAll();
     // Save the value into the metatag custom tag.
@@ -103,7 +103,7 @@ class MetatagCustomTagsTest extends BrowserTestBase {
   public function testMetatagCustomTagProperty() {
     $this->drupalLogin($this->adminUser);
     // Perform metatag custom tag add operation from the listing page.
-    $this->createCustomMetaTag('meta', 'property', 'content');
+    $this->createFooCustomMetaTag('meta', 'property', 'content');
     // Rebuild cache.
     $this->rebuildAll();
     // Save the value into the metatag custom tag.
@@ -122,7 +122,7 @@ class MetatagCustomTagsTest extends BrowserTestBase {
   public function testMetatagCustomTagItemProp() {
     $this->drupalLogin($this->adminUser);
     // Perform metatag custom tag add operation from the listing page.
-    $this->createCustomMetaTag('meta', 'itemprop', 'content');
+    $this->createFooCustomMetaTag('meta', 'itemprop', 'content');
     // Rebuild cache.
     $this->rebuildAll();
     // Save the value into the metatag custom tag.
@@ -141,7 +141,7 @@ class MetatagCustomTagsTest extends BrowserTestBase {
   public function testMetatagCustomTagLinkRel() {
     $this->drupalLogin($this->adminUser);
     // Perform metatag custom tag add operation from the listing page.
-    $this->createCustomMetaTag('link', 'rel', 'href');
+    $this->createFooCustomMetaTag('link', 'rel', 'href');
     // Rebuild cache.
     $this->rebuildAll();
     // Save the value into the metatag custom tag.

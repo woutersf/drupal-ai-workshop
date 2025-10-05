@@ -158,12 +158,16 @@ trait SearchApiCachePluginTrait {
     $view_in_query = $search_api_query->setOption('search_api_view', NULL);
     $view_in_query_original = $search_api_query->getOriginalQuery()->setOption('search_api_view', NULL);
 
+    $result_set = $query->getSearchApiResults();
+    if ($result_set === NULL) {
+      return;
+    }
     try {
       $data = [
         'result' => $view->result,
         'total_rows' => $view->total_rows ?? 0,
         'current_page' => $view->getCurrentPage(),
-        'search_api results' => $query->getSearchApiResults(),
+        'search_api results' => $result_set,
       ];
       $this->getCacheBackend()
         ->set($this->generateResultsKey(), $data, $expire, $tags);
@@ -185,7 +189,8 @@ trait SearchApiCachePluginTrait {
 
     // Values to set: $view->result, $view->total_rows, $view->execute_time,
     // $view->current_page.
-    if ($cache = $this->getCacheBackend()->get($this->generateResultsKey())) {
+    $cache = $this->getCacheBackend()->get($this->generateResultsKey());
+    if (!empty($cache->data['search_api results'])) {
       $cutoff = $this->cacheExpire($type);
       if (!$cutoff || $cache->created > $cutoff) {
         $view = $this->getView();

@@ -146,7 +146,7 @@ class RenderedItemTest extends ProcessorTestBase {
         'roles' => ['anonymous'],
         'view_mode' => [
           'entity:node' => [
-            'page' => 'full',
+            'page' => 'search_index',
             'article' => 'teaser',
           ],
           'entity:user' => [
@@ -255,7 +255,7 @@ class RenderedItemTest extends ProcessorTestBase {
       $this->assertInstanceOf(TextValueInterface::class, $values[0], "$type item $entity_id rendered value is properly wrapped in a text value object.");
       $field_value = $values[0]->getText();
       $this->assertIsString($field_value, "$type item $entity_id rendered value is a string.");
-      $this->assertEquals(1, count($values), "$type item $entity_id rendered value is a single value.");
+      $this->assertCount(1, $values, "$type item $entity_id rendered value is a single value.");
 
       switch ($datasource_id) {
         case 'entity:node':
@@ -291,12 +291,9 @@ class RenderedItemTest extends ProcessorTestBase {
     // when the processor was broken, because the schema metadata was also
     // adding it to the output.
     $nid = $node->id();
-    // The role="article" ARIA attribute was removed in Drupal 10.1. To be able
-    // to run this test both against earlier and later versions of Drupal Core,
-    // we need to use a regular expression.
     $this->assertStringContainsString('<article>', $field_value, 'Node item ' . $nid . ' not rendered in theme Stable.');
     if ($node->bundle() === 'page') {
-      $this->assertStringNotContainsString('>Read more<', $field_value, 'Node item ' . $nid . " rendered in view-mode \"full\".");
+      $this->assertStringNotContainsString('>Read more<', $field_value, 'Node item ' . $nid . " rendered in view-mode \"search_index\".");
       $this->assertStringContainsString('>' . $node->get('body')->getValue()[0]['value'] . '<', $field_value, 'Node item ' . $nid . ' does not have rendered body inside HTML-Tags.');
     }
     else {
@@ -428,7 +425,7 @@ class RenderedItemTest extends ProcessorTestBase {
     $expected = [
       'config' => [
         'core.entity_view_mode.comment.full',
-        'core.entity_view_mode.node.full',
+        'core.entity_view_mode.node.search_index',
         'core.entity_view_mode.node.teaser',
         'core.entity_view_mode.user.compact',
       ],
@@ -438,7 +435,7 @@ class RenderedItemTest extends ProcessorTestBase {
     EntityViewMode::load('node.teaser')->delete();
     $expected = [
       'entity:node' => [
-        'page' => 'full',
+        'page' => 'search_index',
       ],
       'entity:user' => [
         'user' => 'compact',
@@ -465,7 +462,7 @@ class RenderedItemTest extends ProcessorTestBase {
       $config['view_mode'] = [
         'entity:node' => [
           ':default' => 'teaser',
-          'page' => 'full',
+          'page' => 'search_index',
         ],
       ];
       $field->setConfiguration($config);
@@ -503,13 +500,13 @@ class RenderedItemTest extends ProcessorTestBase {
       $field = $item->getField('rendered_item');
       $values = $field->getValues();
       $field_value = $values[0]->getText();
-      // Nodes of type "page" should use the "full" view mode while all others
-      // should use the "teaser" view mode.
+      // Nodes of type "page" should use the "search_index" view mode while all
+      // others should use the "teaser" view mode.
       if ($item->getOriginalObject()->getEntity()->bundle() === 'page') {
         $this->assertStringNotContainsString('>Read more<', $field_value, "Node item {$item->getId()} rendered in view-mode \"teaser\".");
       }
       else {
-        $this->assertStringContainsString('>Read more<', $field_value, "Node item {$item->getId()} rendered in view-mode \"full\".");
+        $this->assertStringContainsString('>Read more<', $field_value, "Node item {$item->getId()} rendered in view-mode \"search_index\".");
       }
     }
   }

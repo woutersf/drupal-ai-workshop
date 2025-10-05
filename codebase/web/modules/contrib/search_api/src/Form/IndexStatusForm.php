@@ -129,9 +129,16 @@ class IndexStatusForm extends FormBase {
         ],
         '#disabled' => !$has_remaining_items,
       ];
+      // If cron indexing is disabled, default to the default cron limit. If
+      // that is set to 0 (to disable cron indexing by default), fall back to
+      // the default default cron limit, 50, since letting this field default to
+      // 0 really makes no sense.
+      $default_batch_size = $index->getOption('cron_limit')
+        ?: $this->config('search_api.settings')->get('default_cron_limit')
+        ?: 50;
       $batch_size = [
         '#type' => 'textfield',
-        '#default_value' => $index->getOption('cron_limit', $this->config('search_api.settings')->get('default_cron_limit')),
+        '#default_value' => $default_batch_size,
         '#size' => 4,
         '#attributes' => [
           'class' => ['search-api-batch-size'],

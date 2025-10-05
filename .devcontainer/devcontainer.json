@@ -13,16 +13,16 @@
       "onAutoForward": "openBrowser",
       "visibility": "public"
     },
-    "82": {
-      "label": "PhpMyAdmin",
-      "onAutoForward": "openBrowser",
-      "visibility": "private"
-    },
-    "8025": {
-      "label": "Mailpit",
-      "onAutoForward": "openBrowser",
-      "visibility": "private"
-    }
+    // "82": {
+    //   "label": "PhpMyAdmin",
+    //   "onAutoForward": "openBrowser",
+    //   "visibility": "private"
+    // },
+    // "8025": {
+    //   "label": "Mailpit",
+    //   "onAutoForward": "openBrowser",
+    //   "visibility": "private"
+    // }
   },
   "customizations": {
     "vscode": {

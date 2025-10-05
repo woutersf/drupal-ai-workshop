@@ -199,6 +199,13 @@ class MetatagSettingsForm extends ConfigFormBase {
       '#description' => $this->t('A list of characters to trim at the end of all metatags. Provide a single string without any separators, e.g. "|,." (instead of "| , ."). Note that spaces, tabs, new lines, carriage returns and vertical tabs (" \n\r\t\v") will be trimmed automatically and do not need to be listed in this field. The trimming is applied at the very end after the tag is trimmed for length, and after the trimming option was executed.'),
     ];
 
+    $form['tag_trim']['suffix'] = [
+      '#title' => $this->t('Optional suffix to add'),
+      '#type' => 'textfield',
+      '#default_value' => $this->config('metatag.settings')->get('trim_suffix'),
+      '#description' => $this->t('If provided this string will be added at the end of all meta tags that are trimmed to length.'),
+    ];
+
     $scrollheight = $this->config('metatag.settings')->get('tag_scroll_max_height');
 
     $form['firehose_widget'] = [
@@ -246,6 +253,7 @@ class MetatagSettingsForm extends ConfigFormBase {
     $settings->set('tag_trim_maxlength', $trimmingValues);
     $trimEndCharacters = $form_state->getValue(['tag_trim', 'tag_trim_end']);
     $settings->set('tag_trim_end', $trimEndCharacters);
+    $settings->set('trim_suffix', $form_state->getValue(['tag_trim', 'suffix']));
 
     // Widget settings.
     $scrollheightvalue = $form_state->getValue([

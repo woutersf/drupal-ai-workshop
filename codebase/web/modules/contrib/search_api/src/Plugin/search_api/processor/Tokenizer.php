@@ -4,7 +4,9 @@ namespace Drupal\search_api\Plugin\search_api\processor;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Item\FieldInterface;
 use Drupal\search_api\Plugin\search_api\data_type\value\TextValueInterface;
 use Drupal\search_api\Processor\FieldsProcessorPluginBase;
@@ -12,18 +14,17 @@ use Drupal\search_api\Utility\Utility;
 
 /**
  * Splits text into individual words for searching.
- *
- * @SearchApiProcessor(
- *   id = "tokenizer",
- *   label = @Translation("Tokenizer"),
- *   description = @Translation("Splits text into individual words for searching."),
- *   stages = {
- *     "pre_index_save" = 0,
- *     "preprocess_index" = -6,
- *     "preprocess_query" = -6
- *   }
- * )
  */
+#[SearchApiProcessor(
+  id: 'tokenizer',
+  label: new TranslatableMarkup('Tokenizer'),
+  description: new TranslatableMarkup('Splits text into individual words for searching.'),
+  stages: [
+    'pre_index_save' => 0,
+    'preprocess_index' => -6,
+    'preprocess_query' => -6,
+  ],
+)]
 class Tokenizer extends FieldsProcessorPluginBase {
 
   /**
@@ -61,7 +62,7 @@ class Tokenizer extends FieldsProcessorPluginBase {
    */
   public function setConfiguration(array $configuration) {
     parent::setConfiguration($configuration);
-    unset($this->spaces);
+    $this->spaces = NULL;
   }
 
   /**

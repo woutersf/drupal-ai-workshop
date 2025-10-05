@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\search_api\Kernel\Views;
 
-use Drupal\Core\Serialization\Yaml;
+use Drupal\Component\Serialization\Yaml;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\views\Entity\View;
 use Drupal\views\ViewEntityInterface;

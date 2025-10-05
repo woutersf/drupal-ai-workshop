@@ -4,19 +4,20 @@ namespace Drupal\search_api_test\Plugin\search_api\tracker;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiTracker;
 use Drupal\search_api\Plugin\PluginFormTrait;
 use Drupal\search_api\Tracker\TrackerPluginBase;
 use Drupal\search_api_test\TestPluginTrait;
 
 /**
  * Provides a dummy tracker for testing purposes.
- *
- * @SearchApiTracker(
- *   id = "search_api_test",
- *   label = @Translation("&quot;Test&quot; tracker"),
- *   description = @Translation("This is the <em>test tracker</em> plugin description."),
- * )
  */
+#[SearchApiTracker(
+  id: 'search_api_test',
+  label: new TranslatableMarkup('&quot;Test&quot; tracker'),
+  description: new TranslatableMarkup('This is the <em>test tracker</em> plugin description.'),
+)]
 class TestTracker extends TrackerPluginBase implements PluginFormInterface {
 
   use PluginFormTrait;

@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api\Plugin\views\field;
 
+use Drupal\views\Attribute\ViewsField;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\TypedData\ComplexDataInterface;
 use Drupal\search_api\Plugin\views\query\SearchApiQuery;
@@ -16,9 +17,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Handles rendering an entity in a certain view mode in Search API Views.
  *
  * @ingroup views_field_handlers
- *
- * @ViewsField("search_api_rendered_item")
  */
+#[ViewsField('search_api_rendered_item')]
 class SearchApiRenderedItem extends FieldPluginBase {
 
   use SearchApiFieldTrait;

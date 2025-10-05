@@ -61,9 +61,17 @@ class MetatagCustomTagAdministrationTest extends BrowserTestBase {
     // Access metatag custom tag listing page operations for name type.
     $this->metatagCustomTagListingPageOperations('meta', 'name', 'content');
     // Access metatag custom tag listing page operations for property type.
-    $this->metatagCustomTagListingPageOperations('meta', 'name', 'content');
+    $this->metatagCustomTagListingPageOperations('meta', 'property', 'content');
     // Access metatag custom tag listing page operations for http-equiv type.
     $this->metatagCustomTagListingPageOperations('meta', 'http-equiv', 'content');
+    // Access metatag custom tag listing page operations for itemprop type.
+    $this->metatagCustomTagListingPageOperations('meta', 'itemprop', 'content');
+    // Access metatag custom tag listing page operations for rel type.
+    $this->metatagCustomTagListingPageOperations('link', 'rel', 'href');
+    // Access metatag custom tag creation for allowing - in the name.
+    $this->createCustomMetaTag('format_detection', 'Format Detection', 'This meta tag disables automatic detection in browsers.', 'meta', 'content', [['name' => 'name', 'value' => 'format-detection']]);
+    // Access metatag custom tag creation for allowing : in the name.
+    $this->createCustomMetaTag('twitter_card', 'Twitter Card', 'This meta tag defines the card type for twitter.', 'meta', 'content', [['name' => 'name', 'value' => 'twitter:card']]);
   }
 
   /**
@@ -75,11 +83,11 @@ class MetatagCustomTagAdministrationTest extends BrowserTestBase {
    */
   public function metatagCustomTagListingPageOperations($htmlElement, $htmlNameAttribute, $htmlValueAttribute) {
     // Create custom meta tag.
-    $this->createCustomMetaTag($htmlElement, $htmlNameAttribute, $htmlValueAttribute);
+    $this->createFooCustomMetaTag($htmlElement, $htmlNameAttribute, $htmlValueAttribute);
     // Update custom meta tag.
-    $this->updateCustomMetaTag();
+    $this->updateFooCustomMetaTag();
     // Delete custom meta tag.
-    $this->deleteCustomMetaTag();
+    $this->deleteFooCustomMetaTag();
   }
 
 }

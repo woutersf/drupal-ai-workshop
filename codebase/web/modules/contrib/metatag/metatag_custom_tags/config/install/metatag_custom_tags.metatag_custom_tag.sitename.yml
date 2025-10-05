@@ -5,5 +5,8 @@ id: sitename
 label: Sitename
 description: 'The name of the site.'
 htmlElement: meta
-htmlNameAttribute: name
 htmlValueAttribute: content
+attributes:
+  -
+    name: name
+    value: sitename

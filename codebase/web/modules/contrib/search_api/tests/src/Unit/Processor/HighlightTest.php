@@ -2,9 +2,13 @@
 
 namespace Drupal\Tests\search_api\Unit\Processor;
 
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\ComplexDataInterface;
+use Drupal\Core\Field\TypedData\FieldItemDataDefinition;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\TypedData\TypedDataInterface;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Item\Field;
@@ -54,9 +58,24 @@ class HighlightTest extends UnitTestCase {
     $this->processor = new Highlight([], 'highlight', []);
 
     $this->index = $this->createMock(IndexInterface::class);
-    $this->index->expects($this->any())
-      ->method('getFulltextFields')
+    $this->index->method('getFulltextFields')
       ->willReturn(['body', 'title']);
+    $property_definitions = [
+      'body' => new FieldConfig([
+        'field_name' => 'body',
+        'entity_type' => 'node',
+        'bundle' => 'article',
+        'itemDefinition' => new FieldItemDataDefinition(),
+      ]),
+      'title' => new FieldConfig([
+        'field_name' => 'title',
+        'entity_type' => 'node',
+        'bundle' => 'article',
+        'itemDefinition' => new FieldItemDataDefinition(),
+      ]),
+    ];
+    $this->index->method('getPropertyDefinitions')
+      ->willReturn($property_definitions);
     $this->processor->setIndex($this->index);
 
     /** @var \Drupal\Core\StringTranslation\TranslationInterface $translation */
@@ -166,6 +185,37 @@ class HighlightTest extends UnitTestCase {
   }
 
   /**
+   * Tests postprocessing on a query with the skip tag.
+   */
+  public function testPostprocessSearchResultsWithSkipTag() {
+    $query = $this->createMock(QueryInterface::class);
+    $query->expects($this->once())
+      ->method('getProcessingLevel')
+      ->willReturn(QueryInterface::PROCESSING_FULL);
+    $query->expects($this->once())
+      ->method('hasTag')
+      ->with('search_api_skip_processor_highlight')
+      ->willReturn(TRUE);
+
+    $results = $this->getMockBuilder(ResultSet::class)
+      ->onlyMethods(['getResultCount', 'getQuery', 'getResultItems'])
+      ->setConstructorArgs([$query])
+      ->getMock();
+
+    $results->expects($this->once())
+      ->method('getResultCount')
+      ->willReturn(1);
+    $results->expects($this->once())
+      ->method('getQuery')
+      ->willReturn($query);
+    $results->expects($this->never())
+      ->method('getResultItems');
+    /** @var \Drupal\search_api\Query\ResultSet $results */
+
+    $this->processor->postprocessSearchResults($results);
+  }
+
+  /**
    * Tests field highlighting with a normal result set.
    */
   public function testPostprocessSearchResultsWithResults() {
@@ -183,8 +233,6 @@ class HighlightTest extends UnitTestCase {
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $field]);
-
-    $this->processor->setIndex($this->index);
 
     $body_values = ['Some foo value'];
     $fields = [
@@ -274,8 +322,6 @@ class HighlightTest extends UnitTestCase {
       ->method('getFields')
       ->willReturn(['body' => $field]);
 
-    $this->processor->setIndex($this->index);
-
     $body_values = ['Some foo value'];
     $fields = [
       'entity:node/body' => [
@@ -316,8 +362,6 @@ class HighlightTest extends UnitTestCase {
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $field]);
-
-    $this->processor->setIndex($this->index);
 
     $body_values = ['Some foo value'];
     $fields = [
@@ -368,8 +412,6 @@ class HighlightTest extends UnitTestCase {
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $field]);
-
-    $this->processor->setIndex($this->index);
 
     $fields = [
       'entity:node/body' => [
@@ -437,8 +479,6 @@ class HighlightTest extends UnitTestCase {
       ->method('getFields')
       ->willReturn(['body' => $field]);
 
-    $this->processor->setIndex($this->index);
-
     $body_values = ['Some foo value'];
     $fields = [
       'entity:node/body' => [
@@ -483,8 +523,6 @@ class HighlightTest extends UnitTestCase {
       ->method('getFields')
       ->willReturn(['body' => $field]);
 
-    $this->processor->setIndex($this->index);
-
     $body_values = [$this->getFieldBody()];
     $fields = [
       'entity:node/body' => [
@@ -525,8 +563,6 @@ class HighlightTest extends UnitTestCase {
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $field]);
-
-    $this->processor->setIndex($this->index);
 
     $body_value = <<<'END'
 Sentence with foo keyword.
@@ -639,8 +675,6 @@ END;
       ->method('getFields')
       ->willReturn(['body' => $field]);
 
-    $this->processor->setIndex($this->index);
-
     $body_values = [$this->getFieldBody()];
     $fields = [
       'entity:node/body' => [
@@ -683,8 +717,6 @@ END;
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $field]);
-
-    $this->processor->setIndex($this->index);
 
     $body_values = [$this->getFieldBody()];
     $fields = [
@@ -729,8 +761,6 @@ END;
       ->method('getFields')
       ->willReturn(['body' => $field]);
 
-    $this->processor->setIndex($this->index);
-
     $body_values = [$this->getFieldBody()];
     $fields = [
       'entity:node/body' => [
@@ -771,8 +801,6 @@ END;
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $field]);
-
-    $this->processor->setIndex($this->index);
 
     $body_values = [$this->getFieldBody()];
     $fields = [
@@ -833,8 +861,6 @@ END;
       ->method('getFields')
       ->willReturn(['body' => $body_field]);
 
-    $this->processor->setIndex($this->index);
-
     $fields = [
       'entity:node/body' => [
         'type' => 'text',
@@ -881,8 +907,6 @@ END;
         'body' => $body_field,
         'title' => $title_field,
       ]);
-
-    $this->processor->setIndex($this->index);
 
     $body_values = ['Some foo value', 'foo bar'];
     $title_values = ['Title foo'];
@@ -935,8 +959,6 @@ END;
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $body_field]);
-
-    $this->processor->setIndex($this->index);
 
     $body_values = ['Some foo value', 'foo bar'];
     $fields = [
@@ -992,8 +1014,6 @@ END;
         'body' => $body_field,
         'title' => $title_field,
       ]);
-
-    $this->processor->setIndex($this->index);
 
     $this->processor->setConfiguration([
       'exclude_fields' => ['title'],
@@ -1065,6 +1085,8 @@ END;
         'foobar' => TRUE,
       ]);
 
+    $this->index = $this->createMock(IndexInterface::class);
+    $this->processor->setIndex($this->index);
     $this->index->method('getFields')
       ->willReturn([
         'field1' => $this->createTestField('field1', 'entity:test1/bar:foo'),
@@ -1086,8 +1108,14 @@ END;
         [
           'entity:test1',
           [
-            'bar' => new DataDefinition(),
-            'foobar' => new DataDefinition(),
+            'bar' => $this->createFieldItemDataDefinition('text'),
+            'foobar' => $this->createFieldItemDataDefinition('text'),
+          ],
+        ],
+        [
+          'entity:test2',
+          [
+            'foobar' => $this->createFieldItemDataDefinition('text'),
           ],
         ],
       ]);
@@ -1179,8 +1207,18 @@ END;
    * @dataProvider regressionBug3022724DataProvider
    */
   public function testRegressionBug3022724($text, array $keys, $expected) {
-    $method = new \ReflectionMethod($this->processor, 'createExcerpt');
-    $excerpt = $method->invoke($this->processor, $text, $keys);
+    /* @see \Drupal\search_api\Plugin\search_api\processor\Highlight::createExcerptForFields() */
+    $method = new \ReflectionMethod($this->processor, 'createExcerptForFields');
+    $excerpt = $method->invoke(
+      $this->processor,
+      [
+        [
+          'field_id' => 'foo',
+          'values' => [$text],
+        ],
+      ],
+      $keys,
+    );
     $this->assertEquals($expected, $excerpt);
   }
 
@@ -1241,8 +1279,6 @@ END;
     $this->index->expects($this->atLeastOnce())
       ->method('getFields')
       ->willReturn(['body' => $body, 'title' => $title]);
-
-    $this->processor->setIndex($this->index);
 
     $body_values = ['Some foo value'];
     $title_values = ['The foo title'];
@@ -1383,6 +1419,30 @@ Quisque turpis lacus, sodales nec malesuada nec, commodo non purus.
 Cras pellentesque, lectus ut imperdiet euismod, purus sem convallis tortor, ut fermentum elit nulla et quam.
 Mauris luctus mattis enim non accumsan. Sed consequat sapien lorem, in ultricies orci posuere nec.
 Fusce in mauris eu leo fermentum feugiat. Proin varius diam ante, non eleifend ipsum luctus sed.';
+  }
+
+  /**
+   * Creates a field item data definition for the specified field type.
+   *
+   * @param string $field_type
+   *   The field type to create the data definition for.
+   *
+   * @return \Drupal\Core\Field\TypedData\FieldItemDataDefinition
+   *   The field item data definition object.
+   */
+  protected function createFieldItemDataDefinition($field_type) {
+    // Create a mock field definition.
+    $field_definition = $this->createMock(FieldDefinitionInterface::class);
+    $field_definition->method('getType')->willReturn($field_type);
+
+    // Create a mock field storage definition.
+    $storage_definition = $this->createMock(FieldStorageDefinitionInterface::class);
+    $storage_definition->method('getPropertyDefinitions')->willReturn([]);
+    $storage_definition->method('getMainPropertyName')->willReturn('value');
+
+    $field_definition->method('getFieldStorageDefinition')->willReturn($storage_definition);
+
+    return FieldItemDataDefinition::create($field_definition);
   }
 
 }

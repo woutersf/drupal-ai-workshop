@@ -35,3 +35,6 @@ metatag.settings:
     tag_trim_end:
       type: string
       label: 'End of the word trimming'
+    trim_suffix:
+      type: string
+      label: 'Optional suffix to add'

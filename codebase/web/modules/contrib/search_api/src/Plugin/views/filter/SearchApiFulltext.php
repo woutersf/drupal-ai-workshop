@@ -2,6 +2,7 @@
 
 namespace Drupal\search_api\Plugin\views\filter;
 
+use Drupal\views\Attribute\ViewsFilter;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\search_api\Entity\Index;
@@ -13,9 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Defines a filter for adding a fulltext search to the view.
  *
  * @ingroup views_filter_handlers
- *
- * @ViewsFilter("search_api_fulltext")
  */
+#[ViewsFilter('search_api_fulltext')]
 class SearchApiFulltext extends FilterPluginBase {
 
   use SearchApiFilterTrait;
@@ -397,13 +397,15 @@ class SearchApiFulltext extends FilterPluginBase {
     if ($this->value === '') {
       return;
     }
-    $fields = $this->options['fields'];
-    $fields = $fields ?: array_keys($this->getFulltextFields());
+    $query = $this->getQuery();
+
+    $indexed_fulltext_fields = $query->getIndex()->getFulltextFields();
+    $fields = array_intersect($this->options['fields'], $indexed_fulltext_fields);
+    $fields = $fields ?: $indexed_fulltext_fields;
     // Override the search fields, if exposed.
     if (!empty($this->searchedFields)) {
       $fields = array_intersect($fields, $this->searchedFields);
     }
-    $query = $this->getQuery();
 
     // Save any keywords that were already set.
     $old = $query->getKeys();

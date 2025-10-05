@@ -3,22 +3,23 @@
 namespace Drupal\metatag\Plugin\Field\FieldType;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Field\Attribute\FieldType;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
 
 /**
  * Plugin implementation of the 'metatag' field type.
- *
- * @FieldType(
- *   id = "metatag",
- *   label = @Translation("Meta tags"),
- *   description = @Translation("This field stores code meta tags."),
- *   list_class = "\Drupal\metatag\Plugin\Field\FieldType\MetatagFieldItemList",
- *   default_widget = "metatag_firehose",
- *   default_formatter = "metatag_empty_formatter",
- * )
  */
+#[FieldType(
+ id: "metatag",
+ label: new TranslatableMarkup("Meta tags"),
+ description: new TranslatableMarkup("This field stores code meta tags."),
+ list_class: "\Drupal\metatag\Plugin\Field\FieldType\MetatagFieldItemList",
+ default_widget: "metatag_firehose",
+ default_formatter: "metatag_empty_formatter"
+)]
 class MetatagFieldItem extends FieldItemBase {
 
   /**

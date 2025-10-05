@@ -6,6 +6,7 @@ use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\Action\Attribute\ActionMethod;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\Attribute\ConfigEntityType;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\search_api\Event\DeterminingServerFeaturesEvent;
@@ -65,6 +66,50 @@ use Drupal\search_api\Utility\Utility;
  *   }
  * )
  */
+#[ConfigEntityType(
+  id: 'search_api_server',
+  label: new TranslatableMarkup('Search server'),
+  label_collection: new TranslatableMarkup('Search servers'),
+  label_singular: new TranslatableMarkup('search server'),
+  label_plural: new TranslatableMarkup('search servers'),
+  config_prefix: 'server',
+  entity_keys: [
+    'id' => 'id',
+    'label' => 'name',
+    'uuid' => 'uuid',
+    'status' => 'status',
+  ],
+  handlers: [
+    'storage' => 'Drupal\search_api\Entity\SearchApiConfigEntityStorage',
+    'form' => [
+      'default' => 'Drupal\search_api\Form\ServerForm',
+      'edit' => 'Drupal\search_api\Form\ServerForm',
+      'delete' => 'Drupal\search_api\Form\ServerDeleteConfirmForm',
+      'disable' => 'Drupal\search_api\Form\ServerDisableConfirmForm',
+      'clear' => 'Drupal\search_api\Form\ServerClearConfirmForm',
+    ],
+  ],
+  links: [
+    'canonical' => '/admin/config/search/search-api/server/{search_api_server}',
+    'add-form' => '/admin/config/search/search-api/add-server',
+    'edit-form' => '/admin/config/search/search-api/server/{search_api_server}/edit',
+    'delete-form' => '/admin/config/search/search-api/server/{search_api_server}/delete',
+    'disable' => '/admin/config/search/search-api/server/{search_api_server}/disable',
+    'enable' => '/admin/config/search/search-api/server/{search_api_server}/enable',
+  ],
+  admin_permission: 'administer search_api',
+  label_count: [
+    'singular' => '@count search server',
+    'plural' => '@count search servers',
+  ],
+  config_export: [
+    'id',
+    'name',
+    'description',
+    'backend',
+    'backend_config',
+  ],
+)]
 class Server extends ConfigEntityBase implements ServerInterface {
 
   use InstallingTrait;
@@ -171,11 +216,16 @@ class Server extends ConfigEntityBase implements ServerInterface {
   #[ActionMethod(adminLabel: new TranslatableMarkup('Set backend config'), pluralize: FALSE)]
   public function setBackendConfig(array $backend_config) {
     $this->backend_config = $backend_config;
-    // In case the backend plugin is already loaded, make sure the configuration
-    // stays in sync.
-    if ($this->backendPlugin
-        && $this->getBackend()->getConfiguration() !== $backend_config) {
-      $this->getBackend()->setConfiguration($backend_config);
+    try {
+      // Update the backend plugin's configuration, also allowing it to react to
+      // this change.
+      if ($this->getBackend()->getConfiguration() !== $backend_config) {
+        $this->getBackend()->setConfiguration($backend_config);
+      }
+    }
+    catch (SearchApiException) {
+      // Just ignore the exception in this instance and skip the call to
+      // BackendPluginInterface::setConfiguration().
     }
     return $this;
   }

@@ -17,28 +17,24 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Defines a base class for backend plugins.
  *
- * Plugins extending this class need to define a plugin definition array through
- * annotation. These definition arrays may be altered through
- * hook_search_api_backend_info_alter(). The definition includes the following
- * keys:
- * - id: The unique, system-wide identifier of the backend class.
- * - label: The human-readable name of the backend class, translated.
- * - description: A human-readable description for the backend class,
- *   translated.
+ * Plugins extending this class need to provide the plugin definition using the
+ * \Drupal\search_api\Attribute\SearchApiBackend attribute. These definitions
+ * may be altered using the "search_api.gathering_backends" event.
  *
  * A complete plugin definition should be written as in this example:
  *
  * @code
- * @SearchApiBackend(
- *   id = "my_backend",
- *   label = @Translation("My backend"),
- *   description = @Translation("Searches with SuperSearch™.")
- * )
+ * #[SearchApiBackend(
+ *   id: 'my_backend',
+ *   label: new TranslatableMarkup('My backend'),
+ *   description: new TranslatableMarkup('Searches with SuperSearch™.'),
+ * )]
  * @endcode
  *
- * @see \Drupal\search_api\Annotation\SearchApiBackend
+ * @see \Drupal\search_api\Attribute\SearchApiBackend
  * @see \Drupal\search_api\Backend\BackendPluginManager
  * @see \Drupal\search_api\Backend\BackendInterface
+ * @see \Drupal\search_api\Event\SearchApiEvents::GATHERING_BACKENDS
  * @see plugin_api
  */
 abstract class BackendPluginBase extends ConfigurablePluginBase implements BackendInterface {

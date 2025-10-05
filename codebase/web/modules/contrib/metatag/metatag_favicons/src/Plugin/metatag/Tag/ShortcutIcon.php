@@ -26,7 +26,7 @@ class ShortcutIcon extends LinkRelBase {
    */
   public function getTestOutputExistsXpath(): array {
     // This is the one icon tag that doesn't have a size attribute.
-    return ["//link[@rel='{$this->name}' and not(@sizes)]"];
+    return ["//link[@rel='{$this->name}' and not(@sizes) and not(@type)]"];
   }
 
   /**
@@ -35,7 +35,7 @@ class ShortcutIcon extends LinkRelBase {
   public function getTestOutputValuesXpath(array $values): array {
     $xpath_strings = [];
     foreach ($values as $value) {
-      $xpath_strings[] = "//link[@rel='{$this->name}' and not(@sizes) and @" . $this->htmlValueAttribute . "='{$value}']";
+      $xpath_strings[] = "//link[@rel='{$this->name}' and not(@sizes) and not(@type) and @" . $this->htmlValueAttribute . "='{$value}']";
     }
     return $xpath_strings;
   }

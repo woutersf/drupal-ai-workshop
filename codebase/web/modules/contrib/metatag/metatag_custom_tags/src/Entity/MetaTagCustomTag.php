@@ -43,8 +43,8 @@ use Drupal\metatag_custom_tags\MetaTagCustomTagInterface;
  *     "label",
  *     "description",
  *     "htmlElement",
- *     "htmlNameAttribute",
  *     "htmlValueAttribute",
+ *     "attributes",
  *   },
  * )
  */
@@ -73,17 +73,17 @@ class MetaTagCustomTag extends ConfigEntityBase implements MetaTagCustomTagInter
   protected $htmlElement;
 
   /**
-   * The attribute this tag uses for the name.
-   *
-   * @var string
-   */
-  protected $htmlNameAttribute;
-
-  /**
    * The attribute this tag uses for the contents.
    *
    * @var string
    */
   protected $htmlValueAttribute;
+
+  /**
+   * The attributes this tag uses.
+   *
+   * @var array
+   */
+  protected $attributes = [];
 
 }

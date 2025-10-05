@@ -649,6 +649,21 @@ class UnsavedIndexConfiguration implements IndexInterface, UnsavedConfigurationI
   /**
    * {@inheritdoc}
    */
+  public function getIndexingRequestTime(): ?int {
+    return $this->entity->getIndexingRequestTime();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setIndexingRequestTime(int $request_time): static {
+    $this->entity->setIndexingRequestTime($request_time);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function query(array $options = []) {
     return $this->entity->query($options);
   }

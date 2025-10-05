@@ -33,10 +33,12 @@ class MethodOverrides {
    * @return true
    *   Always returns TRUE, to cater to those methods that expect a return
    *   value.
+   *
+   * @throws \ErrorException
    */
   public static function overrideTestBackendMethod(BackendInterface $backend) {
     if ($backend->getConfiguration() !== ['test' => 'foobar']) {
-      trigger_error('Critical server method called with incorrect backend configuration.', E_USER_ERROR);
+      throw new \ErrorException('Critical server method called with incorrect backend configuration.');
     }
     return TRUE;
   }
@@ -53,10 +55,12 @@ class MethodOverrides {
    *
    * @return string[]
    *   The array keys of $items.
+   *
+   * @throws \ErrorException
    */
   public static function overrideTestBackendIndexItems(BackendInterface $backend, IndexInterface $index, array $items) {
     if ($backend->getConfiguration() !== ['test' => 'foobar']) {
-      trigger_error('Server method indexItems() called with incorrect backend configuration.', E_USER_ERROR);
+      throw new \ErrorException('Server method indexItems() called with incorrect backend configuration.');
     }
     return array_keys($items);
   }

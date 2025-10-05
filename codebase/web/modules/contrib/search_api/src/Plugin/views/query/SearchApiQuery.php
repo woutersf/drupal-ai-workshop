@@ -12,6 +12,7 @@ use Drupal\Core\Entity\Plugin\DataType\EntityAdapter;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\search_api\Entity\Index;
 use Drupal\search_api\LoggerTrait;
 use Drupal\search_api\ParseMode\ParseModeInterface;
@@ -25,6 +26,7 @@ use Drupal\search_api\Query\QueryInterface;
 use Drupal\search_api\Query\ResultSetInterface;
 use Drupal\search_api\SearchApiException;
 use Drupal\user\Entity\User;
+use Drupal\views\Attribute\ViewsQuery;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
@@ -32,13 +34,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a Views query class for searching on Search API indexes.
- *
- * @ViewsQuery(
- *   id = "search_api_query",
- *   title = @Translation("Search API Query"),
- *   help = @Translation("The query will be generated and run using the Search API.")
- * )
  */
+#[ViewsQuery(
+  id: 'search_api_query',
+  title: new TranslatableMarkup('Search API Query'),
+  help: new TranslatableMarkup('The query will be generated and run using the Search API.'),
+)]
 class SearchApiQuery extends QueryPluginBase {
 
   use LoggerTrait;

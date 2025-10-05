@@ -14,6 +14,7 @@ use Drupal\search_api\Query\Query;
 use Drupal\search_api\Utility\QueryHelperInterface;
 use Drupal\search_api\Utility\ThemeSwitcherInterface;
 use Drupal\search_api\Utility\Utility;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -156,11 +157,15 @@ trait TestItemsTrait {
     $queryHelper->method('getResults')
       ->willReturn([]);
 
+    // Add logger service for classes using LoggerTrait.
+    $logger = $this->createMock(LoggerInterface::class);
+
     $this->container = new ContainerBuilder();
     $this->container->set('plugin.manager.search_api.data_type', $dataTypeManager);
     $this->container->set('search_api.data_type_helper', $dataTypeHelper);
     $this->container->set('search_api.fields_helper', $fieldsHelper);
     $this->container->set('search_api.query_helper', $queryHelper);
+    $this->container->set('logger.channel.search_api', $logger);
     \Drupal::setContainer($this->container);
   }
 

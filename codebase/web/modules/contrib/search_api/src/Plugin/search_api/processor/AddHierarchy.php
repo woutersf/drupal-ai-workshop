@@ -9,7 +9,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\TypedData\EntityDataDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\ComplexDataDefinitionInterface;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Item\FieldInterface;
 use Drupal\search_api\LoggerTrait;
@@ -22,16 +24,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Adds all ancestors' IDs to a hierarchical field.
- *
- * @SearchApiProcessor(
- *   id = "hierarchy",
- *   label = @Translation("Index hierarchy"),
- *   description = @Translation("Allows the indexing of values along with all their ancestors for hierarchical fields (like taxonomy term references)"),
- *   stages = {
- *     "preprocess_index" = -45
- *   }
- * )
  */
+#[SearchApiProcessor(
+  id: 'hierarchy',
+  label: new TranslatableMarkup('Index hierarchy'),
+  description: new TranslatableMarkup('Allows the indexing of values along with all their ancestors for hierarchical fields (like taxonomy term references)'),
+  stages: [
+    'preprocess_index' => -45,
+  ],
+)]
 class AddHierarchy extends ProcessorPluginBase implements PluginFormInterface {
 
   use LoggerTrait;

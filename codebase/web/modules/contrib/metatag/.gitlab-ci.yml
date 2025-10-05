@@ -58,7 +58,8 @@ include:
 variables:
   # Extra words for CSpell; comma-separated.
   # 3529741: Added the Spanish, French and German words.
-  _CSPELL_WORDS: "españa, große, größe, müller, niño, résumé, rêve, schöne"
+  # 3458724: Added fediverse.
+  _CSPELL_WORDS: "españa, große, größe, müller, niño, résumé, rêve, schöne, fediverse"
 
   # Run tests against the previous and next core major releases, to help make
   # sure small changes don't break anything too quickly.

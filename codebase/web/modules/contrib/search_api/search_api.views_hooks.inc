@@ -157,14 +157,18 @@ function search_api_views_plugins_row_alter(array &$plugins) {
   }
 
   // If no search indexes are defined yet, declare a dummy index as the base
-  // table. This will make sure our plugins do not become available for Views
+  // table. This will make sure our plugins do not become available for views
   // that are not based on search indexes.
   if (!$bases) {
     $bases = ['search_api_index_dummy'];
   }
 
-  $plugins['search_api']['base'] = $bases;
-  $plugins['search_api_data']['base'] = $bases;
+  if (isset($plugins['search_api'])) {
+    $plugins['search_api']['base'] = $bases;
+  }
+  if (isset($plugins['search_api_data'])) {
+    $plugins['search_api_data']['base'] = $bases;
+  }
 }
 
 /**

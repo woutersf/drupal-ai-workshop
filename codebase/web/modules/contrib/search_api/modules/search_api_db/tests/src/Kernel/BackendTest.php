@@ -1420,7 +1420,7 @@ class BackendTest extends BackendTestBase {
    *
    * @see https://www.drupal.org/project/search_api/issues/2949962
    *
-   * @dataProvider regression2949962DataProvider
+   * @dataProvider matchModesDataProvider
    */
   public function testRegression2949962(string $match_mode): void {
     $this->insertExampleContent();
@@ -1493,12 +1493,13 @@ class BackendTest extends BackendTestBase {
   }
 
   /**
-   * Provides test data for testRegression2949962().
+   * Provides test data for test methods that need to test all match modes.
    *
    * @return array
-   *   An associative array of argument arrays for testRegression2949962().
+   *   An associative array of argument arrays for test methods that take any
+   *   match mode as an argument.
    */
-  public static function regression2949962DataProvider(): array {
+  public static function matchModesDataProvider(): array {
     return [
       'Match mode "partial"' => ['partial'],
       'Match mode "prefix"' => ['prefix'],
@@ -1519,6 +1520,228 @@ class BackendTest extends BackendTestBase {
     $this->assertEquals('0', $method->invoke(NULL, '0'));
     $this->assertEquals('0', $method->invoke(NULL, '000'));
     $this->assertEquals('0', $method->invoke(NULL, '-0'));
+  }
+
+  /**
+   * Test AND of nested OR groups, and negated nested group queries.
+   *
+   * @param string $match_mode
+   *   The match mode to use – "partial", "prefix" or "words".
+   *
+   * @see https://www.drupal.org/node/3537045
+   *
+   * @dataProvider matchModesDataProvider
+   */
+  public function testRegression3537045(string $match_mode): void {
+    $this->addTestEntity(1, [
+      'name' => 'foo baz',
+      'body' => 'bar fux',
+      'type' => 'article',
+    ]);
+
+    $this->addTestEntity(2, [
+      'name' => 'bar',
+      'body' => 'Nothing else mentioned here.',
+      'type' => 'article',
+    ]);
+
+    $this->addTestEntity(3, [
+      'name' => 'Nothing else mentioned here.',
+      'body' => 'fux',
+      'type' => 'article',
+    ]);
+
+    $this->addTestEntity(4, [
+      'name' => 'foo baz qux quux',
+      'body' => 'Nothing else mentioned here.',
+      'type' => 'article',
+    ]);
+
+    $this->addTestEntity(5, [
+      'name' => 'foo qux quux',
+      'body' => 'Nothing else mentioned here.',
+      'type' => 'article',
+    ]);
+
+    $count = \Drupal::entityQuery('entity_test_mulrev_changed')
+      ->count()
+      ->accessCheck(FALSE)
+      ->execute();
+    $this->assertEquals(5, $count, "$count items inserted.");
+
+    $this->setServerMatchMode($match_mode);
+    $this->indexItems($this->indexId);
+
+    $searches = [
+      // (foo OR bar) AND (baz OR fux)
+      // Count rows combined by UNION (one per matched group) to avoid counting
+      // non-existing [t].[word].
+      'grouped AND condition' => [
+        'keys' => [
+          '#conjunction' => 'AND',
+          [
+            '#conjunction' => 'OR',
+            'foo',
+            'bar',
+          ],
+          [
+            '#conjunction' => 'OR',
+            'baz',
+            'fux',
+          ],
+        ],
+        'expected_results' => [
+          1,
+          4,
+        ],
+      ],
+      // NOT (foo AND (bar OR baz))
+      // Ensure negated word queries select consistent fields preventing UNION
+      // column mismatches.
+      'negation with nested groups and phrases' => [
+        'keys' => [
+          '#negation' => TRUE,
+          '#conjunction' => 'AND',
+          [
+            '#conjunction' => 'AND',
+            'foo',
+            [
+              '#conjunction' => 'OR',
+              'bar',
+              'baz',
+            ],
+          ],
+        ],
+        'expected_results' => [
+          2,
+          3,
+          5,
+        ],
+      ],
+      // foo AND (NOT baz OR (baz NOT qux))
+      // Ensures every NOT IN (...) subquery returns exactly one column
+      // (item_id).
+      'single-column NOT IN subqueries' => [
+        'keys' => [
+          '#conjunction' => 'AND',
+          'foo',
+          [
+            '#conjunction' => 'OR',
+            [
+              '#negation' => TRUE,
+              '#conjunction' => 'AND',
+              'baz',
+            ],
+            [
+              '#conjunction' => 'AND',
+              'baz',
+              [
+                '#negation' => TRUE,
+                '#conjunction' => 'AND',
+                'qux',
+              ],
+            ],
+          ],
+        ],
+        'expected_results' => [
+          1,
+          5,
+        ],
+      ],
+
+      // foo AND (NOT bar OR (baz NOT "qux quux"))
+      // Verifies that the positive nested branch is preserved (OR baz)
+      // meaning no unintended NOT IN negation happens as in:
+      // foo AND (NOT bar OR (NOT baz OR qux))
+      'positive nested branch preserved' => [
+        'keys' => [
+          '#conjunction' => 'AND',
+          'foo',
+          [
+            '#conjunction' => 'OR',
+            [
+              '#negation' => TRUE,
+              '#conjunction' => 'AND',
+              'bar',
+            ],
+            [
+              '#conjunction' => 'AND',
+              'baz',
+              [
+                '#negation' => TRUE,
+                '#conjunction' => 'AND',
+                'qux quux',
+              ],
+            ],
+          ],
+        ],
+        'expected_results' => [
+          1,
+          4,
+          5,
+        ],
+      ],
+
+      // foo AND (NOT bar OR NOT (baz NOT "qux quux"))
+      // Guard against the De Morgan drift.
+      // NOT (baz NOT "qux quux") == (NOT baz) OR "qux quux"
+      'guard against de morgan drift' => [
+        'keys' => [
+          '#conjunction' => 'AND',
+          'foo',
+          [
+            '#conjunction' => 'OR',
+            [
+              '#negation' => TRUE,
+              '#conjunction' => 'AND',
+              'bar',
+            ],
+            [
+              '#negation' => TRUE,
+              '#conjunction' => 'AND',
+              [
+                '#conjunction' => 'AND',
+                'baz',
+                [
+                  '#negation' => TRUE,
+                  '#conjunction' => 'AND',
+                  'qux quux',
+                ],
+              ],
+            ],
+          ],
+        ],
+        'expected_results' => [
+          4,
+          5,
+        ],
+      ],
+      // foo AND (baz NOT "qux quux")
+      // Isolates the (baz NOT "qux quux") branch
+      'baz branch isolated' => [
+        'keys' => [
+          '#conjunction' => 'AND',
+          'foo',
+          [
+            '#conjunction' => 'AND',
+            'baz',
+            [
+              '#negation' => TRUE,
+              '#conjunction' => 'AND',
+              'qux quux',
+            ],
+          ],
+        ],
+        'expected_results' => [
+          1,
+        ],
+      ],
+    ];
+
+    foreach ($searches as $search) {
+      $results = $this->buildSearch($search['keys'], [], ['name', 'body'])->execute();
+      $this->assertResults($search['expected_results'], $results);
+    }
   }
 
 }

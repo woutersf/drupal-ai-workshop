@@ -1,3 +1,20 @@
+Metatag 2.2.0, 2025-09-23
+-------------------------
+#3458724 by damienmckenna, rachel_norfolk, pacproduct, petr illek: Add support
+  for fediverse:creator.
+#3535155 by feyp, damienmckenna: Add SVG icon meta tag.
+#3541817 by damienmckenna: Replace annotation plugins with attribute plugins,
+  require core 10.3+.
+#3272202 by anybody, damienmckenna, grevil: Add <none> placeholder to clear /
+  unset inherited value.
+#3545780 by damienmckenna: Optionally add suffix after meta tags are trimmed.
+#3545784 by damienmckenna: Rework MetaTagCustomTag to extend MetaNameBase.
+#3336142 by damienmckenna, pooja_sharma, sidharth_soman, jvbrian, schillerm,
+  admirlju: List the total number of plugins on the reports page.
+#3488276 by monaw, naveenvalecha, gillesbailleux, damienmckenna, eleonel:
+  Custom Meta tags: Support multiple attributes.
+
+
 Metatag 2.1.2, 2025-09-04
 -------------------------
 #3531026 by wengerk, damienmckenna: V2UpdatesTest::doSelectionTest() must be

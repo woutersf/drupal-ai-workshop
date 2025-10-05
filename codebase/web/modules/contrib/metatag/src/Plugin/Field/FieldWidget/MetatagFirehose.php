@@ -4,27 +4,28 @@ namespace Drupal\metatag\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Field\Attribute\FieldWidget;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\metatag\MetatagManagerInterface;
 use Drupal\metatag\MetatagTagPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Advanced widget for metatag field.
- *
- * @FieldWidget(
- *   id = "metatag_firehose",
- *   label = @Translation("Advanced meta tags form"),
- *   field_types = {
- *     "metatag"
- *   }
- * )
  */
+#[FieldWidget(
+  id: 'metatag_firehose',
+  label: new TranslatableMarkup('Advanced meta tags form'),
+  field_types: [
+    'metatag'
+  ]
+)]
 class MetatagFirehose extends WidgetBase implements ContainerFactoryPluginInterface {
 
   use StringTranslationTrait;

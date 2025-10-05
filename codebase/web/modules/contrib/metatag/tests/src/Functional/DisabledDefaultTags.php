@@ -160,6 +160,34 @@ class DisabledDefaultTags extends BrowserTestBase {
   }
 
   /**
+   * Test that a Global metatag doesn't load if its values is set none.
+   *
+   * Even if it inherits a value from a parent.
+   */
+  public function testNone() {
+    /** @var \Drupal\metatag\Entity\MetatagDefaults $globalMetatag */
+    // Set a value for the global "canonical_url" metatag, which the 403
+    // metatag inherits from:
+    $globalMetatag = $this->loadMetatagDefault('global');
+    $globalMetatag->overwriteTags(['canonical_url' => 'https://test.canonical']);
+    $globalMetatag->save();
+
+    /** @var \Drupal\metatag\Entity\MetatagDefaults $accessDeniedMetatag */
+    $accessDeniedMetatag = $this->loadMetatagDefault('403');
+    // Now we disable the 403 canonical metatag, meaning, that the metatag
+    // should not exist entirely:
+    $accessDeniedMetatag->overwriteTags(['canonical_url' => '<none>']);
+    $accessDeniedMetatag->save();
+
+    // Check, that the metatag is gone entirely, and we don't have the parent
+    // fallback instead:
+    $this->drupalGet('/admin');
+    $this->assertSession()->statusCodeEquals(403);
+    $xpath = $this->xpath("//link[@rel='canonical']");
+    $this->assertEmpty($xpath);
+  }
+
+  /**
    * Test that a disabled Node metatag default doesn't load.
    *
    * @throws \Behat\Mink\Exception\ExpectationException

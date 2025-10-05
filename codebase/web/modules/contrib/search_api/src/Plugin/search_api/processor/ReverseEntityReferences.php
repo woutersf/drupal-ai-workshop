@@ -12,6 +12,8 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Item\ItemInterface;
@@ -23,16 +25,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Allows indexing of reverse entity references.
- *
- * @SearchApiProcessor(
- *   id = "reverse_entity_references",
- *   label = @Translation("Reverse entity references"),
- *   description = @Translation("Allows indexing of entities that link to the indexed entity."),
- *   stages = {
- *     "add_properties" = 0,
- *   },
- * )
  */
+#[SearchApiProcessor(
+  id: 'reverse_entity_references',
+  label: new TranslatableMarkup('Reverse entity references'),
+  description: new TranslatableMarkup('Allows indexing of entities that link to the indexed entity.'),
+  stages: [
+    'add_properties' => 0,
+  ],
+)]
 class ReverseEntityReferences extends ProcessorPluginBase {
 
   /**

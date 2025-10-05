@@ -237,7 +237,10 @@ class CommandHelperTest extends KernelTestBase {
     $index->clear();
     $this->assertSame(0, $index->getTrackerInstance()->getIndexedItemsCount());
     $this->systemUnderTest->indexItemsToIndexCommand(['test_index'], 10, 10);
+    $this->assertNull($index->getIndexingRequestTime());
     $this->runBatch();
+    // @todo Getting this assertion to work requires mocking the time service.
+    // $this->assertNotNull($index->getIndexingRequestTime());
     $this->assertSame(5, $index->getTrackerInstance()->getIndexedItemsCount());
   }
 

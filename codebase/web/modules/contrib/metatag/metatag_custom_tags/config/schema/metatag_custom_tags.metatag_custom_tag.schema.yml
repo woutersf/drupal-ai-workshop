@@ -3,7 +3,7 @@ metatag_custom_tags.metatag_custom_tag.*:
   label: 'Custom tag'
   mapping:
     id:
-      type: string
+      type: machine_name
       label: 'ID'
     label:
       type: label
@@ -13,10 +13,28 @@ metatag_custom_tags.metatag_custom_tag.*:
       label: 'Description'
     htmlElement:
       type: string
-      label: 'Element of the html tag. e.g. meta, link, etc.'
-    htmlNameAttribute:
-      type: string
-      label: 'The attribute this tag uses for the name. e.g. name, property, http-equiv, itemprop, rel, etc.'
+      label: 'Element of the HTML tag. e.g. meta, link, etc.'
+      constraints:
+        Choice:
+          - meta
+          - link
     htmlValueAttribute:
       type: string
-      label: 'The value of the html name attribute. e.g. content, href, etc.'
+      label: 'The name of the html value attribute. e.g. content, href, charset, etc.'
+      constraints:
+        Choice:
+          - content
+          - charset
+          - href
+    attributes:
+      type: sequence
+      label: 'Additional attributes'
+      sequence:
+        type: mapping
+        mapping:
+          name:
+            type: string
+            label: 'Attribute name'
+          value:
+            type: string
+            label: 'Attribute value'

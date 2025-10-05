@@ -38,16 +38,35 @@ abstract class SearchApiPluginManager extends DefaultPluginManager {
    *   The module handler.
    * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
    *   The event dispatcher.
-   * @param string|null $plugin_interface
+   * @param class-string|null $plugin_interface
    *   (optional) The interface each plugin should implement.
-   * @param string $plugin_definition_annotation_name
+   * @param class-string|null $plugin_definition_attribute_name
+   *   (optional) The name of the attribute that contains the plugin definition.
+   * @param class-string|string[]|null $plugin_definition_annotation_name
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    * @param string[] $additional_annotation_namespaces
    *   (optional) Additional namespaces to scan for annotation definitions.
    */
-  public function __construct($subdir, \Traversable $namespaces, ModuleHandlerInterface $module_handler, EventDispatcherInterface $eventDispatcher, $plugin_interface = NULL, $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin', array $additional_annotation_namespaces = []) {
-    parent::__construct($subdir, $namespaces, $module_handler, $plugin_interface, $plugin_definition_annotation_name, $additional_annotation_namespaces);
+  public function __construct(
+    $subdir,
+    \Traversable $namespaces,
+    ModuleHandlerInterface $module_handler,
+    EventDispatcherInterface $eventDispatcher,
+    $plugin_interface = NULL,
+    ?string $plugin_definition_attribute_name = NULL,
+    string|array|null $plugin_definition_annotation_name = NULL,
+    array $additional_annotation_namespaces = [],
+  ) {
+    parent::__construct(
+      $subdir,
+      $namespaces,
+      $module_handler,
+      $plugin_interface,
+      $plugin_definition_attribute_name,
+      $plugin_definition_annotation_name,
+      $additional_annotation_namespaces,
+    );
 
     $this->eventDispatcher = $eventDispatcher;
   }

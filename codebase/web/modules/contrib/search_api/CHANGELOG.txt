@@ -1,3 +1,58 @@
+Search API 1.39 (2025-09-27):
+-----------------------------
+- [#3547811] fix: Fixed complex keywords queries in Postgres.
+- [#3530660] feat: Added the "time-limit" option to the "search-api:index" Drush
+  command.
+- [#3221854] feat: Added integration with the "Configuration Read-only mode"
+  module.
+- [#3547028] feat: Added a config action to trigger reindexing.
+- [#3537045] feat: Added the Complex (“Keywords with operators”) parse mode
+  plugin.
+- [#3539930] chore: Improved the specificity of type hints given in doc comments
+  in a few of our classes.
+- [#3545312] fix: Fixed our Views row plugins to use plugin attributes.
+- [#3527173] feat: Added the option to disable execution of tasks during config
+  import.
+- [#3532193] feat: Added the ability to skip the Highlight processor for
+  specific search pages via a query tag.
+- [#3544047] fix: Fixed failing pipelines.
+- [#3542815] chore: Cleaned up some of our (service) constructors.
+- [#3533214] feat: Added the "search_api_processor" custom value to the
+  temporary user used in the RenderedItem processor.
+- [#3031390] fix: Fixed excerpt to not include snippets from fields that did not
+  match.
+- [#3528042] feat: Added autowiring and aliases to our services.
+- [#3541714] fix: Fixed Index::setProcessors() to not assume $processors is
+  keyed by plugin ID.
+- [#3521070] fix: Fixed Drush indexing batch size default when cron indexing is
+  disabled.
+- [#3541712] ci: Fixed failing pipelines.
+- [#3431162] chore: Switched "use" statement of Yaml class throughout the module.
+- [#3540579] feat: Added links to table of contents in README.md.
+- [#3110348] fix: Fixed highlighted values for multiple aggregated fields.
+- [#3529324] fix: Fixed fatal error on indexing with some backends.
+- [#3540758] fix: Fixed deprecated trigger_error() call in PHP 8.4.
+- [#3531256] fix: Fixed errors when creating a view if the REST module is
+  disabled.
+- [#3539549] feat: Added attribute discovery support for our plugin types.
+- [#3524812] chore: Removed reference to deprecated
+  ContainerAwareEventDispatcher.
+- [#3522064] fix: Fixed return type of DatasourceInterface::getViewModes().
+- [#3523808] ci: Fixed failing pipelines.
+- [#3520657] fix: Fixed Composer issues due to missing branch alias.
+- [#3526572] feat: Added request time information for batch indexing.
+- [#3520656] chore: Removed dead code from ContentAccess::addFieldValues().
+- [#3511293] fix: Fixed behavior of Views fulltext filter when no valid fields
+  are selected.
+- [#3519499] fix: Fixed unnecessary initialization of plugins in
+  Index::getDatasourceIds().
+- [#3520427] ci: Fixed test failures under Drupal 10.
+- [#3520249] ci: Fixed wrong version of test dependencies being used.
+- [#3516711] fix: Fixed Server::setBackendConfig() to always call
+  $backend->setConfiguration().
+- [#3517059] fix: Fixed error when accessing search view of disabled index.
+- [#3517587] ci: Fixed failing pipelines.
+
 Search API 1.38 (2025-02-23):
 -----------------------------
 - #3505734 by drunken monkey: Fixed inconsistent processing of numbers in
