@@ -1,6 +1,5 @@
 {
   "name": "Drupal AI Workshop",
-  "image": "mcr.microsoft.com/devcontainers/php:1-8.3",
   "dockerComposeFile": [
     "../compose.yml"
   ],
@@ -40,5 +39,8 @@
   "remoteUser": "www-data",
   "containerEnv": {
     "SHELL": "/bin/bash"
-  }
+  },
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ]
 }
