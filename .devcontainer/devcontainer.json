@@ -38,6 +38,5 @@
   "remoteUser": "www-data",
   "containerEnv": {
     "SHELL": "/bin/bash"
-  },
-  "postCreateCommand": "mkdir -p /var/www/html && rsync -a /workspaces/${localWorkspaceFolderBasename}/ /var/www/html/"
+  }
 }
