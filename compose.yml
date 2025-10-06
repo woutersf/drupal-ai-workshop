@@ -98,16 +98,15 @@ services:
     - "traefik.http.routers.${PROJECT_NAME}_nginx.rule=Host(`${PROJECT_BASE_URL}`)"
 
 
-
-
-  # mailpit:
-  #   ports:
-  #     - "8025:8025"
-  #   image: axllent/mailpit
-  #   container_name: "${PROJECT_NAME}_mailpit"
-  #   labels:
-  #   - "traefik.http.services.${PROJECT_NAME}_mailpit.loadbalancer.server.port=8025"
-  #   - "traefik.http.routers.${PROJECT_NAME}_mailpit.rule=Host(`mailpit.${PROJECT_BASE_URL}`)"
+  mailpit:
+    image: axllent/mailpit
+    container_name: "${PROJECT_NAME}_mailpit"
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    labels:
+    - "traefik.http.services.${PROJECT_NAME}_mailpit.loadbalancer.server.port=8025"
+    - "traefik.http.routers.${PROJECT_NAME}_mailpit.rule=Host(`mailpit.${PROJECT_BASE_URL}`)"
 
 
 
@@ -176,18 +175,19 @@ services:
 
 
 
-  # pma:
-  #   image: phpmyadmin/phpmyadmin
-  #   container_name: "${PROJECT_NAME}_pma"
-  #   environment:
-  #     PMA_HOST: $DB_HOST
-  #     PMA_USER: $DB_USER
-  #     PMA_PASSWORD: $DB_PASSWORD
-  #     UPLOAD_LIMIT: 1G
-  #   ports:
-  #     - '82:80'
-  #   labels:
-  #   - "traefik.http.routers.${PROJECT_NAME}_pma.rule=Host(`pma.${PROJECT_BASE_URL}`)"
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: "${PROJECT_NAME}_pma"
+    restart: unless-stopped
+    environment:
+      PMA_HOST: $DB_HOST
+      PMA_USER: $DB_USER
+      PMA_PASSWORD: $DB_PASSWORD
+      UPLOAD_LIMIT: 1G
+    ports:
+      - '82:80'
+    labels:
+    - "traefik.http.routers.${PROJECT_NAME}_pma.rule=Host(`pma.${PROJECT_BASE_URL}`)"
 
 
 

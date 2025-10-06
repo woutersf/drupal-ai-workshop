@@ -6,24 +6,25 @@
   "service": "php",
   "workspaceFolder": "/var/www/html",
   "shutdownAction": "stopCompose",
-  "forwardPorts": [80],
-  //"forwardPorts": [80, 82, 8025],
+  "overrideCommand": true,
+  //"forwardPorts": [80],
+  "forwardPorts": [80, 82, 8025],
   "portsAttributes": {
     "80": {
       "label": "Drupal",
       "onAutoForward": "openBrowser",
       "visibility": "public"
     },
-    // "82": {
-    //   "label": "PhpMyAdmin",
-    //   "onAutoForward": "openBrowser",
-    //   "visibility": "private"
-    // },
-    // "8025": {
-    //   "label": "Mailpit",
-    //   "onAutoForward": "openBrowser",
-    //   "visibility": "private"
-    // }
+    "82": {
+      "label": "PhpMyAdmin",
+      "onAutoForward": "openBrowser",
+      "visibility": "private"
+    },
+    "8025": {
+      "label": "Mailpit",
+      "onAutoForward": "openBrowser",
+      "visibility": "private"
+    }
   },
   "customizations": {
     "vscode": {
@@ -38,5 +39,6 @@
   "remoteUser": "www-data",
   "containerEnv": {
     "SHELL": "/bin/bash"
-  }
+  },
+  "postStartCommand": "php-fpm"
 }
