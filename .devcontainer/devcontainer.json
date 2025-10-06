@@ -5,7 +5,7 @@
   ],
   "service": "php", 
   "shutdownAction": "stopCompose",
-  "workspaceFolder": "/var/www/html"
+  "workspaceFolder": "/var/www/html",
   "forwardPorts": [80],
   //"forwardPorts": [80, 82, 8025],
   "portsAttributes": {
