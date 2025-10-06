@@ -4,7 +4,7 @@
     "../compose.yml"
   ],
   "service": "php",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/var/www/html",
   "shutdownAction": "stopCompose",
   "overrideCommand": true,
   "forwardPorts": [80],
@@ -39,8 +39,5 @@
   "remoteUser": "www-data",
   "containerEnv": {
     "SHELL": "/bin/bash"
-  },
-  "mounts": [
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-  ]
+  }
 }
