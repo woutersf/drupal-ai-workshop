@@ -6,7 +6,6 @@
   "service": "php",
   "workspaceFolder": "/var/www/html",
   "shutdownAction": "stopCompose",
-  "overrideCommand": true,
   "forwardPorts": [80],
   //"forwardPorts": [80, 82, 8025],
   "portsAttributes": {
