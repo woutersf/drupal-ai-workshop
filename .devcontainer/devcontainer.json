@@ -3,9 +3,10 @@
   "dockerComposeFile": [
     "../compose.yml"
   ],
-  "service": "php", 
+  "service": "php",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "shutdownAction": "stopCompose",
-  "workspaceFolder": "/var/www/html",
   "forwardPorts": [80],
   //"forwardPorts": [80, 82, 8025],
   "portsAttributes": {
