@@ -1,13 +1,21 @@
-
 # 🤖 Drupal & AI - GETTING STARTED Workshop
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/woutersf/drupal-ai-workshop)
+![Made with Drupal](https://img.shields.io/badge/Made%20with-Drupal-0678BE?logo=drupal&logoColor=white)
+![AI Powered](https://img.shields.io/badge/%F0%9F%A4%96%20AI-Workshop-blueviolet)
+![Devcontainer Ready](https://img.shields.io/badge/Devcontainer-ready-green?logo=visualstudiocode)
+
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+![Made with Love in Belgium](https://img.shields.io/badge/Made%20with%20%E2%9D%A4-Belgium-black?labelColor=yellow&color=red)
 
 ## AI for editors / AI search / Automated content input
 
 Welcome to the **Drupal & AI - GETTING STARTED Workshop**! This workshop is designed to provide you with hands-on experience integrating and leveraging Artificial Intelligence within the Drupal content management system.
+We'll do a number of exercises getting you acquiainted with all of the AI core submodules and some extra's. 
 
 ### 🎯 Workshop Goal
 
-The goal of this workshop is to get you started with practical AI implementation in Drupal, covering key areas such as enhancing the editorial experience, implementing AI-powered search (RAG), and setting up automated  AI flows.
+The goal of this workshop is to get you started with practical AI implementation in Drupal,  enhancing the editorial experience, implementing AI-powered search (RAG), and setting up automated  AI flows (with Automators). Finally we'll setup a chatbot.
 
 ---
 
@@ -16,12 +24,14 @@ The goal of this workshop is to get you started with practical AI implementation
 To participate in this workshop, you will need:
 
 * A **GitHub user account** (required to access the Codespace environment).
+You can also do it locally if you run the environment locally.
 * A stable internet connection.
+* A Openai Compatible (can be Dropsolid or another vendor) credential that allows you to use embedding models and a Language model).
+
 
 ---
 
 ### Start Your Engines (Starting the Workspace)
-
 
 
 1.  Navigate to **https://github.com/codespaces/new**. 
@@ -54,8 +64,10 @@ Log in to the Drupal instance using the provided credentials:
 
 ### Enabling the modules
 Enable the following modules.
+
+- Simple crawler
 AI
-- Ai API explore
+- Ai API explorer
 - Ai automators
 - Ai ckeditor integration
 - Ai content suggestions
@@ -81,7 +93,7 @@ Ai Vector DB Providers
 
 ### Configuring AI Providers (The Key)
 
-You will need to configure the AI gateway to allow the modules to communicate with large language models (LLMs).
+You will need to configure the AI gateway to allow the modules to communicate with large language models (LLMs) and embedding models.
 
 1. Add the **Lite LLM provider key** (manage keys here: `/admin/config/system/keys`). 
 2. Navigate to the configuration section for **providers** `/admin/config/ai/providers`.
@@ -93,10 +105,16 @@ You will need to configure the AI gateway to allow the modules to communicate wi
 
 Navigate to **`/admin/config/ai/settings`** to configure the core AI settings.
 
-1.  Configure the **default AI chat model**.
-![test the chat LLM](assets/test_chat.png)
-2.  Configure the **default Translation model**.
+1.  Configure the **default AI chat model** to `vertex-gemini-2-5-pro`.
+Configure the following features to use the same model: 
+- Chat with Image Vision
+- Chat with Complex JSON
+- Chat with Structured Response
+- Chat with Tools / Function Calling
+
+2.  Configure the **default Translation model** `vertex-gemini-2-5-pro`.
 ![test the chat LLM](assets/translate.png)
+
 3.  **Test it out:** 
 	1. Navigate to the chat generation explorer `/admin/config/ai/explorers/chat_generator`
 	2. Submit the question: `"Who made you?"` 
@@ -112,38 +130,39 @@ This section focuses on using AI to make the content creation and translation pr
 1.  Download a picture (e.g. from pexels.com).
 2.  Configure the module at **`/admin/config/ai/ai_image_alt_text`**.
 ![image generation](assets/img_alt_config.png)
-- make sure to configure a Model that has vision capabilities (like Gemini-2-5-flash)
-- make sure to read the prompt so you understand what will happen.
-- Configure the image style that the AI model wil look at.
+- make sure to configure a Model that has vision capabilities (like `vertex-gemini-2-5-pro`)
+- make sure to read the prompt so you understand what will happen (default prompt is allright).
+- Configure the image style that the AI model wil look at (defaults work just fine).
 
-3.  Create new content at `/node/add/article` and upload the image to **test the automatic alt text generation**.
+3.  Create new content at `/node/add/article` and upload your image to **test the automatic alt text generation**.
 
 ![image generation](assets/image_gen.png)
 
-Congratulations, You improved accessibility. Visually impaired visitors will now understand what't in the images you upload.
+Congratulations, You improved accessibility. Visually impaired visitors will now understand what's in the images you upload.
 
 #### AI Assistant in CKEditor
 
 ![ai in ckeditor](assets/ckeditor.png)
 
 1. Configure the CKeditor Basic HTML toolbar at `/admin/config/content/formats`. 
-2. Add the AI assistant into the active toolbar
-3.  **Crucially:** Enable the assistant functionalities in the AI sub configuration, make sure to check the prompts.
+2. Add the 2 AI assistant buttons into the active toolbar (The stars icon and the Balloons icon)
+3.  **Crucially:** You get extra configuration options below now. You need to enable the assistant functionalities in this configuration, make sure to check the prompts.
 ![ai in ckeditor](assets/ckeditor_config.png)
 
 4.  Create new content at `/node/add/article` and **test it out**.
 
-Congratulations, you can now configure a tone of voice in the assistant config (for example always speak in spanish pirate speak). And then when editors use the generation, it will take that into account.
+Test 1 Use the assistant in the ckeditor toolbar, test 2 use the AI assistant when selecting content inside of the ckeditor window.
+Congratulations, you can now configure a tone of voice in the assistant config (for example always speak in pirate speak). And when editors use the generation, it will take that into account.
 
 #### Automatic Translations
 
 1.  Configure automatic translations at **`/admin/config/ai/ai-translate`**.
-2.  Choose an AI model per language and configure the corresponding prompt.
+2.  Choose an AI model per language and configure the corresponding prompt (default works fine for basic use cases).
 3.  **Test it out** on the node I have provided `/node/1/translations`.
 
 ![ai in ckeditor](assets/ai_translate.png)
 
-#### Smart Content Suggestions
+#### Smart Content Suggestions Part 1
 
 1.  Configure Smart Content suggestions at **`/admin/config/ai/suggestions`**.
 ![ai in ckeditor](assets/content_suggestions.png)
@@ -152,6 +171,24 @@ Congratulations, you can now configure a tone of voice in the assistant config (
 4.  **Test it out** on the node I have provided `/node/1/edit`.
 
 ![ai in ckeditor](assets/content_sugg.png)
+
+#### Smart Content Suggestions Part 2
+
+1. Go to `manage form display` for the article content type, Check near the title field for the field widget. Create a field widget "Content suggestion with prompt" with the following prompt: 
+````
+INSTRUCTIONS: 
+Suggest an SEO friendly title for this page basef off the folowing content in 10 words or les. MAximum 10 workjds. 
+In the same language as the input
+
+CONTEXT:
+Title:	[node:title]
+Content: [node:body]
+````
+Choose a good LLM and update the field. 
+
+![field_widget config](assets/field_widget.png)
+
+2. Navigate to `/node/1/edit` and see the field widget. Click it to get title suggestions. 
 
 ### AI Automators
 
@@ -162,34 +199,108 @@ This section focuses on using AI to automate content creation and data import.
 **Goal:** Automatically propose social media content based on the article's body, helping marketers skip straight to the end-redaction phase.
 
 1.  Ensure the `AI automator` module is enabled.
-2.  Add a **text field** to the **Article content type** (e.g., `field_social_media_draft`).
-3. Enable the AI automator Checkbox in the field configuration.
+2.  Add a **text field** to the **Article content type** (e.g., `auto_field`). (it can be that in the demo the auto_field already exists). 
+3. Enable the `AI automator` Checkbox in the field configuration.
 4.  Configure the automator to generate content into this field based on the article body.
-	1. Automator Type: **LLM: Text**
+	1. Automator Type: **LLM: Text (simple)**
 	2. Automator Input mode: **Base Mode**
 	3. Automator Base field: **Body**
 	4. Automator Prompt:
 ````
-INSTRUCTION
-----------
-From the context below generate a very short summary that is suitable for social media. 
-Use a limited amount of emoji;s and put a newline after every sentence. 
-Keep it brief and business.
-It's for linkedin.
+INSTRUCTION:
+Generate a short teaser for Linkedin based on the context below. Use emoji's and use the same language as the content in the context. Keep it short and professional. Add a #Drupalcon hashtag.
+Only respond with the generated text, no pleasantries or explanations. Just the repsonse.
+Add in a hashtag #drupal.
 
-CONTEXT
--------
+CONTEXT:
 {{ context }}
 ````
 5.  **See it working** by updating the existing node or saving a new Article node.
-
+Steps: navigate to `/node/1/edit`, clear the auto_field, save the node. Then re-open the node and see the content filled in automatically.
 ![automated social media text](assets/automator_config.png)
 
+#### Exercise 2: Automatic migration
 
+Create a Content Type Resume with the following fields:
+- URL (Link)
+- Content parsed (Text plain, long)
+- Name (short text field)
+- Function title (	Text plain)
+- Summary (Text plain, long)
+- Professional experiences (	Text formatted, long)
 
-#### Exercise 2: Yoast stuff (@DB / 1X)
-TODO TODOTODO TODOTODO TODOTODO TODOTODO TODO
+For the field `content_parsed` 
+- enable the `Ai automator` Checkbox
+- Choose type `Simple crawler`
+- Choose Input mode `Base Mode`
+- Base field: `url`
+- Enable `Strip tags`
+- Crawler mode `Article segmentation (readability)`
+- *Important* Automator weight: `1` (this one must run first)
+- the other settings you can leave default.
 
+I've uploaded a Document here you can test with: https://woutersf.github.io/drupal-ai-workshop/ 
+Navigate to `/node/add/resume` add in the url and a title, `save`. And the content should be in the parsed field. 
+
+Enable interpolator (LLM Text Simple) for the fields
+- Summary
+- Function title
+- Name 
+
+Find the prompts here: 
+**Function title**
+````
+INSTRUCTIONS:
+From the resume below (see CONTEXT), extract only the current (or last ) function title of the person.
+If you can not find function titles, return nothing. 
+
+CONTEXT:
+{{ context }}
+````
+
+**Summary**
+````
+INSTRUCTIONS:
+From the resume below (see CONTEXT), extract only the summary of the person.
+If you can not find a summary of introduction text, return nothing. 
+
+CONTEXT:
+{{ context }}
+````
+
+**Name**
+````
+INSTRUCTIONS:
+From the resume below (see CONTEXT), extract only the full name of the person.
+If you can not find a name, return nothing. 
+
+CONTEXT:
+{{ context }}
+````
+
+For the Experiences we're going to migrate in experiences in to multiple fields. The configuration changes a little bit: 
+
+1. Configure the Professional Experiences field to allow unlimited values in the field configuration.
+![unlimited](assets/unlimited.png)
+
+2. Choose the automator `LLM: Text`  NOT the `LLM: text (simple)`. 
+Mode: `Base mode`
+Base field: `URL parsed`
+Prompt (notice the return as array in the prompt): 
+````
+INSTRUCTIONS:
+From the resume below (see CONTEXT) extract the professional experiences one by one. 
+For each experience you can return some html (employer in bold, dates in italic, or similar styling). 
+
+FORMAT:
+return as array!
+
+CONTEXT:
+{{ context }} 
+````
+
+Re-save the node with the resume and normally now ALl of the fields are filled in. 
+Congratulations! 
 
 ### AI Powered Search (RAG)
 
