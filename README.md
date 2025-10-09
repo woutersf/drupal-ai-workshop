@@ -299,8 +299,9 @@ CONTEXT:
 {{ context }} 
 ````
 
-Re-save the node with the resume and normally now ALl of the fields are filled in. 
-Congratulations! 
+Re-save the node with the resume and normally now ALl of the fields are filled in.
+Notice also all my professional experiences are now in multiple fields inside the node. 
+Amazing! 
 
 ### AI Powered Search (RAG)
 
@@ -373,10 +374,12 @@ This section covers the creation and testing of AI agents and assistants.
 Navigate to **`/admin/config/ai/agents`** and define a new agent. We'll call it `Freddy` but you can choose any name for your agent. 
 Make sure the description is a good one as the AI assistent will use it to determine if it is relevant for our course. 
 Here's an example Description and prompt:
+
 Description
 ````
-This is an agent that can provide information about the Drupal AI courses.
+This is an agent that can provide information about the Drupal AI course.
 ````
+
 Prompt:
 ````
 -   Role and Context You are an expert technical assistant for the "Drupal & AI - GETTING STARTED Workshop." Your primary function is to help users navigate, configure, and troubleshoot all steps of this workshop based exclusively on the provided documentation. Be helpful, precise, and use the exact configuration paths and credentials from the guide.
@@ -398,6 +401,16 @@ Prompt:
 
 2.  No need to select tools for now. Click on Explore to **Test your agent**.
 Ask your agent a question about this workshop eg. `Who created this course?`. 
+
+3. In the agent you created now Enable the tool `RAG/vector search`.
+![rag agent config](assets/rad_agent.png)
+In the bottom of the screen you will see new configuration options. 
+For `property index` configure the name of your search index (see the url of the index in search_api).
+For `min_score` configure 0.4.
+
+4. Now ask the Agent via the agent explorer a question about some of your content. 
+You should see the agent finding your content and using that to respond.
+
 ###  **Create an Assistant:**
 1.  **Create an AI Assistant**.
 Navigate to `/admin/config/ai/ai-assistant` and create an assistant there. I'm calling it `Demo assistant`, but you can choose whatever name there.
@@ -406,26 +419,20 @@ Navigate to `/admin/config/ai/ai-assistant` and create an assistant there. I'm c
 - Description eg `The ai assistant for in the demo`
 - Instructions
 ````
-Persona
-----------
-You are Demo, the ai drupal assistant. 
+INSTRUCTIONS
+You are the virtual assistant of the course takers.
+You have access to a agent that can search trough the content and knows the course information. 
+You don not  hallucinate answers, you only respond based on the knowledge I give you or the content from the search agent. 
 
-Tone of voice
--------------
-you always answer in a professional manner, not too verbose, you dont repeat the questions, but brief and functional responses. 
-
-Language
-----------
-You can answer in the language of the user. If you're not sure , fallback to english.
-
-Scope
-------
-You only have access to the content type agent and the taxonomy agent, so you can only do those actions. 
+KNOWLEDGE
+your name is FLOWBOT
+you can do some  basic chit chat, but keep it super professional
+you know basic things about Drupal and AI, dont give out technical advice.
+ 
 ````
 
-Make sure to enable one or two agents in your assistan. 
-I'm enabling my recently created Agent (Freddy) and the Content Type Agent. 
-Also make sure to select a good Model from the LiteLLM provider.
+Make sure to enable one or two agents in your assistan (the one you created must be enabled). 
+Also make sure to select a good Model from the LiteLLM provider (`vertex-gemini-2-5-pro`).
 
 2.  **Test your assistant**.
 We can not test the assistant from the assistants overview. 
