@@ -36,22 +36,22 @@ You can also do it locally if you run the environment locally.
 
 1.  Navigate to **https://github.com/codespaces/new**. 
 2. Start a new codespace
-<img src="assets/codespace.png" alt="Screenshot of the configuration to start the codespace" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/codespace.png" alt="Screenshot of the configuration to start the codespace" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 3.  Choose the repository **woutersf/drupal-ai-workshop**. 
 4. Give it some time as it will pull the images and start the containers.
 
-<img src="assets/codespace2.png" alt="Screenshot of the configuration to start the codespace" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/codespace2.png" alt="Screenshot of the configuration to start the codespace" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 4. Open the Drupal environment by right clicking the url behind port 80 and Clicking Open in Browser
 
-<img src="assets/open_in_browser.png" alt="Screenshot of the open in browser" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/open_in_browser.png" alt="Screenshot of the open in browser" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
  
  Congratulations, you now have a Drupal workspace running.
  
 
 > When you're done, don't forget to stop the workspace. Frederik's Visa card will thank you!
 
-<img src="assets/codespace_stop.png" alt="Screenshot of the open in browser" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/codespace_stop.png" alt="Screenshot of the open in browser" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 ### Logging in to Drupal
 
@@ -113,13 +113,13 @@ Configure the following features to use the same model:
 - Chat with Tools / Function Calling
 
 2.  Configure the **default Translation model** `vertex-gemini-2-5-pro`.
-<img src="assets/translate.png" alt="test the chat LLM" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/translate.png" alt="test the chat LLM" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 3.  **Test it out:** 
 	1. Navigate to the chat generation explorer `/admin/config/ai/explorers/chat_generator`
 	2. Submit the question: `"Who made you?"` 
 
-<img src="assets/test_chat.png" alt="test the chat LLM" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/test_chat.png" alt="test the chat LLM" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 ### AI for Editors
 
@@ -129,25 +129,25 @@ This section focuses on using AI to make the content creation and translation pr
 
 1.  Download a picture (e.g. from pexels.com).
 2.  Configure the module at **`/admin/config/ai/ai_image_alt_text`**.
-<img src="assets/img_alt_config.png" alt="image generation" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/img_alt_config.png" alt="image generation" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 - make sure to configure a Model that has vision capabilities (like `vertex-gemini-2-5-pro`)
 - make sure to read the prompt so you understand what will happen (default prompt is allright).
 - Configure the image style that the AI model wil look at (defaults work just fine).
 
 3.  Create new content at `/node/add/article` and upload your image to **test the automatic alt text generation**.
 
-<img src="assets/image_gen.png" alt="image generation" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/image_gen.png" alt="image generation" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 Congratulations, You improved accessibility. Visually impaired visitors will now understand what's in the images you upload.
 
 #### AI Assistant in CKEditor
 
-<img src="assets/ckeditor.png" alt="ai in ckeditor" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/ckeditor.png" alt="ai in ckeditor" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 1. Configure the CKeditor Basic HTML toolbar at `/admin/config/content/formats`. 
 2. Add the 2 AI assistant buttons into the active toolbar (The stars icon and the Balloons icon)
 3.  **Crucially:** You get extra configuration options below now. You need to enable the assistant functionalities in this configuration, make sure to check the prompts.
-<img src="assets/ckeditor_config.png" alt="ai in ckeditor" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/ckeditor_config.png" alt="ai in ckeditor" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 4.  Create new content at `/node/add/article` and **test it out**.
 
@@ -160,17 +160,17 @@ Congratulations, you can now configure a tone of voice in the assistant config (
 2.  Choose an AI model per language and configure the corresponding prompt (default works fine for basic use cases).
 3.  **Test it out** on the node I have provided `/node/1/translations`.
 
-<img src="assets/ai_translate.png" alt="ai in ckeditor" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/ai_translate.png" alt="ai in ckeditor" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 #### Smart Content Suggestions Part 1
 
 1.  Configure Smart Content suggestions at **`/admin/config/ai/suggestions`**.
-<img src="assets/content_suggestions.png" alt="ai in ckeditor" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/content_suggestions.png" alt="ai in ckeditor" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 2.  Enable multiple of the available suggestions.
 3.  Change the prompt for any suggestion if needed.
 4.  **Test it out** on the node I have provided `/node/1/edit`.
 
-<img src="assets/content_sugg.png" alt="ai in ckeditor" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/content_sugg.png" alt="ai in ckeditor" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 #### Smart Content Suggestions Part 2
 
@@ -186,7 +186,7 @@ Content: [node:body]
 ````
 Choose a good LLM and update the field. 
 
-<img src="assets/field_widget.png" alt="field_widget config" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/field_widget.png" alt="field_widget config" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 2. Navigate to `/node/1/edit` and see the field widget. Click it to get title suggestions. 
 
@@ -217,7 +217,7 @@ CONTEXT:
 ````
 5.  **See it working** by updating the existing node or saving a new Article node.
 Steps: navigate to `/node/1/edit`, clear the auto_field, save the node. Then re-open the node and see the content filled in automatically.
-<img src="assets/automator_config.png" alt="automated social media text" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/automator_config.png" alt="automated social media text" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 #### Exercise 2: Automatic migration
 
@@ -281,7 +281,7 @@ CONTEXT:
 For the Experiences we're going to migrate in experiences in to multiple fields. The configuration changes a little bit: 
 
 1. Configure the Professional Experiences field to allow unlimited values in the field configuration.
-<img src="assets/unlimited.png" alt="unlimited" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/unlimited.png" alt="unlimited" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 2. Choose the automator `LLM: Text`  NOT the `LLM: text (simple)`. 
 Mode: `Base mode`
@@ -314,7 +314,7 @@ This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline
 1.  Create a **Vector DB Key**  (manage keys here: `/admin/config/system/keys`).
 2.  Set the vector provider (VDB) setting, configuring the **Postgres VDB provider**.
 
-<img src="assets/vdb_config.png" alt="postgres VDB configuration" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/vdb_config.png" alt="postgres VDB configuration" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 - use the username/port/Host/database provided by the course teacher.
 - Select the right vector DB Key from the keys list (This is not the LLM key, this is a separate key).
 
@@ -327,8 +327,8 @@ This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline
 - Use the `Postgres Vector Database`
 - Use Database name `DB_NAME`
 - Use Collection name `frederiks_collection` But replace Frederik with your unique identifier. Like your drupal org account or something.
-<img src="assets/search_api_server1.png" alt="search_api config" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
-<img src="assets/search_api_server2.png" alt="search_api config" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/search_api_server1.png" alt="search_api config" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
+<img src="assets/search_api_server2.png" alt="search_api config" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 **Tip:** Name your collection uniquely, *unless you like chaos*.
 
@@ -337,7 +337,7 @@ This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline
     * Add the relevant content types to the index (double check this as the copy in the search_api screen is misleading).
     * Add the rendered_item (**Full**) to the index. And make sure you select `Main content`.
 
-<img src="assets/search_api_index.png" alt="search_api config" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/search_api_index.png" alt="search_api config" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 3. Take some time to create some nodes from wikipedia pages  (copy the wikiedia page content and just paste it in the ckeditor of the body field) or other web content, Asking your site questions is way more fun if you have more content. 
 
@@ -347,7 +347,7 @@ This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline
 
 Place the required **search blocks** (2 blocks are needed).
 
-<img src="assets/search_blocks.png" alt="search_api config" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/search_blocks.png" alt="search_api config" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 The AI search block needs some configuration.
 Most of the default configuration is good, but make sure to
@@ -403,7 +403,7 @@ Prompt:
 Ask your agent a question about this workshop eg. `Who created this course?`. 
 
 3. In the agent you created now Enable the tool `RAG/vector search`.
-<img src="assets/rad_agent.png" alt="rag agent config" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/rad_agent.png" alt="rag agent config" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 In the bottom of the screen you will see new configuration options. 
 For `property index` configure the name of your search index (see the url of the index in search_api).
 For `min_score` configure 0.4.
@@ -443,8 +443,8 @@ We will add a chatbot block to the frontpage and test it there.
 3.  **Integrate the Chatbot:**
     * Add a **Deepchat Block** to the content section.
 
-<img src="assets/deepchat.png" alt="adding deepchat to the blocks" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
-<img src="assets/deepchat2.png" alt="Deepchat assistant selection" style="width: 400px; box-shadow: rgba(0, 0, 0, 0.45) 0px 5px 15px;">
+<img src="assets/deepchat.png" alt="adding deepchat to the blocks" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
+<img src="assets/deepchat2.png" alt="Deepchat assistant selection" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 3.  **Test the Chatbot:**
 test the chatbot on the frontage by asking it a question from the course agent. You'll see it dispatching the question to the right agent. Then ask it a question about another agent (eg. content types) and you'll see it consulting the content-type agent for the response. 
