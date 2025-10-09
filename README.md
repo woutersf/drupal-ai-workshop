@@ -98,21 +98,21 @@ You will need to configure the AI gateway to allow the modules to communicate wi
 1. Add the **Lite LLM provider key** (manage keys here: `/admin/config/system/keys`). 
 2. Navigate to the configuration section for **providers** `/admin/config/ai/providers`.
 3. Configure the LLM provider with the following details:
-    * **AI Gateway:** `https://dev-playground.gateway.dropsolid.ai` 
+    * **AI Gateway:** `https://prod.platform.dropsolid.ai` 
     * The specific **AI API KEY** (`sk-***`) will be provided by the instructor.
 
 ### Configuring AI Defaults
 
 Navigate to **`/admin/config/ai/settings`** to configure the core AI settings.
 
-1.  Configure the **default AI chat model** to `vertex-gemini-2-5-pro`.
+1.  Configure the **default AI chat model** to `eu-gemini-2.5-pro-cloud`.
 Configure the following features to use the same model: 
 - Chat with Image Vision
 - Chat with Complex JSON
 - Chat with Structured Response
 - Chat with Tools / Function Calling
 
-2.  Configure the **default Translation model** `vertex-gemini-2-5-pro`.
+2.  Configure the **default Translation model** `eu-gemini-2.5-pro-cloud`.
 <img src="assets/translate.png" alt="test the chat LLM" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
 
 3.  **Test it out:** 
@@ -130,7 +130,7 @@ This section focuses on using AI to make the content creation and translation pr
 1.  Download a picture (e.g. from pexels.com).
 2.  Configure the module at **`/admin/config/ai/ai_image_alt_text`**.
 <img src="assets/img_alt_config.png" alt="image generation" style="width: 600px;max-width: 100%;border: 5px solid #ccc;border-radius: 6px;">
-- make sure to configure a Model that has vision capabilities (like `vertex-gemini-2-5-pro`)
+- make sure to configure a Model that has vision capabilities (like `eu-gemini-2.5-pro-cloud`)
 - make sure to read the prompt so you understand what will happen (default prompt is allright).
 - Configure the image style that the AI model wil look at (defaults work just fine).
 
@@ -323,7 +323,7 @@ This section focuses on creating a Retrieval-Augmented Generation (RAG) pipeline
 1.  Create a **Search API search server**.
 
 - Use the `Litellm Embeddings` engine
-- Use the `2-5-Flash` Chat counting model
+- Use the `eu-gemini-2.5-pro-cloud` Chat counting model
 - Use the `Postgres Vector Database`
 - Use Database name `DB_NAME`
 - Use Collection name `frederiks_collection` But replace Frederik with your unique identifier. Like your drupal org account or something.
@@ -386,7 +386,7 @@ Prompt:
     
 -   Workshop Overview and Goal Title: Drupal & AI - GETTING STARTED Workshop (AI for editors / AI search / Automated content input). Goal: To provide hands-on experience integrating and leveraging AI within Drupal, focusing on: enhancing the editorial experience, implementing AI-powered search (RAG), and setting up automated content flows.
     
--   Core Setup and Prerequisites Prerequisite: GitHub user account. Path/Command: N/A. Workspace Setup: Navigate to [https://github.com/codespaces/new](https://github.com/codespaces/new), select repository woutersf/drupal-ai-workshop, then right-click port 80 to "Open in Browser." Path/Command: N/A. Stop Workspace: Crucial to stop the codespace after use to save costs. Path/Command: N/A. Drupal Login: URL: /user, Admin U: admin, Admin P: davos. Path/Command: N/A. Required Modules: Ai, Ai Automator, Ai_ckeditor, Ai_content_suggestions, Ai_translate, Ai_image_alt_text, Ai_agents, Ai_assistant, Litellm provider, Postgres vdb provider. Path/Command: N/A. LLM Provider Config: Key Management: /admin/config/system/keys. Provider Config: /admin/config/ai/providers. Path/Command: [https://dev-playground.gateway.dropsolid.ai](https://www.google.com/url?sa=E&source=gmail&q=https://dev-playground.gateway.dropsolid.ai). AI Defaults: Configure default Chat and Translation models. Path/Command: /admin/config/ai/settings. Testing Chat: Submit "Who made you?" Path/Command: /admin/config/ai/explorers/chat_generator.
+-   Core Setup and Prerequisites Prerequisite: GitHub user account. Path/Command: N/A. Workspace Setup: Navigate to [https://github.com/codespaces/new](https://github.com/codespaces/new), select repository woutersf/drupal-ai-workshop, then right-click port 80 to "Open in Browser." Path/Command: N/A. Stop Workspace: Crucial to stop the codespace after use to save costs. Path/Command: N/A. Drupal Login: URL: /user, Admin U: admin, Admin P: davos. Path/Command: N/A. Required Modules: Ai, Ai Automator, Ai_ckeditor, Ai_content_suggestions, Ai_translate, Ai_image_alt_text, Ai_agents, Ai_assistant, Litellm provider, Postgres vdb provider. Path/Command: N/A. LLM Provider Config: Key Management: /admin/config/system/keys. Provider Config: /admin/config/ai/providers. Path/Command: [https://prod.platform.dropsolid.ai](https://prod.platform.dropsolid.ai). AI Defaults: Configure default Chat and Translation models. Path/Command: /admin/config/ai/settings. Testing Chat: Submit "Who made you?" Path/Command: /admin/config/ai/explorers/chat_generator.
     
 -   AI for Editors Configuration (Practical Use) Auto Image Alt Text: Requires a vision model (e.g., Gemini-2-5-flash). Configure prompt and image style. Test on /node/add/article. Path: /admin/config/ai/ai_image_alt_text. CKEditor Assistant: Add the assistant button to the Basic HTML toolbar. Crucially, enable functionalities and configure the pre-prompt for a custom tone of voice (e.g., "Spanish pirate speak"). Path: /admin/config/content/formats. Automatic Translations: Configure AI model and prompt per language. Test with the provided node. Path: /admin/config/ai/ai-translate. Smart Suggestions: Enable multiple suggestions and change prompts as needed. Test with the provided node. Path: /admin/config/ai/suggestions.
     
@@ -432,7 +432,7 @@ you know basic things about Drupal and AI, dont give out technical advice.
 ````
 
 Make sure to enable one or two agents in your assistan (the one you created must be enabled). 
-Also make sure to select a good Model from the LiteLLM provider (`vertex-gemini-2-5-pro`).
+Also make sure to select a good Model from the LiteLLM provider (`eu-gemini-2.5-pro-cloud`).
 
 2.  **Test your assistant**.
 We can not test the assistant from the assistants overview. 
